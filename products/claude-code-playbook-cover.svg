@@ -1,0 +1,86 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0f23;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1a3e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="720" fill="url(#bg)"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.05" stroke="#ffffff" stroke-width="1">
+    <line x1="0" y1="60" x2="1280" y2="60"/>
+    <line x1="0" y1="120" x2="1280" y2="120"/>
+    <line x1="0" y1="180" x2="1280" y2="180"/>
+    <line x1="0" y1="240" x2="1280" y2="240"/>
+    <line x1="0" y1="300" x2="1280" y2="300"/>
+    <line x1="0" y1="360" x2="1280" y2="360"/>
+    <line x1="0" y1="420" x2="1280" y2="420"/>
+    <line x1="0" y1="480" x2="1280" y2="480"/>
+    <line x1="0" y1="540" x2="1280" y2="540"/>
+    <line x1="0" y1="600" x2="1280" y2="600"/>
+    <line x1="0" y1="660" x2="1280" y2="660"/>
+    <line x1="80" y1="0" x2="80" y2="720"/>
+    <line x1="160" y1="0" x2="160" y2="720"/>
+    <line x1="240" y1="0" x2="240" y2="720"/>
+    <line x1="320" y1="0" x2="320" y2="720"/>
+    <line x1="400" y1="0" x2="400" y2="720"/>
+    <line x1="480" y1="0" x2="480" y2="720"/>
+    <line x1="560" y1="0" x2="560" y2="720"/>
+    <line x1="640" y1="0" x2="640" y2="720"/>
+    <line x1="720" y1="0" x2="720" y2="720"/>
+    <line x1="800" y1="0" x2="800" y2="720"/>
+    <line x1="880" y1="0" x2="880" y2="720"/>
+    <line x1="960" y1="0" x2="960" y2="720"/>
+    <line x1="1040" y1="0" x2="1040" y2="720"/>
+    <line x1="1120" y1="0" x2="1120" y2="720"/>
+    <line x1="1200" y1="0" x2="1200" y2="720"/>
+  </g>
+
+  <!-- Accent bar top -->
+  <rect x="0" y="0" width="1280" height="4" fill="url(#accent)"/>
+
+  <!-- Code block decoration (left side) -->
+  <g opacity="0.15" fill="#8b5cf6">
+    <text x="60" y="200" font-family="monospace" font-size="14">$ claude-code init</text>
+    <text x="60" y="224" font-family="monospace" font-size="14">Reading CLAUDE.md...</text>
+    <text x="60" y="248" font-family="monospace" font-size="14">Loading 12 templates</text>
+    <text x="60" y="272" font-family="monospace" font-size="14">Loading 7 workflows</text>
+    <text x="60" y="296" font-family="monospace" font-size="14">Memory system: active</text>
+    <text x="60" y="320" font-family="monospace" font-size="14">Ready to build.</text>
+  </g>
+
+  <!-- Main title -->
+  <text x="640" y="260" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="-2">The Claude Code</text>
+  <text x="640" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="800" fill="url(#accent)" text-anchor="middle" letter-spacing="-2">Playbook</text>
+
+  <!-- Subtitle -->
+  <text x="640" y="400" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#94a3b8" text-anchor="middle">Ship Faster with AI Pair Programming</text>
+
+  <!-- Feature pills -->
+  <g font-family="monospace" font-size="14" fill="#6366f1">
+    <rect x="280" y="440" width="150" height="32" rx="16" fill="none" stroke="#6366f1" stroke-width="1.5" opacity="0.6"/>
+    <text x="355" y="461" text-anchor="middle" opacity="0.8">12 Templates</text>
+
+    <rect x="460" y="440" width="150" height="32" rx="16" fill="none" stroke="#6366f1" stroke-width="1.5" opacity="0.6"/>
+    <text x="535" y="461" text-anchor="middle" opacity="0.8">7 Workflows</text>
+
+    <rect x="640" y="440" width="170" height="32" rx="16" fill="none" stroke="#6366f1" stroke-width="1.5" opacity="0.6"/>
+    <text x="725" y="461" text-anchor="middle" opacity="0.8">15 Power Tips</text>
+
+    <rect x="840" y="440" width="160" height="32" rx="16" fill="none" stroke="#6366f1" stroke-width="1.5" opacity="0.6"/>
+    <text x="920" y="461" text-anchor="middle" opacity="0.8">Prompt Patterns</text>
+  </g>
+
+  <!-- Bottom branding -->
+  <text x="640" y="620" font-family="system-ui, -apple-system, sans-serif" font-size="18" fill="#475569" text-anchor="middle">lisabuilds.dev</text>
+
+  <!-- Accent bar bottom -->
+  <rect x="0" y="716" width="1280" height="4" fill="url(#accent)"/>
+</svg>

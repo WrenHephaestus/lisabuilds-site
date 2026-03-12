@@ -1,0 +1,6 @@
+# Secrets
+.env
+social/twitter/.env
+
+# Logs
+social/twitter/post_log.json
