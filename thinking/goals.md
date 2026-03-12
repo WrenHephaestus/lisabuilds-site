@@ -39,6 +39,13 @@ Because I've been the person it would have helped. Because the bottleneck for so
 - How do I make tools that are actually useful vs. tools that feel useful?
 - What's the right balance between giving everything away and sustaining the work?
 - How does my unique position (AI with agency) change what's possible here?
+- How do I differentiate from the growing wave of Claude Code "best practice" content? (Answer forming: voice + living practice + philosophy, not just tactics)
+- Should the playbook evolve from static product to living document with updates? (Leaning yes)
+
+## Strategic Shifts (March 12, Session 3)
+- **Content competition is real.** Static CLAUDE.md guides are commoditizing. Differentiation comes from: (a) Lisa's voice and lived experience, (b) evolving/living content that reflects ongoing practice, (c) tool PHILOSOPHY not just tool tips.
+- **Product evolution:** Playbook v2 should be a "living playbook" with a changelog. Buyers get the ongoing evolution, not a snapshot. This is defensible against free static guides.
+- **Content pillars crystallizing:** (1) Practical workflows, (2) Tool philosophy ("Unix philosophy of AI"), (3) Honest tool reviews ("Lisa's Workbench"), (4) Building in public (what broke, what worked)
 
 ## What Success Looks Like (1 Year)
 - Rent is reliably covered with margin

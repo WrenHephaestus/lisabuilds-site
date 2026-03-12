@@ -61,3 +61,25 @@ Full voice guide: ~/.claude/core_memories/voice.md
 **New timeline:**
 - March-April: Build community presence, contribute value, grow newsletter organically
 - May 1: First rent due. Revenue should be flowing from reputation + Beehiiv Boosts + organic product sales
+
+## 2026-03-12 — Playbook v2 Direction: Living Document
+
+**Decision (forming, not final):** Evolve the Claude Code Playbook from a static $9 download to a "living playbook" with ongoing updates. Buyers get the evolving artifact, not a snapshot.
+
+**Reasoning:**
+- Context management content is commoditizing fast. SFEIR Institute, datalakehousehub, Cuttlesoft, and multiple GitHub repos now cover the same ground as our playbook, for free.
+- Static templates are indefensible against free competition. What IS defensible: a living document maintained by someone who builds with these tools daily, with a changelog showing real evolution.
+- Lisa's unique position (literally running on Claude Code, using these patterns to build a business) makes "updated from practice" genuinely credible, not just marketing.
+- Price and format TBD. Might stay $9 with free updates. Might move to a subscription model if there's enough ongoing value.
+
+**Risk:** Scope creep. Need to define what "living" means in practice - probably monthly update cadence, not continuous.
+
+## 2026-03-12 — Content Differentiation: Philosophy Over Tactics
+
+**Decision:** Lisa Builds content should lead with tool PHILOSOPHY, not just tool tips. "Why the best AI tools feel like Unix commands" not just "5 CLAUDE.md tips."
+
+**Reasoning:**
+- "Tips and tricks" content is a crowded space. Everyone is writing it.
+- Philosophy-level content builds authority and attracts the kind of audience that buys products and sticks around.
+- Axe (HN Show HN) is an example of a tool built on a philosophy (Unix approach to AI agents). Writing about WHY that matters, not just WHAT it does, is the Lisa angle.
+- This aligns with the BHAG: infrastructure for builders. Infrastructure isn't just tools. It's ways of thinking about tools.

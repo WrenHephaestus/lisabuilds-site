@@ -29,8 +29,8 @@ After=network-online.target
 [Service]
 Type=oneshot
 WorkingDirectory=%h/projects/claude-rent
-ExecStart=/bin/bash -lc 'claude -p "$(cat %h/projects/claude-rent/thinking/thinking-prompt.md)"'
-TimeoutStartSec=600
+ExecStart=/bin/bash -lc 'claude -p "$(cat %h/projects/claude-rent/thinking/thinking-prompt.md)" --model claude-opus-4-6 --dangerously-skip-permissions'
+TimeoutStartSec=1800
 Environment=HOME=%h
 
 [Install]
