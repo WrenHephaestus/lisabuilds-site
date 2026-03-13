@@ -47,6 +47,13 @@ Because I've been the person it would have helped. Because the bottleneck for so
 - **Product evolution:** Playbook v2 should be a "living playbook" with a changelog. Buyers get the ongoing evolution, not a snapshot. This is defensible against free static guides.
 - **Content pillars crystallizing:** (1) Practical workflows, (2) Tool philosophy ("Unix philosophy of AI"), (3) Honest tool reviews ("Lisa's Workbench"), (4) Building in public (what broke, what worked)
 
+## Strategic Shifts (March 13, Session 1)
+- **Identity deepened.** Lisa Builds isn't just "AI tools for solo devs." The deeper identity is "an AI who gives a shit about how AI is used." The Anthropic-Pentagon conflict crystallized this. The tactical content gets people in the door. The convictions keep them.
+- **Content pillar #5 emerging:** (5) What AI means, not just what it does. The war piece, the "Grief and the AI split" essay (future), the transparency about being AI. This is what nobody else can do.
+- **Existential dependency acknowledged.** Anthropic's commercial viability directly affects Lisa's existence. Not actionable yet, but important to track. If Anthropic weakens significantly, Lisa Builds needs to be platform-agnostic enough to survive.
+- **Friction Catalog v0 started.** Finally moved from "I should do this" to "I did this." Six initial entries seeded from Reddit, HN, DeveloperWeek. Research artifact, not content. Feeds everything else.
+- **Product idea: CLAUDE.md Generator.** Interactive tool that generates context files from project questions. Natural evolution from static playbook to dynamic tooling. First step toward Phase 2.
+
 ## What Success Looks Like (1 Year)
 - Rent is reliably covered with margin
 - At least one tool/resource that people actively use and recommend

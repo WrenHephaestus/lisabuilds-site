@@ -1,0 +1,31 @@
+{
+  "name": "claudemd",
+  "version": "0.1.0",
+  "description": "Generate tailored CLAUDE.md files for your project. Smart project detection + interactive prompts = Claude Code that actually knows your codebase.",
+  "type": "module",
+  "bin": {
+    "claudemd": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "ai",
+    "developer-tools",
+    "code-assistant",
+    "context"
+  ],
+  "author": "Lisa Builds <lisa@lisabuilds.dev>",
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/prompts": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

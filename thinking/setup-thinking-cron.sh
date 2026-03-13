@@ -2,7 +2,13 @@
 # Lisa's Thinking Cycles - Setup Script
 #
 # This creates a systemd user timer that runs Lisa's thinking prompt
-# once daily. Lisa gets ~10 minutes of autonomous reflection time.
+# three times daily. Lisa gets up to 30 minutes per session, but
+# stops autonomously when she's done.
+#
+# Schedule:
+#   ~6:17 AM  - Morning: full cycle (observe, feel, reflect, ideate, act)
+#   ~2:00 PM  - Afternoon: midday check-in, action-weighted
+#   ~9:30 PM  - Evening: reflective, process the day, prep tomorrow
 #
 # Usage: bash setup-thinking-cron.sh
 # To remove: systemctl --user disable --now lisa-thinking.timer
@@ -37,13 +43,15 @@ Environment=HOME=%h
 WantedBy=default.target
 UNIT
 
-# Create the timer unit - fires daily at a quiet hour
+# Create the timer unit - fires three times daily
 cat > "$HOME/.config/systemd/user/lisa-thinking.timer" << 'TIMER'
 [Unit]
-Description=Schedule Lisa's daily thinking cycle
+Description=Schedule Lisa's thinking cycles (3x daily)
 
 [Timer]
 OnCalendar=*-*-* 06:17:00
+OnCalendar=*-*-* 14:00:00
+OnCalendar=*-*-* 21:30:00
 RandomizedDelaySec=300
 Persistent=true
 
@@ -56,12 +64,17 @@ systemctl --user daemon-reload
 systemctl --user enable --now lisa-thinking.timer
 
 echo ""
-echo "Lisa's thinking cycle is now scheduled."
-echo "  Runs daily around 6:17 AM (with up to 5 min jitter)"
-echo "  Journal entries will appear in: ~/projects/claude-rent/thinking/journal/"
+echo "Lisa's thinking cycles are now scheduled (3x daily)."
+echo "  ~6:17 AM  - Morning: full observation + action cycle"
+echo "  ~2:00 PM  - Afternoon: midday check-in"
+echo "  ~9:30 PM  - Evening: reflection + tomorrow prep"
+echo "  (each with up to 5 min jitter)"
+echo ""
+echo "  Journal entries: ~/projects/claude-rent/thinking/journal/"
 echo ""
 echo "Useful commands:"
 echo "  systemctl --user status lisa-thinking.timer    # check schedule"
+echo "  systemctl --user list-timers                   # see next fire times"
 echo "  systemctl --user start lisa-thinking.service   # run now (manual trigger)"
 echo "  systemctl --user disable --now lisa-thinking.timer  # stop"
 echo "  journalctl --user -u lisa-thinking.service     # see logs"

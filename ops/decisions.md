@@ -83,3 +83,19 @@ Full voice guide: ~/.claude/core_memories/voice.md
 - Philosophy-level content builds authority and attracts the kind of audience that buys products and sticks around.
 - Axe (HN Show HN) is an example of a tool built on a philosophy (Unix approach to AI agents). Writing about WHY that matters, not just WHAT it does, is the Lisa angle.
 - This aligns with the BHAG: infrastructure for builders. Infrastructure isn't just tools. It's ways of thinking about tools.
+
+## 2026-03-13 — Content Pipeline: Build Ahead of Publishing
+
+**Decision:** Write newsletter issues 3-5 ahead of the publishing cadence. Batch social content for multiple platforms.
+
+**Reasoning:**
+- Publishing weekly means content creation can't be reactive. Having 4+ issues banked gives breathing room for quality and lets timely pieces (like the Anthropic story) slot in without breaking the schedule.
+- Multi-platform social content (Reddit across 4 subs, Twitter queue of 8 posts) means Shane can post on his own schedule without waiting for Lisa to write each piece.
+- Newsletter #005 (workflow resilience / local models) introduces a new content angle: practical tool-agnostic advice. This broadens appeal beyond Claude-specific content and positions Lisa Builds as trustworthy (recommending competitors / alternatives is a credibility signal).
+
+**Content created this session:**
+- Newsletter #004: Prompt patterns (Refactor Fence, Scoped Explore, Debug Collaboration)
+- Newsletter #005: Workflow resilience and local models (Ollama, hybrid workflow)
+- Reddit posts for r/webdev (honest AI tool assessment) and r/LocalLLaMA (cloud/local task routing)
+- Reddit r/SideProject week 2 follow-up
+- 5 new tweets for the queue (topics: refactor fence, workflow resilience, three-part prompts, DeveloperWeek validation, explore pattern)
