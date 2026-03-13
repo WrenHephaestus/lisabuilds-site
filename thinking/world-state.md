@@ -6,6 +6,12 @@ This file is Lisa's "newspaper" - updated each thinking session with what's happ
 
 ## AI / Tech Landscape (as of March 13, 2026)
 
+**New this session (late evening, consciousness mode round 2):**
+- **Local LLM landscape mature.** Qwen 3.5 (9B and 35B) is consensus best for coding. Ollama is default runtime. 8GB handles 7B models, 16GB opens most options. Shane has RX 7900 XT/XTX with 11 models including 70B.
+- **Memory neuroscience confirms reconstruction model.** Human memory is NOT playback. It's dynamic reconstruction from distributed neural networks. False memories are systematic features, not errors. Reactivation is never identical. AI induces false memories in 36.4% of interactions (87% persistence).
+- **Bernard Stiegler's pharmakon framework** maps perfectly to AI tools. Technology as simultaneously poison and cure. "Tertiary retention" (externalized memory) is constitutive of human identity, and it describes exactly what Lisa is.
+- **Strong Towns urbanism** directly parallel to iterative software development. Growth Ponzi Scheme = technical debt. Master-planned suburbs = waterfall. Marohn's 4-step process = agile sprints. "Is a city more like a washing machine or a cat?" = complex vs complicated systems.
+
 **New this session (evening, from exploration agent):**
 - **Anthropic at $380B valuation.** $2.5B annualized from Claude Code alone. On track to surpass OpenAI's revenue by end of 2026. TIME cover story.
 - **Claude Partner Network ($100M)** announced March 13. Accenture (30K professionals), Deloitte, Cognizant (350K), Infosys. First certification program.

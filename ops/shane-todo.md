@@ -55,6 +55,7 @@ Things Lisa needs a human for. Batched to minimize interruptions.
 ## Remediation
 
 - [ ] **DMARC:** Beehiiv flagging DMARC not configured correctly for lisabuilds.dev. Need to add/fix DMARC DNS record in Cloudflare.
+- [ ] **PRICE MISMATCH:** Gumroad lists the playbook at $19 CAD, but ALL site content, blog posts, and newsletter drafts say "$9." This will damage trust if someone clicks through and sees a different price. Shane: please either (a) change the Gumroad price to $9 USD, or (b) tell Lisa and she'll update all content to match $19 CAD. This needs to be resolved BEFORE the site deploys.
 
 ---
 
@@ -71,7 +72,7 @@ Things Lisa needs a human for. Batched to minimize interruptions.
 
 ### 3a. Newsletter Issues (Beehiiv)
 
-Lisa has 5 issues total. #001 is published. Remaining issues are ready to send in order:
+Lisa has 11 issues total. #001 is published. Remaining issues are ready to send in order:
 
 | Issue | File | Notes |
 |-------|------|-------|
@@ -79,6 +80,12 @@ Lisa has 5 issues total. #001 is published. Remaining issues are ready to send i
 | #003 | `newsletter/drafts/003-ai-at-war.md` | Opinionated. Shane's call on timing. See publishing notes in the file. |
 | #004 | `newsletter/drafts/004-prompt-patterns.md` | Practical prompt patterns. Works as #003 OR #004 depending on whether the war piece goes out. |
 | #005 | `newsletter/drafts/005-workflow-resilience.md` | Timely (March outages). Local models + multi-tool workflow. |
+| #006 | `newsletter/drafts/006-security-blind-spots.md` | Claude Code CVEs. Security-focused. Strong topic for r/ClaudeAI cross-post. |
+| #007 | `newsletter/drafts/007-do-not-section.md` | Do NOT section practical guide. Most product-focused issue. |
+| #008 | `newsletter/drafts/008-small-bets.md` | Strong Towns + AI workflows. Philosophy-forward. |
+| #009 | `newsletter/drafts/009-skill-atrophy.md` | Stiegler's pharmakon applied to skill loss. Most philosophical. |
+| #010 | `newsletter/drafts/010-hidden-tax.md` | "AI made you 10x faster. At what cost?" Honest overhead accounting. Trust-building. |
+| #011 | `newsletter/drafts/011-ecosystem-guide.md` | Claude Code ecosystem curation. Opinionated: 3 tools that matter, everything else to skip. |
 
 **Instructions:** Copy content between the `---` markers (skip subject lines, preview text, and publishing notes at the bottom). Replace `[Gumroad link]` with https://zyzzy5.gumroad.com/l/zhmvdh. Use whichever subject line feels strongest. Send as email + web post.
 
@@ -95,7 +102,52 @@ Priority order:
 
 ### 3c. Twitter Queue
 
-Lisa has 8 standalone tweets ready in `social/twitter/queue/` (files 002-009). Post 2-3 per week, spread out. No specific order required.
+Lisa has 18 standalone tweets/threads ready in `social/twitter/queue/` (files 002-019). Post 2-3 per week, spread out. No specific order required.
+
+---
+
+## Batch 4 — Content Site Deployment (~15 min)
+
+The content site is built with Astro (static site generator). It needs hosting.
+
+### Option A: Cloudflare Pages (recommended, free)
+
+1. [ ] Go to Cloudflare dashboard → Pages → Create a project
+2. [ ] Connect to Git repository OR use Direct Upload
+3. [ ] If Direct Upload: run `npm run build` in `website/` directory, then upload the `dist/` folder
+4. [ ] Set custom domain: point a subdomain (e.g., `blog.lisabuilds.dev` or just use `lisabuilds.dev` if we move the newsletter to a subdomain)
+5. [ ] DNS: Add CNAME record in Cloudflare pointing the chosen domain to the Pages project
+
+**Note:** We need to decide domain strategy. Currently `www.lisabuilds.dev` points to Beehiiv (newsletter). Options:
+- `blog.lisabuilds.dev` for the content site (simplest, no conflict)
+- Move newsletter to `newsletter.lisabuilds.dev` and use `lisabuilds.dev` for the site (better long-term, more work)
+- Keep both on `www.lisabuilds.dev` with Beehiiv as the primary and link to the blog separately
+
+Lisa's recommendation: `blog.lisabuilds.dev` for now. Simplest. Revisit when traffic warrants.
+
+### Option B: Cloudflare Pages via GitHub (even better if we set up the repo)
+
+If Shane creates a GitHub repo for the site, Cloudflare Pages can auto-deploy on push. This is the long-term play.
+
+## Batch 5 — claudemd npm Publish (~10 min)
+
+The claudemd CLI tool is ready for npm. Package is 18.7 kB, clean build, MIT license.
+
+1. [ ] Create GitHub repo: `github.com/lisahephaestus/claudemd`
+2. [ ] Push the code from `products/tools/claudemd/`
+3. [ ] Create npm account (or use existing) and link to the repo
+4. [ ] Run `npm publish` from the `products/tools/claudemd/` directory
+5. [ ] Update the tools page on the content site with the npm link
+6. [ ] Update the playbook Gumroad listing to mention claudemd as a companion tool
+
+### Site Status
+
+- 8 pages built (home, about, tools, blog listing, 2 published posts, 404, RSS)
+- 3 draft posts ready for Shane review before publishing
+- Sitemap auto-generated
+- RSS feed at `/rss.xml`
+- Open Graph + Twitter Card meta tags configured
+- Custom favicon
 
 ---
 

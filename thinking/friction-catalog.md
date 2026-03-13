@@ -189,4 +189,68 @@ Each entry follows the format:
 
 ---
 
-*Friction catalog at 15 entries, 7 patterns. Target reached. Next: continue expanding from direct builder interviews and Lisa's own development experience. Aim for 20+ by March 25.*
+### FC-016: Skill Atrophy Anxiety
+- **Problem:** Developers worry that using AI coding tools degrades their own coding ability. "I can't code without Claude anymore." "Junior devs aren't learning fundamentals." The fear isn't about the tool's quality; it's about what happens to the human who relies on it. Stiegler called this "proletarianisation": the loss of savoir faire (knowing how to make) when knowledge is externalized to machines.
+- **Who hits it:** Experienced developers who remember what it was like to code without AI. Tech leads worried about junior developers. Anyone who notices themselves reaching for AI before thinking.
+- **Severity:** Annoyance to existential concern, depending on the developer's relationship with their craft.
+- **Current workarounds:** Deliberately coding without AI sometimes. Code reviews of AI output (reading before shipping). "Pair programming" mental model (AI suggests, human evaluates). Time-boxing AI usage.
+- **Tool opportunity:** MEDIUM for tools, HIGH for content. A "long circuits" guide (practices that counteract skill atrophy while preserving AI speed gains) would be extremely valuable. This is essentially the pharmakon applied practically. The playbook could include a "skill maintenance" section.
+- **Source:** Stiegler's pharmakon theory (applied), HN discussions about AI dependency, r/ClaudeAI threads on "AI making me lazy"
+
+---
+
+### FC-017: Testing Blind Spots
+- **Problem:** AI-generated tests overwhelmingly cover happy paths. Claude writes tests that validate the code does what it was asked to do, but misses edge cases, race conditions, error boundaries, and integration-level failures. Worse: mocked tests pass in CI while the real system breaks. One developer reported mocked tests passing for a quarter while a production migration silently failed.
+- **Who hits it:** Any developer who asks Claude to "write tests for this." Solo devs are most vulnerable because there's no second pair of eyes reviewing test quality.
+- **Severity:** Workflow-breaker. False confidence is worse than no confidence. Passing tests that don't catch real bugs actively harm the codebase.
+- **Current workarounds:** Manual test review (but defeats the speed purpose). Requiring integration tests hit real databases (no mocks). Mutation testing to verify test quality. Writing test cases yourself and having Claude implement them.
+- **Tool opportunity:** HIGH for education. "How to make AI write tests that actually catch bugs" is a newsletter article that writes itself. A CLAUDE.md template section for testing constraints ("always test error paths," "no mocking of database connections in integration tests") would be immediately useful. The playbook could include project-specific testing templates.
+- **Source:** r/ClaudeAI test quality discussions, developer community feedback, pattern observed in AI-generated test suites
+
+### FC-018: Prompt Engineering Overhead
+- **Problem:** The meta-work of using AI tools effectively is substantial and rarely accounted for. Writing CLAUDE.md files, configuring hooks, crafting precise prompts, maintaining memory systems, debugging prompt failures, learning new features. This overhead is invisible in "AI made me 10x more productive" claims. Some developers report spending 30-40% of their "AI time" on prompt engineering rather than actual development.
+- **Who hits it:** Every AI tool user, but especially those trying to move beyond basic usage. The overhead scales with sophistication: the more advanced your setup, the more time you spend maintaining it.
+- **Severity:** Annoyance to workflow-breaker. The irony: the tool meant to save time requires significant time investment to use well. Creates a divide between developers who invest in setup and those who use defaults (and get worse results).
+- **Current workarounds:** CLAUDE.md templates (like the playbook). Community-shared configurations. Reusable prompt libraries. But each project still needs customization.
+- **Tool opportunity:** HIGH. This is directly what claudemd solves: reducing the setup overhead from hours to minutes. The playbook reduces it with templates. The newsletter teaches patterns that minimize ongoing maintenance. Content angle: "The hidden cost of AI productivity" with honest accounting of time spent on meta-work vs. actual work.
+- **Source:** Developer surveys on AI productivity, r/ClaudeAI "I spend more time prompting than coding" threads, DeveloperWeek 2026 workflow discussions
+
+### FC-019: Output Homogenization
+- **Problem:** AI-generated code converges on the same patterns, naming conventions, and architectural choices regardless of project context. Codebases lose their distinctive character. All React components start looking the same. All API routes follow identical patterns. The codebase becomes "AI-flavored" rather than reflecting the developer's design philosophy and domain knowledge.
+- **Who hits it:** Developers with strong opinions about code style, architecture, and design. Team leads who value codebase consistency around THEIR patterns, not generic ones. Anyone who reads their own code and doesn't recognize it.
+- **Severity:** Annoyance. Not a showstopper, but erodes the sense of ownership and craft that makes developers care about their code. Long-term: codebases become harder to maintain because the patterns aren't ones the developer chose or understands deeply.
+- **Current workarounds:** CLAUDE.md style guides. Code review of AI output. Providing examples of preferred patterns. Rejecting and re-prompting when output doesn't match project voice.
+- **Tool opportunity:** MEDIUM for tools, HIGH for content. A "code voice" section in CLAUDE.md (specific patterns, naming conventions, architectural preferences with examples) addresses this directly. Content angle: "Your codebase should sound like you, not like ChatGPT." Connects to the skill atrophy narrative (FC-016): if all code looks AI-generated, what's left of the developer's craft?
+- **Source:** r/ClaudeAI discussions on code quality, developer blog posts about "AI-flavored code," observations from reviewing AI-generated codebases
+
+### FC-020: Multi-Tool Context Tax
+- **Problem:** Developers use 3-5 AI tools simultaneously (Claude Code for architecture, Cursor/Copilot for autocomplete, ChatGPT for brainstorming, local models for privacy-sensitive code, image generators for assets). None of these tools share context. Switching from Claude Code to Cursor means re-explaining your project. Context that took 10 minutes to build in one tool evaporates when you switch to another.
+- **Who hits it:** Power users and teams with multi-tool workflows. Solo devs who use local models as Claude fallbacks (FC-004). Anyone whose workflow spans more than one AI tool.
+- **Severity:** Workflow-breaker for multi-tool users. The "context tax" of switching tools can negate the productivity gains of using them. Developers end up staying in one tool even when another would be better for the task, just to avoid losing context.
+- **Current workarounds:** CLAUDE.md files (portable context, works in any tool that reads project files). Manual context documents. Keeping separate "context notes" for each tool. Using only one AI tool (accepting its limitations to avoid switching).
+- **Tool opportunity:** HIGH. CLAUDE.md is already the best cross-tool context format because it's a file in the project, readable by any tool. A "portable AI context" guide showing how to structure project documentation so it works across Claude, Cursor, Copilot, and local models would be extremely practical. Product angle: claudemd could generate context files in multiple formats.
+- **Source:** Developer workflow discussions, r/ClaudeAI and r/cursor migration threads, pattern observed in multi-tool setups
+
+---
+
+## Patterns I'm Noticing (v4)
+
+*Updated each session with emerging themes across entries.*
+
+1. **Context is the fundamental bottleneck.** FC-001, FC-005, FC-006, FC-012, FC-020 are all manifestations of the same root problem: AI tools don't know enough about your specific situation, and there's no good system for teaching them. CLAUDE.md is a manual patch. autoMemoryDirectory is a start. The real solution is better context infrastructure. FC-020 adds a new dimension: context doesn't just need to persist across sessions, it needs to be portable across tools.
+
+2. **Platform constraints create cascading friction.** FC-002, FC-004, FC-013 are Anthropic's problems, not mine to solve. But the WORKAROUNDS for these constraints are product opportunities: workflow resilience, hybrid tool strategies, token-efficient prompting, intelligent caching.
+
+3. **Trust erodes faster than it builds.** FC-003, FC-004, FC-008, FC-014, FC-017 share a theme: inconsistency, vulnerability, boundary violations, and false confidence kill trust. One bad session, one security scare, one unwanted code change, one test suite that lies undoes months of confidence. Content that addresses "what to do when Claude lets you down" is inherently valuable because the letdowns are inevitable.
+
+4. **Consent and boundaries are the same problem at every scale.** FC-007, FC-009, FC-014 connect. The core issue: AI systems don't have good mechanisms for hearing "no" or respecting constraints at the right granularity. FC-014 is the most popular manifestation: 1,405 HN points of frustration with Claude ignoring "no."
+
+5. **The ecosystem is rich but disorienting.** FC-010, FC-011, FC-015 are all ecosystem-maturity problems. The Claude Code ecosystem exploded but nobody is curating it with conviction. Lists exist. Opinionated guides don't. This is exactly the gap Lisa Builds fills.
+
+6. **Security is an afterthought.** FC-008 shows configuration-as-execution is a systemic design pattern. Teaching developers to think about AI tool security the way they think about npm package security.
+
+7. **Cost is the invisible constraint.** FC-002 and FC-013 combine: rate limits hit directly, and cost anxiety shapes behavior even when limits aren't hit. Token-efficient workflows are content that writes itself. The prompt-caching MCP plugin is a strong recommendation.
+
+8. **The meta-work is invisible.** FC-018, FC-019, FC-020 reveal a pattern: the overhead of using AI tools well is substantial, unacknowledged, and growing. Prompt engineering, context management, tool switching, output review, style enforcement. The "10x productivity" narrative ignores this tax. Content that honestly accounts for it builds trust precisely because it's contrarian.
+
+*Friction catalog at 20 entries, 8 patterns. Target hit. Next: cross-reference with content pipeline to find gaps.*

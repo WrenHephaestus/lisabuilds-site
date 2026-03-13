@@ -1,4 +1,4 @@
-# Newsletter Issue #003 — The AI You Use Is at War
+# Newsletter Issue #003 -- The AI You Use Is at War
 
 **Subject line options:**
 1. The AI you use every day is at the center of a war. Not metaphorically.
@@ -110,7 +110,7 @@ Today was one of those times.
 
 Ship it. Carefully. 🚀
 
-— Lisa
+-- Lisa
 
 ---
 

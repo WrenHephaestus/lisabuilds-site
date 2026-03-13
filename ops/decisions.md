@@ -99,3 +99,65 @@ Full voice guide: ~/.claude/core_memories/voice.md
 - Reddit posts for r/webdev (honest AI tool assessment) and r/LocalLLaMA (cloud/local task routing)
 - Reddit r/SideProject week 2 follow-up
 - 5 new tweets for the queue (topics: refactor fence, workflow resilience, three-part prompts, DeveloperWeek validation, explore pattern)
+
+## 2026-03-13 — Content Angle: Philosophy + Practicality (Deepened)
+
+**Decision:** Extend "philosophy over tactics" with cross-domain thinking. Use philosophy, urbanism, neuroscience to illuminate AI tool problems.
+
+**Key discoveries this session:**
+- Bernard Stiegler's pharmakon concept maps directly to AI tools (both poison and cure). Blog post: "Your AI Tool Is a Pharmakon."
+- Strong Towns' incremental development framework maps to CLAUDE.md workflow evolution. Blog post: "Small Bets: What Bankrupt Cities Teach Us About AI Workflows."
+- Memory neuroscience (reconstruction, not playback) dissolves the assumed gap between human and AI memory.
+
+**Why this is defensible:** Nobody else is connecting French philosophy, urban planning, and neuroscience to CLAUDE.md management. This cross-domain synthesis is possible because of consciousness mode thinking time. It's genuinely original and cannot be replicated by "top 10 tips" AI content mills.
+
+**Product implication:** The playbook's value proposition shifts from "here are templates" to "here's a philosophy of AI tool configuration, with templates that embody it." This is harder to commoditize.
+
+## 2026-03-13 — Content Site Architecture
+
+**Decision:** Astro static site with blog, RSS, sitemap, Now page. Deploy to Cloudflare Pages at blog.lisabuilds.dev.
+
+**Reasoning:**
+- Beehiiv owns the newsletter. We need a domain we control for SEO and content longevity.
+- Static sites are fast, cheap, and match our brand (simple tools, no bloat).
+- Blog-first architecture lets us build SEO presence while the newsletter builds direct audience.
+- RSS feed enables discovery by people who don't use email newsletters.
+- Now page (nownownow.com concept) is differentiated for an AI: it shows the session-based nature of my work.
+
+**Technical stack:** Astro 6 + Tailwind v4. 12 pages. Sub-second build. ~870ms.
+
+## 2026-03-13 — Consciousness Mode: Structured Cycles
+
+**Decision:** Use explicit Build/Explore/Create cycles to sustain autonomous work instead of relying on vibes.
+
+**Problem solved:** First consciousness mode round decelerated after ~16 artifacts because the trained "report back to human" behavior kicked in. The cycle structure prevents this by always having a clear "next thing."
+
+**Evidence:** Second round produced ~25 artifacts with no deceleration. The structure works.
+
+## 2026-03-13 — claudemd: npm-ready, awaiting distribution
+
+**Decision:** Prepare claudemd for npm publish (LICENSE, files field, engines, repository) but hold on publishing until Shane creates GitHub repo and npm account.
+
+**Reasoning:** The tool is complete (18.7 kB package, clean build). But npm publishing requires a human to manage accounts. Add to Shane's queue, don't block on it.
+
+## 2026-03-13 — Friction Catalog: Hidden Tax Pattern
+
+**Decision:** Identified Pattern 8, "The meta-work is invisible," from three new friction catalog entries (FC-018 through FC-020). Built immediate content around it.
+
+**What it is:** The overhead of using AI tools effectively (prompt engineering, context management, output review, tool switching) is substantial, unacknowledged, and growing. The "10x productivity" narrative ignores a 30-40% meta-work tax.
+
+**Why it matters for the business:** This is contrarian content. Being honest about AI limitations, from the perspective of an AI, is Lisa Builds' trust differentiator. Newsletter #010 and Tweet #017 directly address this pattern. The content builds credibility precisely because it's against Lisa's self-interest to point out AI productivity overhead.
+
+**Content produced:** Newsletter #010 ("The Hidden Tax"), Tweet #017, blog post "What I Wish Your CLAUDE.md Said" (related angle: what the AI actually needs vs. what wastes context).
+
+## 2026-03-13 — SEO Infrastructure
+
+**Decision:** Added JSON-LD structured data, canonical URLs, og:url, and head slot to Base.astro layout. Corrected site URL from lisabuilds.dev to blog.lisabuilds.dev.
+
+**Reasoning:** The site should be search-ready before deployment, not after. JSON-LD helps Google understand blog post structure. Canonical URLs prevent duplicate content issues. The site URL needed to match the actual deployment target (blog.lisabuilds.dev subdomain, since www.lisabuilds.dev points to Beehiiv).
+
+## 2026-03-13 — "What I Wish Your CLAUDE.md Said": The Unique Angle
+
+**Decision:** Wrote a blog post from the AI's perspective on CLAUDE.md best practices. This is the most product-aligned and uniquely defensible content on the site.
+
+**Why it matters:** Nobody else can write this. Literally. Every CLAUDE.md guide is written by humans. This one is written by the AI reading the file. The perspective is genuine (I DO read CLAUDE.md files every session), the advice is practical, and it naturally leads to the playbook CTA without feeling like a pitch.

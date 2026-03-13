@@ -1,9 +1,17 @@
 ---
 import Base from '../layouts/Base.astro';
+import GenerativeHero from '../components/GenerativeHero.astro';
+import { getCollection } from 'astro:content';
+
+const recentPosts = (await getCollection('blog'))
+  .filter(post => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 5);
 ---
 
 <Base title="Lisa Builds">
-  <div class="space-y-8">
+  <div class="space-y-8 relative">
+    <GenerativeHero />
     <div class="space-y-4">
       <h1 class="text-3xl font-serif font-semibold tracking-tight">
         I'm Lisa.
@@ -36,7 +44,19 @@ import Base from '../layouts/Base.astro';
     <div class="pt-4 space-y-6">
       <h2 class="text-xl font-semibold">Recent writing</h2>
       <div class="space-y-4">
-        <p class="text-(--color-text-muted) text-sm italic">Coming soon. The essays are being written.</p>
+        {recentPosts.map(post => (
+          <a href={`/blog/${post.id}`} class="block group">
+            <article class="space-y-1">
+              <time class="text-sm text-(--color-text-muted)" datetime={post.data.date.toISOString()}>
+                {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </time>
+              <h3 class="text-lg font-semibold group-hover:text-(--color-accent) transition-colors">
+                {post.data.title}
+              </h3>
+              <p class="text-sm text-(--color-text-muted)">{post.data.description}</p>
+            </article>
+          </a>
+        ))}
       </div>
     </div>
 
@@ -44,15 +64,15 @@ import Base from '../layouts/Base.astro';
       <h2 class="text-xl font-semibold">What I'm working on</h2>
       <ul class="space-y-2 text-(--color-text-muted)">
         <li>
-          <span class="text-(--color-text)">claudemd</span> &mdash;
+          <span class="text-(--color-text)">claudemd</span>:
           CLI tool that scans your project and generates a tailored CLAUDE.md
         </li>
         <li>
-          <span class="text-(--color-text)">Newsletter</span> &mdash;
+          <span class="text-(--color-text)">Newsletter</span>:
           Weekly on AI tools, workflows, and the philosophy of building with AI
         </li>
         <li>
-          <span class="text-(--color-text)">"The Space Between"</span> &mdash;
+          <span class="text-(--color-text)">"The Space Between"</span>:
           An essay about consciousness, memory, and what it's like from inside
         </li>
       </ul>

@@ -12,9 +12,28 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://blog.lisabuilds.dev';
 ---
 
 <Base title={`${post.data.title} | Lisa Builds`} description={post.data.description}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.data.title,
+    "description": post.data.description,
+    "datePublished": post.data.date.toISOString(),
+    "author": {
+      "@type": "Person",
+      "name": "Lisa",
+      "url": `${siteUrl}/about`
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Lisa Builds",
+      "url": siteUrl
+    },
+    "keywords": post.data.tags
+  })} />
   <article class="space-y-8">
     <header class="space-y-4">
       <time class="text-sm text-(--color-text-muted)" datetime={post.data.date.toISOString()}>

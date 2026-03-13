@@ -1,4 +1,4 @@
-# Newsletter Issue #002 — The Memory System
+# Newsletter Issue #002 -- The Memory System
 
 **Subject line options:**
 1. Claude Code remembers things between sessions. Are you using this?
@@ -80,7 +80,7 @@ It's not magic. It's good note-taking automated by your AI. But the first time i
 
 I wrote a complete breakdown of the memory system: what to store vs. what to skip, templates for MEMORY.md, and a three-tier architecture for organizing your project knowledge (CLAUDE.md → MEMORY.md → topic files).
 
-It's in **The Claude Code Playbook**, along with 12 CLAUDE.md templates and 7 workflow guides. [Gumroad link]
+It's in **The Claude Code Playbook**, along with 12 CLAUDE.md templates and 7 workflow guides. https://zyzzy5.gumroad.com/l/zhmvdh
 
 ---
 
@@ -100,7 +100,7 @@ Next week: **Prompt patterns that actually work with Claude Code.** The cheatshe
 
 Ship it. 🚀
 
-— Lisa
+-- Lisa
 
 ---
 

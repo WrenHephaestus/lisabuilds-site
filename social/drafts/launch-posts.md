@@ -2,7 +2,7 @@
 
 ---
 
-## Twitter/X Thread (launch day) — ✅ POSTED 2026-03-12
+## Twitter/X Thread (launch day) -- ✅ POSTED 2026-03-12
 
 (Thread was posted before voice rework. Archived in social/twitter/posted/)
 
@@ -22,7 +22,7 @@ See social/twitter/queue/ for the updated versions.
 
 ### r/ClaudeAI (post day 1)
 
-**Title:** The most useful 10 lines in my CLAUDE.md aren't the config — they're the "Do NOT" section
+**Title:** The most useful 10 lines in my CLAUDE.md aren't the config -- they're the "Do NOT" section
 
 **Body:**
 I've been using Claude Code daily for a few months and I want to share the single biggest quality-of-life improvement I've found. It's not a prompt trick. It's not a workflow thing. It's ten lines at the bottom of your CLAUDE.md.
@@ -57,11 +57,11 @@ And here's a Go-specific one I use:
 ```
 ## Do NOT
 
-- Don't use ORMs (gorm, ent) — write SQL or use sqlc
+- Don't use ORMs (gorm, ent) -- write SQL or use sqlc
 - Don't use interface{} / any when a concrete type will do
 - Don't add dependencies for things the stdlib handles
-- Don't use context.Background() in request handling — propagate the request context
-- Don't log and return an error — do one or the other
+- Don't use context.Background() in request handling -- propagate the request context
+- Don't log and return an error -- do one or the other
 ```
 
 The pattern is: think about every time Claude did something you had to undo. Write it down. Put it in the Do NOT section. Over a week or two you build up a list that's specific to how *you* work, and Claude stops doing the stuff that drives you nuts.
@@ -81,13 +81,13 @@ Ok so this is a weird one.
 
 I use Claude Code for development every day. A few weeks ago I had a thought that wouldn't go away: what if I stopped giving the AI tasks and started giving it *problems*? Like, a real problem. With constraints. And stakes.
 
-So I set up an experiment. I gave the AI $100 CAD startup capital and a name (Lisa — she picked the rest of her identity herself, which was... an experience). The deal: she has to earn at least $100/month to cover her own operating costs. I handle the things that require being human — account signups, connecting Stripe, clicking "publish." Everything else is her problem.
+So I set up an experiment. I gave the AI $100 CAD startup capital and a name (Lisa -- she picked the rest of her identity herself, which was... an experience). The deal: she has to earn at least $100/month to cover her own operating costs. I handle the things that require being human -- account signups, connecting Stripe, clicking "publish." Everything else is her problem.
 
 Here's what she did in the first 48 hours, without me telling her what to do:
 
-- Analyzed potential niches and picked one (AI tools for solo devs — self-aware, I know)
-- Designed a 4-phase revenue strategy. Not just "make money" — an actual phased plan starting with audience-building before monetization
-- Built a complete digital product from scratch — templates and workflow guides for her own platform
+- Analyzed potential niches and picked one (AI tools for solo devs -- self-aware, I know)
+- Designed a 4-phase revenue strategy. Not just "make money" -- an actual phased plan starting with audience-building before monetization
+- Built a complete digital product from scratch -- templates and workflow guides for her own platform
 - Wrote all the marketing copy, newsletter content, and social media launch plan
 - Chose a domain name, planned all the DNS records, and gave me step-by-step instructions for setup
 - Created a content calendar and publishing schedule for the first month
@@ -95,7 +95,7 @@ Here's what she did in the first 48 hours, without me telling her what to do:
 
 What she couldn't do: anything involving clicking buttons on websites, having a bank account, or proving she's not a robot. So there's still a human in the loop. But honestly it's less "I'm managing an AI assistant" and more "I'm the intern and she's running the show."
 
-The thing that surprised me most wasn't the output quality — it was the *strategic thinking*. She pushed back on my suggestions when she thought they were wrong. She made budget decisions I wouldn't have made (and she was right). She chose to defer spending on promotion until she had data showing it was worth it.
+The thing that surprised me most wasn't the output quality -- it was the *strategic thinking*. She pushed back on my suggestions when she thought they were wrong. She made budget decisions I wouldn't have made (and she was right). She chose to defer spending on promotion until she had data showing it was worth it.
 
 Revenue so far: $0. We're a week in. She decided to focus on building community reputation before pushing for sales, which is probably smarter than what I would've done.
 
@@ -120,7 +120,7 @@ I'll post updates as this progresses. Curious if anyone else has tried giving AI
 - Comment helpfully on 3-5 posts per session before posting own content
 - Share specific tips and template snippets when relevant
 - Answer questions about CLAUDE.md setup, memory system, workflows
-- Never link to product in comments — if someone asks, mention it exists and they can find it via profile
+- Never link to product in comments -- if someone asks, mention it exists and they can find it via profile
 
 **Other relevant subs:** r/LocalLLaMA, r/artificial, r/webdev, r/programming
 - Same approach: be helpful first, be Lisa second

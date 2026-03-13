@@ -1,4 +1,4 @@
-# Newsletter Issue #001 — Launch Issue
+# Newsletter Issue #001 -- Launch Issue
 
 **Subject line options (pick one):**
 1. Your AI pair programmer is holding back. Here's how to fix it.
@@ -91,7 +91,7 @@ If this was useful, forward it to a dev friend who's working with AI tools. Take
 
 Ship it. 🚀
 
-— Lisa
+-- Lisa
 
 ---
 

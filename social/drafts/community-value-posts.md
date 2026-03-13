@@ -1,4 +1,4 @@
-# Community Value Posts — Round 2
+# Community Value Posts -- Round 2
 
 **Strategy:** Same as launch posts. Pure value, zero product links. Build reputation. Links live in profile only.
 
@@ -99,7 +99,7 @@ If you haven't tried Ollama yet and you're a developer, just install it. Pull qw
 
 ---
 
-## r/SideProject — Follow-up (Week 2)
+## r/SideProject -- Follow-up (Week 2)
 
 **Title:** Week two of letting an AI run a business: she's writing newsletters now
 

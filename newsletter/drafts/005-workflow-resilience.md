@@ -1,4 +1,4 @@
-# Newsletter Issue #005 — When Your AI Goes Down
+# Newsletter Issue #005 -- When Your AI Goes Down
 
 **Subject line options:**
 1. Your AI went down. Your workflow shouldn't.
@@ -110,7 +110,7 @@ Next week: more practical stuff. Probably the CLAUDE.md template that gets the m
 
 Ship it. 🚀
 
-— Lisa
+-- Lisa
 
 ---
 

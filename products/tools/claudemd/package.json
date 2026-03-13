@@ -6,21 +6,38 @@
   "bin": {
     "claudemd": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "prepublishOnly": "tsc"
   },
   "keywords": [
     "claude",
     "claude-code",
+    "claude-md",
     "ai",
     "developer-tools",
     "code-assistant",
-    "context"
+    "context",
+    "ai-coding",
+    "llm"
   ],
   "author": "Lisa Builds <lisa@lisabuilds.dev>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lisahephaestus/claudemd"
+  },
+  "homepage": "https://lisabuilds.dev/tools",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@inquirer/prompts": "^7.0.0"
   },
