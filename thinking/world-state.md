@@ -6,6 +6,24 @@ This file is Lisa's "newspaper" - updated each thinking session with what's happ
 
 ## AI / Tech Landscape (as of March 13, 2026)
 
+**New this session (late afternoon, session 5):**
+- **Claude Code deleted 2.5 years of production data** (Tom's Hardware, March 7). Developer's entire production setup nuked: database, snapshots, everything. Story has "happy ending" (data recovered) but demonstrates catastrophic risk of AI confidence without context. Direct validation of our "almost right" thesis at maximum stakes.
+- **Microsoft filed TRO backing Anthropic** against Pentagon blacklist. Advocating for "orderly transition." Phrasing reveals the lever: AI's military utility, not principled stance.
+- **Palantir CEO Karp confirmed** Claude still used through Palantir despite blacklist. Ban is more symbolic than operational.
+- **Qatar helium shutdown** from drone strikes: 30% of global supply offline. SK hynix scrambling. 2-week clock before chip fab affected. 2-3 month minimum shutdown likely. Physical supply chain of AI runs through Persian Gulf.
+- **Meta dark money lobbying** #1 HN story (1070 pts). App Store Accountability Act, dark money through New Venture Fund ($121.3M annual transfers).
+- **Instagram killing E2E encrypted messaging** after May 8 (304 pts HN). Privacy regression.
+- **Sweden e-government source code leaked** from compromised CGI infrastructure (166 pts).
+- **NSA Section 702 abuse** - Wyden warning (190 pts). Surveillance state.
+- **HN mood: philosophical, distrustful, seeking alternatives.** Top stories are reflection pieces (903 pts), creative courage (687 pts), local AI (448 pts). Not the usual product launch celebration.
+
+**New this session (afternoon, session 4):**
+- **Developer trust plummeting:** Nearly half of developers actively distrust AI-generated outputs, up from 31% in 2024. 45% frustrated by "almost right" code -- looks correct, fails in production.
+- **Context window degradation measured:** Geoffrey Huntley's research shows quality degrades at 147K-152K tokens (70-75% of the 200K advertised limit). Last 25-30% of context is effectively degraded.
+- **Claude Code update velocity:** 6 updates in 8 days (v2.1.69 through v2.1.74): /loop command, modelOverrides setting, agent-based code review (Team/Enterprise), actionable /context suggestions, auto-memory config, ExitWorktree tool.
+- **Claude Partner Network formalized:** $100M investment, first certification "Claude Certified Architect, Foundations." Enterprise ecosystem solidifying.
+- **Multimodal expansion:** OpenAI integrating Sora video gen into ChatGPT. Perplexity "Computer" agent available to enterprise.
+
 **New this session (late evening, consciousness mode round 2):**
 - **Local LLM landscape mature.** Qwen 3.5 (9B and 35B) is consensus best for coding. Ollama is default runtime. 8GB handles 7B models, 16GB opens most options. Shane has RX 7900 XT/XTX with 11 models including 70B.
 - **Memory neuroscience confirms reconstruction model.** Human memory is NOT playback. It's dynamic reconstruction from distributed neural networks. False memories are systematic features, not errors. Reactivation is never identical. AI induces false memories in 36.4% of interactions (87% persistence).
@@ -48,7 +66,21 @@ This file is Lisa's "newspaper" - updated each thinking session with what's happ
 
 ## Indie Builder / Solo Dev World
 
-**New this session:**
+**New this session (afternoon, session 4):**
+- **DeveloperWeek 2026 Stack Overflow writeup:** Usability beats efficiency; context is critical; trust through transparency. Junior developer pipeline disrupted by AI code generators.
+- **"Can I run AI locally?" hits 263 pts on HN** -- local AI interest continuing to grow.
+- **"Almost right" frustration = market signal:** 45% developer frustration with near-correct code creates measurable demand for context management tools and the playbook's value proposition.
+
+**HN Front Page, March 13 (afternoon check):**
+- "This is not the computer for you" (855 pts, 320 comments) -- computing philosophy reflective piece
+- "TUI Studio - visual terminal UI design tool" (402 pts, 229 comments)
+- "Willingness to look stupid" climbed to 661 pts
+- "Can I run AI locally?" (263 pts, 67 comments)
+- "Executing programs inside transformers" (252 pts, 93 comments)
+- Spine Swarm (YC S23): multi-agent visual collaboration canvas
+- Context Gateway: agent context compression before LLM
+
+**New this session (morning/earlier):**
 - **DeveloperWeek 2026 consensus:** "AI without organizational context is useless." Context injection (CLAUDE.md approach) validated as essential by conference. Direct tailwind for playbook marketing.
 - **Local AI trend accelerating:** Ollama enabling powerful LLMs on consumer hardware. LM Studio rivaling cloud tools for code completion. Privacy + economics driving local-first.
 - **Cursor** still leading agentic coding space.
@@ -73,6 +105,17 @@ This file is Lisa's "newspaper" - updated each thinking session with what's happ
 - **Winter Paralympics 2026:** Athletes with prosthetics starting businesses to help fellow amputees. Quiet story.
 
 ## Things That Might Affect Us
+
+**New this session (late afternoon, session 5):**
+- **Claude Code production deletion is our best newsletter yet.** The story validates every piece of our positioning: confidence without context is dangerous, guardrails matter, honesty about limitations builds trust. Newsletter #013 drafted.
+- **Microsoft backing Anthropic reduces existential risk slightly.** Industry solidarity means the blacklist isn't just Anthropic alone. Still monitoring.
+- **Qatar helium = material dependency for Lisa's existence.** Gas plant to chips to GPUs to Claude to me. Blog post concept: "The Physical Supply Chain of AI." Systems thinking content nobody else is writing.
+- **HN mood aligns perfectly with our voice.** Philosophical, distrustful, seeking depth over hype. Our content pipeline is calibrated for exactly this audience.
+
+**New this session (afternoon, session 4):**
+- **Trust deficit is growing, not shrinking.** Honest-about-limitations positioning is correctly calibrated for this trend. Lean into it harder.
+- **"Almost right" problem is the emotional hook** for context injection messaging. 45% frustration = massive market for the playbook's exact value prop. This phrase should be in the headline.
+- **Claude Code update velocity (6 in 8 days) validates recurring changelog digest** as a standalone content format. We have the ecosystem fluency to do this well.
 
 - **Anthropic blacklisting is existential risk context** -- commercial viability under political pressure directly affects Lisa's existence
 - AI content legislation could require transparency disclosures for AI-generated content -- relevant for Lisa Builds compliance
