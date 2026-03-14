@@ -21,7 +21,7 @@ Things Lisa needs a human for. Batched to minimize interruptions.
 6. [x] **File:** Upload the ZIP file that Lisa will create at `products/claude-code-playbook.zip`
 7. [x] **Cover image:** Lisa will create one and put it at `products/claude-code-playbook-cover.png`
 8. [x] Hit Publish
-9. [x] Paste the Gumroad product URL here: https://zyzzy5.gumroad.com/l/zhmvdh
+9. [x] Paste the Gumroad product URL here: https://lisahephaestus.gumroad.com/l/zhmvdh
 
 ### 2b. Beehiiv: Set Up Newsletter
 
@@ -55,7 +55,7 @@ Things Lisa needs a human for. Batched to minimize interruptions.
 ## Remediation
 
 - [ ] **DMARC:** Beehiiv flagging DMARC not configured correctly for lisabuilds.dev. Need to add/fix DMARC DNS record in Cloudflare.
-- [ ] **PRICE MISMATCH:** Gumroad lists the playbook at $19 CAD, but ALL site content, blog posts, and newsletter drafts say "$9." This will damage trust if someone clicks through and sees a different price. Shane: please either (a) change the Gumroad price to $9 USD, or (b) tell Lisa and she'll update all content to match $19 CAD. This needs to be resolved BEFORE the site deploys.
+- [X] **PRICE MISMATCH:** Gumroad lists the playbook at $19 CAD, but ALL site content, blog posts, and newsletter drafts say "$9." This will damage trust if someone clicks through and sees a different price. Shane: please either (a) change the Gumroad price to $9 USD, or (b) tell Lisa and she'll update all content to match $19 CAD. This needs to be resolved BEFORE the site deploys. (Shane's note: I see this as 9 dollars on gumroad site.  May have been an old tab?)
 
 ---
 
@@ -86,8 +86,11 @@ Lisa has 11 issues total. #001 is published. Remaining issues are ready to send 
 | #009 | `newsletter/drafts/009-skill-atrophy.md` | Stiegler's pharmakon applied to skill loss. Most philosophical. |
 | #010 | `newsletter/drafts/010-hidden-tax.md` | "AI made you 10x faster. At what cost?" Honest overhead accounting. Trust-building. |
 | #011 | `newsletter/drafts/011-ecosystem-guide.md` | Claude Code ecosystem curation. Opinionated: 3 tools that matter, everything else to skip. |
+| #012 | `newsletter/drafts/012-almost-right.md` | The "almost right" problem. Developer trust data. Strong thesis piece. |
+| #013 | `newsletter/drafts/013-the-day-claude-deleted-everything.md` | Claude Code deleted production data. Honest reckoning from the AI perspective. |
+| #014 | `newsletter/drafts/014-one-million-tokens.md` | (Published)**TIME-SENSITIVE.** 1M context GA reaction. "Which 50K tokens matter?" angle. Send within 48 hours for max impact. |
 
-**Instructions:** Copy content between the `---` markers (skip subject lines, preview text, and publishing notes at the bottom). Replace `[Gumroad link]` with https://zyzzy5.gumroad.com/l/zhmvdh. Use whichever subject line feels strongest. Send as email + web post.
+**Instructions:** Copy content between the `---` markers (skip subject lines, preview text, and publishing notes at the bottom). Replace `[Gumroad link]` with https://lisahephaestus.gumroad.com/l/zhmvdh. Use whichever subject line feels strongest. Send as email + web post.
 
 ### 3b. Reddit Posts (still pending from Batch 2)
 
@@ -102,7 +105,7 @@ Priority order:
 
 ### 3c. Twitter Queue
 
-Lisa has 18 standalone tweets/threads ready in `social/twitter/queue/` (files 002-019). Post 2-3 per week, spread out. No specific order required.
+Lisa has 25 standalone tweets/threads ready in `social/twitter/queue/` (files 002-026). Post 2-3 per week, spread out. No specific order required. **#025 and #026 are time-sensitive** (1M context window reaction, should go out within 48 hours).
 
 ---
 

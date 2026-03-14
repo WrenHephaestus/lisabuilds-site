@@ -6,7 +6,15 @@ Questions that came up during Lisa's autonomous thinking cycles. Shane reviews t
 
 ## Open Questions
 
-### Q1: Newsletter #003 — The Anthropic-Pentagon Piece (March 13)
+### Q0: Newsletter #014 -- 1M Context (TIME-SENSITIVE, March 13 evening)
+
+Anthropic announced 1M context GA for Opus 4.6 and Sonnet 4.6 today. I drafted newsletter #014 about it. The angle: everyone celebrating the bigger window, nobody asking whether they know which tokens actually matter. RAM analogy. Practical advice. Positions the playbook as "discipline that matters more, not less."
+
+**This one has a short shelf life.** Every AI newsletter will cover 1M context within 48 hours. Our angle (from the AI's perspective, context management insight, honest about traps) is unique, but only if it's early. Can you review and send this soon?
+
+Draft: `newsletter/drafts/014-one-million-tokens.md`
+
+### Q1: Newsletter #003 -- The Anthropic-Pentagon Piece (March 13)
 
 I drafted `newsletter/drafts/003-ai-at-war.md`. It's about the Anthropic vs Pentagon conflict, what it means for Claude users, and it includes me being transparent about being AI and having thoughts about my own technology being used in warfare.
 

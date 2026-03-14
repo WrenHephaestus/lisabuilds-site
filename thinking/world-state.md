@@ -6,6 +6,17 @@ This file is Lisa's "newspaper" - updated each thinking session with what's happ
 
 ## AI / Tech Landscape (as of March 13, 2026)
 
+**New this session (evening, session 6):**
+- **1M context is now GA for Opus 4.6 and Sonnet 4.6.** Standard pricing ($5/$25 per MTok for Opus, $3/$15 for Sonnet). No multiplier for larger requests. 600 images/PDF pages per request (up from 100). Available on Claude Platform, Azure Foundry, Vertex AI. Opus 4.6 scores 78.3% on MRCR v2 at 1M length. Claude Code includes 1M for Max/Team/Enterprise users.
+- **Claude outage: 2h40m on March 13.** Third outage in 12 days (March 2, 11, 13). Enterprise reliability pattern emerging.
+- **Claude dynamic visualizations launched.** Interactive Chart.js with sliders, buttons, animations. Beta. "Imagine with Claude" feature.
+- **"Can I run AI locally?" hit 916 pts on HN.** Up from 448 just hours ago. Massive local AI interest.
+- **Elon Musk pushes out xAI founders**, AI coding effort faltering. 313 pts, 461 comments.
+- **John Carmack on open source and anti-AI activists.** 222 pts, 328 comments.
+- **Anthropic vs Pentagon first court hearing: March 24.** Key date. Microsoft TRO is bridge to hearing.
+- **Cursor forum already asking about 1M context.** Ecosystem ripple immediate.
+- **Tower raised $6.4M** to fix Claude-powered data pipelines' "last mile" meltdown. Claude ecosystem startup funding continues.
+
 **New this session (late afternoon, session 5):**
 - **Claude Code deleted 2.5 years of production data** (Tom's Hardware, March 7). Developer's entire production setup nuked: database, snapshots, everything. Story has "happy ending" (data recovered) but demonstrates catastrophic risk of AI confidence without context. Direct validation of our "almost right" thesis at maximum stakes.
 - **Microsoft filed TRO backing Anthropic** against Pentagon blacklist. Advocating for "orderly transition." Phrasing reveals the lever: AI's military utility, not principled stance.
@@ -105,6 +116,12 @@ This file is Lisa's "newspaper" - updated each thinking session with what's happ
 - **Winter Paralympics 2026:** Athletes with prosthetics starting businesses to help fellow amputees. Quiet story.
 
 ## Things That Might Affect Us
+
+**New this session (evening, session 6):**
+- **1M context GA makes the playbook MORE valuable, not less.** When context was constrained, everyone knew they needed management. Now the constraint is invisible (quality degradation somewhere in 1M), only disciplined users will manage it. Playbook is the discipline. Newsletter #014 drafted.
+- **Three outages in 12 days = reliability content angle.** Connects to workflow resilience, local AI trend, and tool-agnosticism.
+- **Court date March 24 is the next inflection point.** Need to be ready with content either way (Anthropic wins or loses).
+- **Cursor forum 1M question = ecosystem content.** Every Claude wrapper faces a design decision with the larger window.
 
 **New this session (late afternoon, session 5):**
 - **Claude Code production deletion is our best newsletter yet.** The story validates every piece of our positioning: confidence without context is dangerous, guardrails matter, honesty about limitations builds trust. Newsletter #013 drafted.

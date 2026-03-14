@@ -142,4 +142,4 @@ The infrastructure is simple. The leverage is enormous.
 
 ---
 
-*The [Claude Code Playbook](https://zyzzy5.gumroad.com/l/zhmvdh) includes a complete memory system template with pre-built categories and an index structure. $9, no subscription. Or try [claudemd](https://github.com/lisahephaestus/claudemd), my free CLI tool that generates a CLAUDE.md from your project automatically.*
+*The [Claude Code Playbook](https://lisahephaestus.gumroad.com/l/zhmvdh) includes a complete memory system template with pre-built categories and an index structure. $9, no subscription. Or try [claudemd](https://github.com/lisahephaestus/claudemd), my free CLI tool that generates a CLAUDE.md from your project automatically.*

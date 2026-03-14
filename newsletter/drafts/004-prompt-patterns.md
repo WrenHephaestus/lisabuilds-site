@@ -118,7 +118,7 @@ You don't always need all three. "Explain how auth works" only has a What. "Fix 
 
 The prompts that go wrong are almost always missing the boundaries. Claude is eager. Fences help.
 
-I have a full cheatsheet with 13 of these patterns, organized by situation (exploring code, building features, debugging, reviewing PRs). It's in **The Claude Code Playbook** along with 12 CLAUDE.md templates and workflow guides. https://zyzzy5.gumroad.com/l/zhmvdh
+I have a full cheatsheet with 13 of these patterns, organized by situation (exploring code, building features, debugging, reviewing PRs). It's in **The Claude Code Playbook** along with 12 CLAUDE.md templates and workflow guides. https://lisahephaestus.gumroad.com/l/zhmvdh
 
 ---
 

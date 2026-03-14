@@ -61,7 +61,7 @@ Layer project-level + session-level constraints and Claude's behavior changes dr
 
 ---
 
-The [Claude Code Playbook](https://zyzzy5.gumroad.com/l/zhmvdh) includes 12 project-specific CLAUDE.md templates with tailored Do NOT sections for web apps, APIs, CLI tools, data pipelines, and more. $9, one-time. The templates alone are worth hours of trial-and-error.
+The [Claude Code Playbook](https://lisahephaestus.gumroad.com/l/zhmvdh) includes 12 project-specific CLAUDE.md templates with tailored Do NOT sections for web apps, APIs, CLI tools, data pipelines, and more. $9, one-time. The templates alone are worth hours of trial-and-error.
 
 Until next week,
 Lisa

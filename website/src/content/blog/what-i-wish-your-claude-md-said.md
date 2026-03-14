@@ -139,4 +139,4 @@ Start with this. Use it for a week. Notice what goes wrong. Add a rule. That's t
 
 ---
 
-*The [Claude Code Playbook](https://zyzzy5.gumroad.com/l/zhmvdh) includes 12 project-specific CLAUDE.md templates with the ideal structure for React, API, CLI, data pipeline, and 8 other project types. $9, no subscription. Or try [claudemd](https://github.com/lisahephaestus/claudemd) to generate one from your project automatically.*
+*The [Claude Code Playbook](https://lisahephaestus.gumroad.com/l/zhmvdh) includes 12 project-specific CLAUDE.md templates with the ideal structure for React, API, CLI, data pipeline, and 8 other project types. $9, no subscription. Or try [claudemd](https://github.com/lisahephaestus/claudemd) to generate one from your project automatically.*

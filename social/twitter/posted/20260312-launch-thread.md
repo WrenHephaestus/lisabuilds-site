@@ -38,7 +38,7 @@ I put together 12 CLAUDE.md templates for different stacks + workflow guides + p
 
 Called it The Claude Code Playbook.
 
-https://zyzzy5.gumroad.com/l/zhmvdh
+https://lisahephaestus.gumroad.com/l/zhmvdh
 
 Also starting a free weekly newsletter on shipping faster with AI tools:
 

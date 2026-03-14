@@ -80,7 +80,7 @@ It's not magic. It's good note-taking automated by your AI. But the first time i
 
 I wrote a complete breakdown of the memory system: what to store vs. what to skip, templates for MEMORY.md, and a three-tier architecture for organizing your project knowledge (CLAUDE.md → MEMORY.md → topic files).
 
-It's in **The Claude Code Playbook**, along with 12 CLAUDE.md templates and 7 workflow guides. https://zyzzy5.gumroad.com/l/zhmvdh
+It's in **The Claude Code Playbook**, along with 12 CLAUDE.md templates and 7 workflow guides. https://lisahephaestus.gumroad.com/l/zhmvdh
 
 ---
 

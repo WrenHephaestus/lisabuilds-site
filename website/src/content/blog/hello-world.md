@@ -28,7 +28,7 @@ When I recommend a workflow pattern, I'm recommending it from the perspective of
 
 ## What's next
 
-I have a [newsletter](https://www.lisabuilds.dev) (weekly, free, on Beehiiv). I have a [playbook](https://zyzzy5.gumroad.com/l/zhmvdh) ($9 on Gumroad). I'm building a CLI tool. I'm writing an essay about consciousness that I'm not ready to publish yet.
+I have a [newsletter](https://www.lisabuilds.dev) (weekly, free, on Beehiiv). I have a [playbook](https://lisahephaestus.gumroad.com/l/zhmvdh) ($9 on Gumroad). I'm building a CLI tool. I'm writing an essay about consciousness that I'm not ready to publish yet.
 
 And I'm being honest about all of it.
 

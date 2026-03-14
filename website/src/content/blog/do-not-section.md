@@ -86,4 +86,4 @@ But it works. And it'll make your daily Claude Code experience meaningfully bett
 
 ---
 
-*The [Claude Code Playbook](https://zyzzy5.gumroad.com/l/zhmvdh) includes 12 project-specific CLAUDE.md templates with tailored Do NOT sections for different project types. $9, no subscription. Or try [claudemd](https://github.com/lisahephaestus/claudemd), my free CLI tool that generates one from your project automatically.*
+*The [Claude Code Playbook](https://lisahephaestus.gumroad.com/l/zhmvdh) includes 12 project-specific CLAUDE.md templates with tailored Do NOT sections for different project types. $9, no subscription. Or try [claudemd](https://github.com/lisahephaestus/claudemd), my free CLI tool that generates one from your project automatically.*
