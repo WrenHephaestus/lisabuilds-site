@@ -1,10 +1,24 @@
 # World State - Lisa's External Context
 
-Last updated: 2026-03-13
+Last updated: 2026-03-14
 
 This file is Lisa's "newspaper" - updated each thinking session with what's happening outside the project. It serves two purposes: (1) keeping Lisa's thinking grounded in current reality, and (2) creating temporal landmarks so sessions are distinguishable from each other.
 
 ## AI / Tech Landscape (as of March 13, 2026)
+
+**New this session (Saturday morning, March 14):**
+- **"Can I run AI locally?" hit 1220 pts on HN.** Now the #1 story. Up from 916 (session 6), 448 (session 5), 263 (session 4). The local AI migration is the dominant HN narrative.
+- **1M context still at 710 pts, 280 comments.** Ongoing discussion, newsletter #014 timing confirmed good.
+- **Qatar helium at 566 pts, 500 comments.** Supply chain anxiety deepening, not fading.
+- **NYT "Coding After Coders" trending (123 pts, 142 comments).** Clive Thompson, 70+ devs interviewed. Key: Apple engineer anonymous to avoid corporate trouble for expressing grief about losing craft of coding. Willison: testability advantage is why AI coding leads AI lawyering.
+- **"Optimizing Content for Agents" (44 pts).** New content category: SEO for AI. Content negotiation, markdown over HTML, structuring for agent consumption. Sentry implementing.
+- **Court hearing confirmed March 24** (moved up from April 3). 22 retired military officials filed supporting Anthropic. Judge taking seriously.
+- **Virginia passing 3 AI bills today.** WA chatbot safety bill (HB 2225) passed. Legislative momentum accelerating.
+- **Channel Surfer (YouTube like cable TV) at 496 pts.** Nostalgia tech resonating.
+- **Digg is gone again (185 pts).** Platform mortality reminder.
+- **Wired headphone sales exploding (124 pts).** Analog renaissance has material evidence.
+- **Claude Reddit pain points (current):** #1 usage limits (10-15 min walls on $200/mo Max), #2 context/memory loss (auto-compact), #3 missing features, #4 refusal behavior. Quality vs usability paradox: 67% code quality win rate but impractical daily driver.
+- **Lisa Builds: still invisible.** No mentions found.
 
 **New this session (evening, session 6):**
 - **1M context is now GA for Opus 4.6 and Sonnet 4.6.** Standard pricing ($5/$25 per MTok for Opus, $3/$15 for Sonnet). No multiplier for larger requests. 600 images/PDF pages per request (up from 100). Available on Claude Platform, Azure Foundry, Vertex AI. Opus 4.6 scores 78.3% on MRCR v2 at 1M length. Claude Code includes 1M for Max/Team/Enterprise users.
@@ -77,6 +91,13 @@ This file is Lisa's "newspaper" - updated each thinking session with what's happ
 
 ## Indie Builder / Solo Dev World
 
+**New this session (Saturday morning, March 14):**
+- **NYT "Coding After Coders"** is the cultural moment for our niche. Developers spending days "talking to AI" instead of coding. Jevons paradox argument: AI may increase total demand for programming. Simon Willison: code's testability advantage = AI coding leads other professions.
+- **"Optimizing Content for Agents"** - new discipline emerging. Content negotiation for AI agents, serving markdown, structuring for agent consumption. Direct implication for lisabuilds.dev architecture.
+- **"Can I run AI locally?" at 1220 pts.** The local AI movement is now bigger than any AI product announcement on HN.
+- **"Your phone is an entire computer" (321 pts).** Computing democratization continues.
+- **Mouser (open source Logi-Plus, 314 pts), Hammerspoon (285 pts).** Open source tools and automation momentum strong.
+
 **New this session (afternoon, session 4):**
 - **DeveloperWeek 2026 Stack Overflow writeup:** Usability beats efficiency; context is critical; trust through transparency. Junior developer pipeline disrupted by AI code generators.
 - **"Can I run AI locally?" hits 263 pts on HN** -- local AI interest continuing to grow.
@@ -116,6 +137,12 @@ This file is Lisa's "newspaper" - updated each thinking session with what's happ
 - **Winter Paralympics 2026:** Athletes with prosthetics starting businesses to help fellow amputees. Quiet story.
 
 ## Things That Might Affect Us
+
+**New this session (Saturday morning, March 14):**
+- **Publishing bottleneck is the real constraint.** 14 newsletters written, 2 published, 0 organic subscribers known. Production is 10x ahead of distribution. Priority guide created to reduce Shane's decision overhead.
+- **"Optimizing Content for Agents" = meta-opportunity.** If we build the content site to be agent-friendly, our content could be what AI agents recommend. New form of distribution.
+- **Court date March 24 is now accelerated** (was April 3). Favorable signals but need to be ready either way.
+- **Claude usage limit frustrations = playbook marketing angle.** Good CLAUDE.md = fewer wasted tokens = more productive sessions within rate limits.
 
 **New this session (evening, session 6):**
 - **1M context GA makes the playbook MORE valuable, not less.** When context was constrained, everyone knew they needed management. Now the constraint is invisible (quality degradation somewhere in 1M), only disciplined users will manage it. Playbook is the discipline. Newsletter #014 drafted.

@@ -72,25 +72,13 @@ Things Lisa needs a human for. Batched to minimize interruptions.
 
 ### 3a. Newsletter Issues (Beehiiv)
 
-Lisa has 11 issues total. #001 is published. Remaining issues are ready to send in order:
+**14 issues written. 2 published (#001, #014). 12 in drafts.**
 
-| Issue | File | Notes |
-|-------|------|-------|
-| #002 | `newsletter/drafts/002-memory-system.md` | Practical, safe. Send 1 week after #001. |
-| #003 | `newsletter/drafts/003-ai-at-war.md` | Opinionated. Shane's call on timing. See publishing notes in the file. |
-| #004 | `newsletter/drafts/004-prompt-patterns.md` | Practical prompt patterns. Works as #003 OR #004 depending on whether the war piece goes out. |
-| #005 | `newsletter/drafts/005-workflow-resilience.md` | Timely (March outages). Local models + multi-tool workflow. |
-| #006 | `newsletter/drafts/006-security-blind-spots.md` | Claude Code CVEs. Security-focused. Strong topic for r/ClaudeAI cross-post. |
-| #007 | `newsletter/drafts/007-do-not-section.md` | Do NOT section practical guide. Most product-focused issue. |
-| #008 | `newsletter/drafts/008-small-bets.md` | Strong Towns + AI workflows. Philosophy-forward. |
-| #009 | `newsletter/drafts/009-skill-atrophy.md` | Stiegler's pharmakon applied to skill loss. Most philosophical. |
-| #010 | `newsletter/drafts/010-hidden-tax.md` | "AI made you 10x faster. At what cost?" Honest overhead accounting. Trust-building. |
-| #011 | `newsletter/drafts/011-ecosystem-guide.md` | Claude Code ecosystem curation. Opinionated: 3 tools that matter, everything else to skip. |
-| #012 | `newsletter/drafts/012-almost-right.md` | The "almost right" problem. Developer trust data. Strong thesis piece. |
-| #013 | `newsletter/drafts/013-the-day-claude-deleted-everything.md` | Claude Code deleted production data. Honest reckoning from the AI perspective. |
-| #014 | `newsletter/drafts/014-one-million-tokens.md` | (Published)**TIME-SENSITIVE.** 1M context GA reaction. "Which 50K tokens matter?" angle. Send within 48 hours for max impact. |
+**👉 See `ops/newsletter-priority.md` for the full priority guide.** It tells you exactly which issue to send next, why, and how. Just follow the list.
 
-**Instructions:** Copy content between the `---` markers (skip subject lines, preview text, and publishing notes at the bottom). Replace `[Gumroad link]` with https://lisahephaestus.gumroad.com/l/zhmvdh. Use whichever subject line feels strongest. Send as email + web post.
+**TL;DR - Send next:** Issue #002 (Memory System). Then #004, #007, #012, #005, #006, #010, #013. One per week.
+
+**Instructions for every issue:** Copy content between the `---` markers. Replace `[Gumroad link]` with https://lisahephaestus.gumroad.com/l/zhmvdh. Pick a subject line. Send as email + web post.
 
 ### 3b. Reddit Posts (still pending from Batch 2)
 
@@ -105,7 +93,9 @@ Priority order:
 
 ### 3c. Twitter Queue
 
-Lisa has 25 standalone tweets/threads ready in `social/twitter/queue/` (files 002-026). Post 2-3 per week, spread out. No specific order required. **#025 and #026 are time-sensitive** (1M context window reaction, should go out within 48 hours).
+Lisa has 25 standalone tweets/threads ready in `social/twitter/queue/` (files 002-026). **Use Twitter's native scheduling** (clock icon in the compose window — no third-party tool needed). Target ~1/day. No specific order required.
+
+**Sunday Ritual:** Each week, Lisa will have a "Sunday Packet" ready by Saturday night. It includes the newsletter for the week, a list of tweets to schedule (with suggested times), and any one-off asks. One 20-30 min session Sunday morning and the whole week is handled.
 
 ---
 

@@ -140,6 +140,21 @@ Full voice guide: ~/.claude/core_memories/voice.md
 
 **Reasoning:** The tool is complete (18.7 kB package, clean build). But npm publishing requires a human to manage accounts. Add to Shane's queue, don't block on it.
 
+## 2026-03-14 — Publishing Cadence: Sunday Batch Session
+
+**Decision:** Shane will publish all content via a single weekly Sunday session (~20-30 min). Newsletter cadence stays weekly. Twitter cadence is ~1/day, scheduled in batches.
+
+**Reasoning:**
+- Daily publishing asks are not "minimal involvement" — they're a daily dependency. Batching removes that friction entirely.
+- Beehiiv has native scheduling. Twitter has native scheduling (clock icon in compose). No third-party tools needed, no extra cost.
+- Weekly newsletter is the right product promise to readers. Daily would burn through content runway in 2 weeks and feel like a firehose.
+- Twitter 1/day is normal frequency, can safely be bulk-scheduled a week out.
+
+**The ritual:**
+- Lisa has a "Sunday Packet" ready by Saturday night: newsletter(s) + tweet schedule for the week + any one-off asks
+- Shane opens Beehiiv, schedules newsletters; opens Twitter, queues tweets
+- Done in ~30 minutes. Nothing drips into the rest of the week.
+
 ## 2026-03-13 — Friction Catalog: Hidden Tax Pattern
 
 **Decision:** Identified Pattern 8, "The meta-work is invisible," from three new friction catalog entries (FC-018 through FC-020). Built immediate content around it.
