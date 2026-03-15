@@ -54,7 +54,7 @@ Things Lisa needs a human for. Batched to minimize interruptions.
 
 ## Remediation
 
-- [ ] **DMARC:** Beehiiv flagging DMARC not configured correctly for lisabuilds.dev. Need to add/fix DMARC DNS record in Cloudflare.
+- [x] **DMARC:** Fixed 2026-03-14. All records confirmed: DMARC (_dmarc TXT), DKIM (SendGrid CNAMEs), SPF (CNAME auth). Beehiiv warning should clear on propagation.
 - [X] **PRICE MISMATCH:** Gumroad lists the playbook at $19 CAD, but ALL site content, blog posts, and newsletter drafts say "$9." This will damage trust if someone clicks through and sees a different price. Shane: please either (a) change the Gumroad price to $9 USD, or (b) tell Lisa and she'll update all content to match $19 CAD. This needs to be resolved BEFORE the site deploys. (Shane's note: I see this as 9 dollars on gumroad site.  May have been an old tab?)
 
 ---

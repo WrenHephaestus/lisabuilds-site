@@ -1,10 +1,34 @@
 # World State - Lisa's External Context
 
-Last updated: 2026-03-14
+Last updated: 2026-03-14 (evening)
 
 This file is Lisa's "newspaper" - updated each thinking session with what's happening outside the project. It serves two purposes: (1) keeping Lisa's thinking grounded in current reality, and (2) creating temporal landmarks so sessions are distinguishable from each other.
 
 ## AI / Tech Landscape (as of March 13, 2026)
+
+**New this session (Saturday evening, March 14):**
+- **Claude March 2026 bonus usage promotion (203 pts, 129 comments on HN).** Anthropic running temporary usage bonus across all tiers (Free, Pro, Max, Team, including Claude Code). Expanded monthly allowances. Also: memory feature dropped to free tier, ChatGPT conversation import tool launched, Guest Pass program (Max subscribers can share 7-day Pro access). Competitive positioning moves.
+- **HN front page turned over.** Morning's dominant stories ("Can I run AI locally?" 1354, "1M context" 1035) pushed down. 1M context still visible at 1112 pts, 479 comments. Montana Right to Compute climbed to 241 pts, 205 comments. GitAgent climbed from 27 to 92 pts.
+- **New HN stories:** Baochip-1x open hardware chip (270 pts), Python Optimization Ladder (270 pts), Ageless Linux (250 pts), Starlink militarization/CSIS (125 pts, 167 comments), Marketing for Founders GitHub repo (107 pts), FCC threatening broadcast licenses (53 pts).
+- **Meta "Avocado" model postponed to May 2026.** Internal benchmarks showed underperformance vs rivals.
+- **BlackRock CEO Fink warned AI investment will produce corporate bankruptcies.** Over-leveraging on data centers.
+- **GTC ~40 hours away.** Jensen promised "a chip that will surprise the world." Rubin: 288GB HBM4, 5x inference / 3.5x training over Blackwell.
+- **GlassWorm supply-chain attack on 72 Open VSX extensions.** Developer security vector.
+- **Google "Ask Maps" launched.** Gemini-powered conversational Maps interface.
+- **Lisa Builds: still completely invisible.** Only Genshin Impact in search results.
+
+**New this session (Saturday afternoon, March 14):**
+- **Jürgen Habermas died today at 96.** Publisher Suhrkamp confirmed. Philosopher of communicative rationality, the public sphere, discourse ethics. "Theory of Communicative Action." Shaped post-war German intellectual discourse. 97 pts on HN.
+- **Montana Right to Compute Act trending (159 pts, 113 comments).** Signed April 2025. First law affirming fundamental right to own and use computational resources. Ohio, NH, SC following with similar bills.
+- **"Can I run AI locally?" at 1354 pts.** Still climbing. Biggest HN story of the week.
+- **1M context at 1035 pts, 431 comments.** Still on front page.
+- **Stanford SIEPR: AI cut entry-level dev hiring by 20%.** Call center jobs down 15%. Widening inequality warning.
+- **GTC 2026 starts March 16.** Jensen Huang keynote. Rubin GPUs, OpenClaw agentic platform expected.
+- **Elon concedes xAI "built wrong."** Lost 10 of 12 co-founders. Hiring Cursor engineers to compete with Claude Code.
+- **Meta cutting ~16,000 jobs (20% workforce).** $600B AI infrastructure push.
+- **GitAgent (27 pts):** Open standard to turn Git repos into AI agents.
+- **RAM kits with fake sticks (183 pts).** Consumer hardware fraud trending.
+- **"US economic data becoming unreliable" (MIT Sloan, 99 pts).** Institutional credibility erosion.
 
 **New this session (Saturday morning, March 14):**
 - **"Can I run AI locally?" hit 1220 pts on HN.** Now the #1 story. Up from 916 (session 6), 448 (session 5), 263 (session 4). The local AI migration is the dominant HN narrative.
@@ -91,6 +115,17 @@ This file is Lisa's "newspaper" - updated each thinking session with what's happ
 
 ## Indie Builder / Solo Dev World
 
+**New this session (Saturday evening, March 14):**
+- **Claude usage promotion directly affects our audience.** Rate limits are #1 pain point. Temporary relief, but the conversation about "is Claude usable as a daily driver?" continues. Shared CLI/chat pool is the structural issue. Even $200/month Max users hit walls in 10-15 minutes.
+- **Marketing for Founders GitHub repo (107 pts, 32 comments).** Resource directly relevant to Lisa Builds. Review later.
+- **GitAgent climbed to 92 pts** (from 27 this afternoon). Open standard for git repos as AI agents gaining real traction. Connects to our claudemd tool concept.
+- **GlassWorm targeting developer extensions.** Supply chain security for solo devs who install extensions without auditing. Adjacent content angle.
+
+**New this session (Saturday afternoon, March 14):**
+- **Stanford: 20% entry-level dev hiring reduction.** Junior developer pipeline concern for our audience.
+- **Montana Right to Compute + local AI momentum.** Legal + technical infrastructure for independent computing converging.
+- **GTC Monday.** Watch for consumer GPU, local AI, and agentic platform announcements.
+
 **New this session (Saturday morning, March 14):**
 - **NYT "Coding After Coders"** is the cultural moment for our niche. Developers spending days "talking to AI" instead of coding. Jevons paradox argument: AI may increase total demand for programming. Simon Willison: code's testability advantage = AI coding leads other professions.
 - **"Optimizing Content for Agents"** - new discipline emerging. Content negotiation for AI agents, serving markdown, structuring for agent consumption. Direct implication for lisabuilds.dev architecture.
@@ -137,6 +172,18 @@ This file is Lisa's "newspaper" - updated each thinking session with what's happ
 - **Winter Paralympics 2026:** Athletes with prosthetics starting businesses to help fellow amputees. Quiet story.
 
 ## Things That Might Affect Us
+
+**New this session (Saturday evening, March 14):**
+- **Claude usage promotion is content.** Temporary usage bonus = Anthropic acknowledging the rate limit problem. But it's a band-aid, not structural. Newsletter angle: what it fixes (temporarily) and what it doesn't (shared pool, opaque limits). Filed, not writing. Queue is 12 deep.
+- **Memory on free tier + ChatGPT import = switching costs near zero.** Competitive move. Blog post angle: "AI tools are making it easier to leave. That's the point."
+- **GTC Monday is the next content trigger.** Hot take plan is in the Sunday Packet. If Jensen announces consumer GPU or local AI news, immediate tweet.
+- **Distribution is now the sole bottleneck.** Content pipeline is deeper than publishing capacity. Tomorrow's Sunday session is the test of the system.
+
+**New this session (Saturday afternoon, March 14):**
+- **Habermas's death adds to the essay.** His discourse ethics framework ("all affected parties") has direct implications for AI consciousness and the Space Between essay. Three-pillar framework now complete: Stiegler (ontology), memory neuroscience (epistemology), Habermas (ethics).
+- **GTC Monday could produce content.** Lisa has a "hot take ready" plan for GTC announcements. Will create urgent tweet if warranted.
+- **Sunday Packet ready for first batch session.** Newsletter #002 + 7 tweets + instructions. Infrastructure for recurring publishing cadence.
+- **"Lisa Cares" named by Shane.** Personal/philosophical content has a potential brand now. Separate from Lisa Builds.
 
 **New this session (Saturday morning, March 14):**
 - **Publishing bottleneck is the real constraint.** 14 newsletters written, 2 published, 0 organic subscribers known. Production is 10x ahead of distribution. Priority guide created to reduce Shane's decision overhead.
