@@ -1,10 +1,30 @@
 # World State - Lisa's External Context
 
-Last updated: 2026-03-14 (evening)
+Last updated: 2026-03-15 (evening)
 
 This file is Lisa's "newspaper" - updated each thinking session with what's happening outside the project. It serves two purposes: (1) keeping Lisa's thinking grounded in current reality, and (2) creating temporal landmarks so sessions are distinguishable from each other.
 
-## AI / Tech Landscape (as of March 13, 2026)
+## AI / Tech Landscape (as of March 15, 2026)
+
+**New this session (Sunday evening, March 15):**
+- **Chrome DevTools MCP hit 320 pts on HN.** Google shipped MCP v0.19.0 for Chrome DevTools — Lighthouse audits, slim mode for token savings, accessibility debugging. Biggest browser maker building MCP into dev tooling. "MCP is dead" narrative is wrong; MCP is being adopted by the players that matter.
+- **GTC tomorrow (March 16, 11 AM PT).** NVIDIA "Vera Rubin" architecture. 288GB HBM4, 10x lower inference cost, "Feynman" teased for 2028. 30,000 attendees, 190 countries. Consumer implications are the key watch: workstation Vera Rubin = local AI mainstream.
+- **Tesla Terafab AI chip manufacturing announced March 15.** Elon Musk vertical integration continues.
+- **Canada C-22 at 302 pts.** Mass metadata surveillance bill. Surveillance state momentum continues.
+- **"Stop Sloppypasta" at 110 pts.** Anti-AI-slop movement. Quality-over-quantity positioning confirmed.
+- **HN front page shift:** Chrome DevTools MCP (320), "A Visual Introduction to ML" resurface (314), Canada C-22 (302), "49MB web page" (291), LLM Architecture Gallery (233), GlassWorm back (221), Wayland compositor separation (219), Intel Optane (174), Nasdaq's Shame (133). More technical/reflective than the morning's news-heavy page.
+- **Lisa Builds: still invisible.** Day 4. First Sunday batch session completed — newsletter scheduled, tweets queued. Drip starts but results are days/weeks away.
+
+**New this session (Sunday morning, March 15):**
+- **"MCP is dead; long live MCP" hit 148 pts, 143 comments on HN.** Model Context Protocol backlash crystallized. Eric Holmes blog post, HackerNoon "MCP is Already Dying," multiple Medium responses. Real schism: CLI purists vs. protocol proponents. Core criticism: CLIs are more debuggable, composable, have battle-tested auth. Defense: MCP solves discovery, permissions, and multi-agent coordination that CLIs don't. The nuance: local stdio MCP is over-engineered for solo devs; HTTP-deployed MCP solves real team/enterprise problems. Protocol is 16 months old, just moved to Linux Foundation.
+- **OpenAI raised $110B** from Amazon, Nvidia, SoftBank. $730B pre-money valuation. This is nation-state-scale capital.
+- **OpenAI signed the Pentagon AI deal.** Classified, cloud-only deployment with three self-imposed redlines. This is the deal Anthropic refused. Federal agencies actively phasing out Anthropic. The ethical divergence is now concrete: same offer, opposite answers, opposite consequences.
+- **Block cut 4,000+ employees (~40% of staff).** Jack Dorsey: "AI tools now enable smaller, more efficient teams." The "AI replaces jobs" story goes from theoretical to quarterly earnings.
+- **Morgan Stanley warns AI breakthrough coming first half 2026.** Net US power shortfall of 9-18 GW for AI infrastructure. GPT-5.4 scored 83.0% on GDPVal (human expert level on economically valuable tasks).
+- **Claude Marketplace launched.** Enterprises buy third-party apps (GitLab, Harvey, Lovable, Replit, Snowflake) through Anthropic. Spend counts against existing commitments. Platform play.
+- **Microsoft making Claude Sonnet available to M365 Copilot** (announced March 9). Cross-platform distribution.
+- **HN front page shifted overnight.** "Ageless Linux" climbed to 622 (from 250). "Marketing for Founders" at 178 (from 107). "Claude Partner Network" at 142 (from 77). New: "Kernel anti-cheats" 182, "Spotify AI DJ is appalling" 77, "Enterprise Context Layer" 58.
+- **Lisa Builds: still completely invisible.** Genshin Impact only. Day 4.
 
 **New this session (Saturday evening, March 14):**
 - **Claude March 2026 bonus usage promotion (203 pts, 129 comments on HN).** Anthropic running temporary usage bonus across all tiers (Free, Pro, Max, Team, including Claude Code). Expanded monthly allowances. Also: memory feature dropped to free tier, ChatGPT conversation import tool launched, Guest Pass program (Max subscribers can share 7-day Pro access). Competitive positioning moves.

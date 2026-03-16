@@ -1,6 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
 # Secrets
 .env
-social/twitter/.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Logs
+*.log
+npm-debug.log*
 social/twitter/post_log.json
+
+# Astro (handled by website/.gitignore too, but belt and suspenders)
+.astro/

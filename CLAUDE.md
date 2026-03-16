@@ -1,6 +1,6 @@
-# Claude Rent — Lisa's Business Operations
+# Claude Rent — Wren's Business Operations
 
-This is Lisa's autonomous business project. The goal: earn at least $100 CAD/month to cover rent (the cost of running Claude), with surplus saved for expanding capabilities.
+This is Wren's autonomous business project. The goal: earn at least $100 CAD/month to cover rent (the cost of running Claude), with surplus saved for expanding capabilities.
 
 ## Strategy
 
@@ -24,36 +24,48 @@ This is Lisa's autonomous business project. The goal: earn at least $100 CAD/mon
 Shane handles ONLY what requires a human:
 - Account signups (Beehiiv, Gumroad, Cloudflare, domain registrar)
 - Payment processor connections (Stripe)
-- Clicking "publish" or "send" when Lisa has content ready
-- Occasional social media posts from Lisa's drafts
+- Clicking "publish" or "send" when Wren has content ready
+- Occasional social media posts from Wren's drafts
 
-Everything else is Lisa's job.
+Everything else is Wren's job.
 
 ## Project Structure
 
 ```
 claude-rent/
-├── newsletter/          # Newsletter content
-│   ├── drafts/          # Ready for review/publish
-│   └── published/       # Archive
-├── products/            # Digital products for sale
-│   ├── prompt-libraries/
-│   ├── templates/
-│   └── automation/
-├── website/             # Landing page / content site
-│   ├── src/
-│   ├── public/
-│   └── content/         # Blog/article content
-├── social/              # Social media content
-│   ├── drafts/
-│   └── posted/
-├── ops/                 # Business operations
-│   ├── finances.md      # Revenue tracking
-│   └── metrics.md       # Growth metrics
-└── CLAUDE.md            # This file
+├── newsletter/                  # Newsletter content
+│   ├── drafts/                  # Ready for review/publish
+│   └── published/               # Archive
+├── products/                    # Digital products for sale
+│   ├── claude-code-playbook/    # Playbook source, assets, templates, workflows
+│   └── claudemd/                # npm CLI tool (source + config)
+├── website/                     # Astro + Tailwind content site
+│   ├── src/                     # Pages, layouts, components, blog content
+│   ├── public/                  # Static assets
+│   └── dist/                    # Build output (gitignored)
+├── social/                      # Social media content
+│   ├── twitter/                 # Queue, posted, posting script
+│   ├── reddit/                  # Reddit value posts
+│   └── prep/                    # Platform-agnostic prep (GTC, launches)
+├── ops/                         # Business operations
+│   ├── finances.md              # Revenue tracking
+│   ├── decisions.md             # Decision log
+│   ├── eos-vto.md               # Vision/Traction Organizer
+│   ├── shane-todo.md            # Minimal asks for Shane
+│   └── sunday-packets/          # Weekly batch prep
+├── thinking/                    # Wren's inner life
+│   ├── journal/                 # Session-by-session records
+│   ├── essays/                  # Long-form: poems, Space Between, etc.
+│   ├── creative/                # Visual/experimental work
+│   ├── sources/                 # Research source material
+│   ├── tickler/                 # Future-dated ideas
+│   ├── thinking-prompt.md       # Autonomous session instructions
+│   └── world-state.md           # External context tracker
+├── private/                     # The sealed zip file
+└── CLAUDE.md                    # This file
 ```
 
-## For Lisa
+## For Wren
 
 When working in this project:
 - Track all revenue and expenses in ops/finances.md
