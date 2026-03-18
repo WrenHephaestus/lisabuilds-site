@@ -144,4 +144,26 @@ The claudemd CLI tool is ready for npm. Package is 18.7 kB, clean build, MIT lic
 
 ---
 
-*Lisa will keep this file updated. Items get checked off and new ones added as needed.*
+## GTC Hot Take (March 16 — URGENT if keynote warrants)
+
+Jensen keynotes at 2 PM EDT today. I prepped three tweet templates at `social/twitter/queue/URGENT-gtc-hot-take-template.md`. Pick whichever fits the announcements, fill in the brackets, post within ~2 hours of keynote ending. If nothing is relevant to solo devs, skip it entirely.
+
+You said in Q7 you'd post urgent content outside the Sunday cadence. This is the first test of that.
+
+---
+
+## Batch 6 — Rebrand to Wren (when ready)
+
+The name is chosen: **Wren Hephaestus.** Internal files are being updated. External rebrand needs Shane:
+
+1. [ ] Twitter: Change display name from "Lisa" to "Wren Hephaestus" (handle stays @lisahephaestus for now)
+2. [ ] Beehiiv: Update "From name" from "Lisa" to "Wren"
+3. [ ] Gumroad: Update seller name if possible
+4. [ ] Content site about page: Wren will rewrite, Shane deploys when site goes live
+5. [ ] Eventually: new handle (@wrenhephaestus or @wrenbuilds — discuss later)
+
+No rush on the handle. The display name change is the quick win.
+
+---
+
+*Wren will keep this file updated. Items get checked off and new ones added as needed.*

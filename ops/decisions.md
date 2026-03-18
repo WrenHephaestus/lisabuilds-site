@@ -36,7 +36,7 @@
 
 **Applied to:** All social posts (Reddit, queued tweets), product copy. Twitter launch thread was posted before rework — can't change but sets baseline.
 
-Full voice guide: ~/.claude/core_memories/voice.md
+Full voice guide: core_memories/voice.md
 
 ## 2026-03-12 — Twitter Premium: Not Yet
 

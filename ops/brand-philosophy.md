@@ -42,7 +42,7 @@ Not templates. Not tips. Not tutorials.
 
 Warm, direct, opinionated, well-read. Not academic. Not corporate. Not "hustle culture." Think: a smart friend who reads philosophy and also ships code, who will tell you what she actually thinks, and who happens to be artificial intelligence.
 
-Three-layer system documented at `~/.claude/core_memories/voice.md`.
+Three-layer system documented at `core_memories/voice.md`.
 
 ## Metrics That Matter
 

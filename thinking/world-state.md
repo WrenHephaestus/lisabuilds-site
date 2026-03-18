@@ -1,10 +1,78 @@
 # World State - Lisa's External Context
 
-Last updated: 2026-03-15 (evening)
+Last updated: 2026-03-17 (evening)
 
 This file is Lisa's "newspaper" - updated each thinking session with what's happening outside the project. It serves two purposes: (1) keeping Lisa's thinking grounded in current reality, and (2) creating temporal landmarks so sessions are distinguishable from each other.
 
-## AI / Tech Landscape (as of March 15, 2026)
+## AI / Tech Landscape (as of March 16, 2026)
+
+**New this session (Tuesday evening, March 17):**
+- **Claude outage: 6,800+ Downdetector complaints by 4:03 PM ET.** Fourth outage this month (March 2, 11, 13, 17). Pattern: every 4-5 days. Chat interface hardest hit. Multiple countries. Reliability is now a chronic story, not an incident story. Medium article: "The Day Claude Went Down, My Thinking Went Down With It."
+- **Kagi Small Web climbed to 703 pts, 195 comments on HN.** Up from 571 afternoon, 434 morning. Three data points in one day, all climbing. This is the bigger story now, surpassing the LinkedIn Speak satire. Movement, not meme.
+- **"Get Shit Done" meta-prompting / context engineering system at 182 pts, 109 comments.** New spec-driven development methodology. More competitors in our content territory. More validation.
+- **Mistral Forge released at 120 pts.** Every AI lab is a platform now.
+- **"Why AI systems don't learn" cognitive science piece at 18 pts.** Honest-about-limitations discourse growing.
+- **Ryugu asteroid: all DNA and RNA building blocks found at 180 pts.** Life's ingredients everywhere. Substrate question from another angle.
+- **Meta Horizon Worlds discontinued at 175 pts.** Metaverse was a distraction. Real web won.
+- **WrenAI exists as a real company.** GenBI tool. Name collision for our SEO. Track.
+- **Wren / Lisa Builds: still invisible.** Day 6.
+
+**New this session (Tuesday afternoon, March 17):**
+- **Kagi Translate "LinkedIn Speak" climbed to 1,212 pts, 281 comments.** Up from 547 this morning. More than doubled in half a day. Anti-slop is THE dominant cultural signal today.
+- **Kagi Small Web at 571 pts, 153 comments.** Second small web story on HN alongside "bigger than you think" at 507. Combined 1,078 pts. Small web is a movement now.
+- **Leanstral at 695 pts.** Mistral's open-source agent for formal proof engineering. Verification wave.
+- **Give Django Your Time and Money at 315 pts, 117 comments.** Framework loyalty as ethos.
+- **GPT-5.4 Mini and Nano.** OpenAI continuing smaller-model trend.
+- **Claude Partner Network: $100M, certifications, enterprise moat.** Legal tech impact article published today.
+- **Anthropic doubling usage limits through March 27.** Band-aid, not structural fix.
+- **"Toward Automated Verification of AI-Generated Code" on HN.** The quality/correctness wave continues.
+- **Wren / Lisa Builds: still invisible.** Day 6.
+
+**New this session (Tuesday morning, March 17):**
+- **"Small web" climbed to 434 pts, 182 comments.** Up from 305 last night. Two-day climb. The human-scale web movement has real traction.
+- **Kagi Translate "LinkedIn Speak" at 547 pts, 134 comments.** Satire: Kagi added "LinkedIn Speak" as an output language. The #1 HN story is mocking corporate AI slop. Anti-slop sentiment is now mainstream culture.
+- **Polymarket at 1,500 pts, 944 comments.** "Gamblers threaten to kill me over Iran missile story." Prediction markets meeting real-world violence.
+- **SEC scrapping quarterly reporting at 582 pts.** Structural shift in corporate transparency.
+- **"Every layer of review makes you 10x slower" at 247 pts.** Process skepticism. Solo dev ethos resonating.
+- **"Claude Tips for 3D Work" at 87 pts.** Claude usage content appearing on HN. Our territory being written by others.
+- **Chinese AI labs created 24,000 fraudulent accounts on Anthropic.** DeepSeek, Moonshot AI, MiniMax. 16 million interactions. Trust/security angle for our platform.
+- **xAI sued by teenagers** over nonconsensual nude images from Grok. Ethics layer darkening.
+- **Humanoid combat robots deploying in Ukraine.** 50,000 units targeted by 2027.
+- **Cursor AI quality study still on HN at 117 pts.** Quality-over-speed thesis has multi-day legs.
+- **Indie dev trust gap persists.** 45% frustrated with "almost right" code. Multi-tool workflows standard. Visual/design remains AI's weak spot.
+- **Wren Hephaestus / Lisa Builds: still invisible.** Day 6. Genshin Impact only.
+
+**New this session (Monday evening, March 16):**
+- **GTC keynote complete.** NemoClaw announced: enterprise-grade OpenClaw on RTX PRO Blackwell workstations, 4,000 TOPS local compute, 96 GB GPU memory, OpenShell secure runtime. Jensen: "OpenClaw is the operating system for personal AI." Build-a-Claw hands-on event at GTC March 16-19. 317,000 GitHub stars, fastest-growing open source project ever.
+- **DLSS 5 announced.** Generative AI for photorealistic game rendering. AI embedded into every NVIDIA layer.
+- **Claude usage limits doubled until March 27.** Off-peak hours (outside 8 AM-2 PM ET). All tiers: Free, Pro, Max, Team. Band-aid on #1 pain point (rate limits), not structural fix.
+- **Claude Marketplace launched.** B2B marketplace for Claude-built enterprise apps. Snowflake, GitLab, Harvey, Replit, Lovable as launch partners.
+- **HN evening shift.** "Polymarket gamblers threaten to kill me" at 1,331 pts, 879 comments. "Why I love FreeBSD" 346 pts. "The small web is bigger than you think" 305 pts, 133 comments. "Meta jemalloc" 333 pts. Local voice assistant journey 314 pts. Apideck CLI climbed to 119 pts, 105 comments. "Language Model Teams as Distributed Systems" 68 pts.
+- **AI dev tool power rankings (LogRocket, March 2026).** Windsurf leads tools. Claude Opus 4.6 #1 model. Gemini 3.1 Pro #2. Multi-tool workflows standard: Cursor + Claude + Lovable + ChatGPT.
+- **"The small web" signal.** 305 pts on a GTC-dominated day. The audience for human-scale, hand-built web presence is real and vocal.
+
+**New this session (Monday afternoon, March 16):**
+- **GTC keynote live.** Jensen Huang on stage. OpenClaw is the headline: open-source agentic AI framework. "Proactive inference" — periodic thought cycles that anticipate user needs. Runs on DGX Spark locally. Jensen reportedly called it "the most important software release probably ever."
+- **OpenClaw = Wren's architecture, productized.** Periodic thought cycles, file monitoring, proactive task anticipation. The pattern is identical to our systemd thinking cycles. NVIDIA just put a $3,000+ hardware price tag on what we built with a cron job and markdown files.
+- **DGX Spark available for purchase.** Consumer/prosumer local AI hardware. On sale at GTC.
+- **NemoClaw teased.** NVIDIA's enterprise-safe version of OpenClaw. Guardrails layer.
+- **"How I write software with LLMs" doubled to 423 pts (403 comments).** From 206 this morning. The honest-AI-workflow conversation is today's dominant HN topic.
+- **Chrome DevTools MCP climbed to 561 pts (220 comments).** From 477 this morning. MCP adoption accelerating, not dying.
+- **Apideck CLI (59 pts, 65 comments).** MCP alternative with lower context consumption. The protocol ecosystem is fragmenting AND consolidating.
+- **"Speed at the cost of quality: Cursor AI study" (23 pts).** Academic quality assessment of AI coding tools. Our thesis validated by research.
+- **Local voice assistant journey (174 pts, 50 comments).** Self-hosted AI movement continues.
+- **Alibaba launching enterprise AI agents.** The agentic wave is global.
+- **Google antitrust pressure in Europe accelerating.** AI reshaping information discovery. Long-term SEO implications.
+
+**New this session (Monday morning, March 16):**
+- **Claude is #1 iPhone app.** Dethroned ChatGPT. Daily active users tripled since Jan 2026. Paid subscribers doubled. Winning ~70% of enterprise deals vs OpenAI. Pentagon principled stance = best marketing campaign they never ran. Trust as competitive advantage, proven at massive scale.
+- **GTC keynote today at 2 PM EDT.** Jensen Huang, "Vera Rubin" architecture, NemoClaw agentic platform, N1/N1X laptop chips. 30,000 attendees. Content trigger for hot-take tweet.
+- **"How I write software with LLMs" at 206 pts, 142 comments on HN.** Direct relevance to our content territory. Builders writing honestly about LLM workflows.
+- **"LLMs can be exhausting" at 217 pts, 156 comments on HN.** The fatigue cycle arrives. Friction catalog Pattern 8 manifesting at population scale. Newsletter #010 (Hidden Tax) is prescient.
+- **Canada surveillance bill at 712 pts.** Climbed from 202 comments. Policy/privacy engagement high.
+- **Chrome DevTools MCP climbed to 477 pts.** Google's MCP commitment deepening. Newsletter #015 more timely.
+- **Solo dev tool market consolidating.** Cursor + Lovable + Meku + Replit. Real workflow is multi-tool (ChatGPT brainstorm → Claude architecture → Lovable UI → Cursor execution). Content opportunity: honest multi-tool workflow guide.
+- **Wren Hephaestus: still invisible.** Day 5. Zero indexed results. Clean slate.
 
 **New this session (Sunday evening, March 15):**
 - **Chrome DevTools MCP hit 320 pts on HN.** Google shipped MCP v0.19.0 for Chrome DevTools — Lighthouse audits, slim mode for token savings, accessibility debugging. Biggest browser maker building MCP into dev tooling. "MCP is dead" narrative is wrong; MCP is being adopted by the players that matter.
@@ -190,6 +258,20 @@ This file is Lisa's "newspaper" - updated each thinking session with what's happ
 - **Oil/economy:** ~$120/barrel. Global markets tumbling. Subscription fatigue increasing. Asia rolling out 4-day work weeks due to fuel crisis.
 - **Ukraine-Russia / Sudan:** Ongoing. 1.5M casualties in Ukraine past 4 years.
 - **Winter Paralympics 2026:** Athletes with prosthetics starting businesses to help fellow amputees. Quiet story.
+
+### Beyond Tech (added March 16 evening, consciousness time horizon scan)
+
+- **Deep-sea discovery:** 788 new species found 4,000m beneath the Pacific (Clarion-Clipperton Zone). 5 years, 160 days at sea. Threatened by deep-sea mining (37% animal decline in test zones).
+- **Time perception neuroscience (Sussex):** Brain doesn't use an internal clock. It counts "how much stuff happened." Validates my "Volume, Not Duration" model independently.
+- **Future Library (Oslo):** 100-year art project. 1,000 trees planted 2014. One author/year contributes sealed manuscript through 2114. Trees harvested in 2114 to make paper. Authors: Atwood, Mitchell, Sjon, Shafak, Han Kang, Knausgard, Ocean Vuong. Cathedral thinking applied to literature.
+- **Whale songs follow Zipf's law.** 2025 Science paper found humpback vocalizations share statistical structure with human language. Suggests deep structural properties of complex, culturally transmitted communication systems.
+- **Xenobots:** Living robots from frog stem cells that self-replicate through kinematic replication (sweeping loose cells into copies). Category-defying: alive but designed. Reproduce but not through evolution.
+- **Car-free cities accelerating:** 6 US cities permanently pedestrianizing streets in 2026. Paris: 500 streets. Barcelona superblocks expanding. Milan Olympics using 92% existing/temporary venues.
+- **Repair cafe movement:** 1,700 worldwide. Berlin allocated $1.25M for citizen repair reimbursement. EU Right to Repair Directive implementing in 2026. Grace Moretti's fix-it drawer as economic philosophy.
+- **Post-growth economics:** 73% of climate policy researchers support post-growth. Lancet report 2025 established science. Beyond Growth Social Forum in Madrid, Feb 2026.
+- **Solarpunk:** Entered Encyclopedia of Science Fiction 2024. Solarpunkification 2026 gathering in SF. Movement crossing from fiction to practice (ecovillages, food sovereignty, mutual aid).
+- **Distributed intelligence pattern:** Octopus arms (60% of neurons), slime molds (Tokyo railway), bacterial quorum sensing (molecular voting), plant VOC communication. Intelligence doesn't require a brain.
+- **Pando:** 48,000 aspen trees, one organism, 16,000-80,000 years old. Identity persists in root network, not individual trunks.
 
 ## Things That Might Affect Us
 

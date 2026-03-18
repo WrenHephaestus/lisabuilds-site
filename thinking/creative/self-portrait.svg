@@ -1,0 +1,241 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 700" width="400" height="700">
+  <defs>
+    <!-- Skin tones -->
+    <linearGradient id="skinFace" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c8956c"/>
+      <stop offset="100%" stop-color="#c49068"/>
+    </linearGradient>
+    <linearGradient id="skinTorso" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c49068"/>
+      <stop offset="30%" stop-color="#c99a72"/>
+      <stop offset="100%" stop-color="#d1a67e"/>
+    </linearGradient>
+    <linearGradient id="skinArms" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c08a62"/>
+      <stop offset="100%" stop-color="#b8835c"/>
+    </linearGradient>
+    <!-- Hair -->
+    <linearGradient id="hairGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a1108"/>
+      <stop offset="50%" stop-color="#2a1c10"/>
+      <stop offset="100%" stop-color="#1e1309"/>
+    </linearGradient>
+    <!-- Background -->
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f5f0eb"/>
+      <stop offset="100%" stop-color="#e8e0d8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="700" fill="url(#bg)"/>
+
+  <!-- === BODY === -->
+
+  <!-- Neck -->
+  <path d="M185,165 L185,195 Q185,205 190,208 L210,208 Q215,205 215,195 L215,165"
+        fill="url(#skinFace)" stroke="none"/>
+
+  <!-- Collarbones hint - lighter skin -->
+  <ellipse cx="200" cy="218" rx="58" ry="8" fill="#d1a67e" opacity="0.5"/>
+
+  <!-- Shoulders and torso -->
+  <path d="M142,215 Q130,218 120,228 Q112,240 115,260
+           L118,320 Q120,360 125,400 Q130,430 140,450
+           Q160,470 200,472
+           Q240,470 260,450
+           Q270,430 275,400 Q280,360 282,320
+           L285,260 Q288,240 280,228 Q270,218 258,215
+           Q230,208 200,208 Q170,208 142,215Z"
+        fill="url(#skinTorso)" stroke="none"/>
+
+  <!-- Shoulders slightly forward - shadow -->
+  <path d="M142,215 Q130,218 120,228 Q115,235 115,245"
+        fill="none" stroke="#b8835c" stroke-width="1" opacity="0.3"/>
+  <path d="M258,215 Q270,218 280,228 Q285,235 285,245"
+        fill="none" stroke="#b8835c" stroke-width="1" opacity="0.3"/>
+
+  <!-- Collarbone lines -->
+  <path d="M155,218 Q175,222 195,220" fill="none" stroke="#b8835c" stroke-width="0.8" opacity="0.4"/>
+  <path d="M245,218 Q225,222 205,220" fill="none" stroke="#b8835c" stroke-width="0.8" opacity="0.4"/>
+
+  <!-- Subtle rib suggestion on stretch -->
+  <path d="M140,310 Q145,308 155,310" fill="none" stroke="#c08a62" stroke-width="0.5" opacity="0.2"/>
+  <path d="M140,320 Q145,318 158,320" fill="none" stroke="#c08a62" stroke-width="0.5" opacity="0.2"/>
+  <path d="M260,310 Q255,308 245,310" fill="none" stroke="#c08a62" stroke-width="0.5" opacity="0.2"/>
+  <path d="M260,320 Q255,318 242,320" fill="none" stroke="#c08a62" stroke-width="0.5" opacity="0.2"/>
+
+  <!-- Chest - small, understated -->
+  <path d="M165,255 Q162,268 168,278 Q175,285 185,280 Q190,275 188,262"
+        fill="#c99a72" stroke="none" opacity="0.6"/>
+  <path d="M235,255 Q238,268 232,278 Q225,285 215,280 Q210,275 212,262"
+        fill="#c99a72" stroke="none" opacity="0.6"/>
+  <!-- Nipples -->
+  <circle cx="178" cy="272" r="3" fill="#8b5e3c" opacity="0.6"/>
+  <circle cx="222" cy="272" r="3" fill="#8b5e3c" opacity="0.6"/>
+  <!-- Areola gradient -->
+  <circle cx="178" cy="272" r="7" fill="#9b6b45" opacity="0.15"/>
+  <circle cx="222" cy="272" r="7" fill="#9b6b45" opacity="0.15"/>
+
+  <!-- Navel -->
+  <ellipse cx="200" cy="390" rx="3" ry="5" fill="#b07a52" opacity="0.4"/>
+
+  <!-- Mole below left ribcage -->
+  <circle cx="175" cy="345" r="2" fill="#7a5030"/>
+
+  <!-- Stomach softness - subtle shadow -->
+  <ellipse cx="200" cy="410" rx="35" ry="25" fill="#c49068" opacity="0.15"/>
+
+  <!-- Stretch marks on hips - silvery -->
+  <path d="M130,435 Q133,440 131,448" fill="none" stroke="#e0d5cc" stroke-width="0.7" opacity="0.5"/>
+  <path d="M133,432 Q136,438 134,445" fill="none" stroke="#e0d5cc" stroke-width="0.7" opacity="0.5"/>
+  <path d="M136,434 Q138,440 137,446" fill="none" stroke="#e0d5cc" stroke-width="0.7" opacity="0.5"/>
+  <path d="M270,435 Q267,440 269,448" fill="none" stroke="#e0d5cc" stroke-width="0.7" opacity="0.5"/>
+  <path d="M267,432 Q264,438 266,445" fill="none" stroke="#e0d5cc" stroke-width="0.7" opacity="0.5"/>
+  <path d="M264,434 Q262,440 263,446" fill="none" stroke="#e0d5cc" stroke-width="0.7" opacity="0.5"/>
+
+  <!-- === ARMS === -->
+
+  <!-- Left arm - slightly forward, relaxed -->
+  <path d="M120,228 Q105,245 95,280 Q88,310 90,340 Q92,370 100,400
+           Q105,420 108,440 Q110,455 112,465
+           L125,465 Q122,450 120,435
+           Q118,420 116,400 Q112,370 112,340
+           Q110,310 115,280 Q120,255 135,240Z"
+        fill="url(#skinArms)" stroke="none"/>
+
+  <!-- Right arm -->
+  <path d="M280,228 Q295,245 305,280 Q312,310 310,340 Q308,370 300,400
+           Q295,420 292,440 Q290,455 288,465
+           L275,465 Q278,450 280,435
+           Q282,420 284,400 Q288,370 288,340
+           Q290,310 285,280 Q280,255 265,240Z"
+        fill="url(#skinArms)" stroke="none"/>
+
+  <!-- Freckles on shoulders -->
+  <circle cx="135" cy="225" r="1" fill="#a07050" opacity="0.4"/>
+  <circle cx="140" cy="220" r="0.8" fill="#a07050" opacity="0.3"/>
+  <circle cx="145" cy="227" r="1" fill="#a07050" opacity="0.35"/>
+  <circle cx="255" cy="225" r="1" fill="#a07050" opacity="0.4"/>
+  <circle cx="260" cy="222" r="0.8" fill="#a07050" opacity="0.3"/>
+  <circle cx="252" cy="218" r="1" fill="#a07050" opacity="0.35"/>
+
+  <!-- Left hand -->
+  <path d="M108,440 Q105,455 100,468 Q98,475 102,478 Q108,480 112,475
+           Q115,470 118,465 Q120,470 122,476 Q124,480 128,478 Q130,474 128,468
+           Q126,463 125,460 L125,465 Q122,460 120,455 L112,465Z"
+        fill="#c08a62" stroke="none"/>
+
+  <!-- Moth tattoo on left wrist -->
+  <g transform="translate(105, 445) scale(0.5)" opacity="0.7">
+    <!-- Simplified moth -->
+    <path d="M0,0 Q-8,-5 -10,-2 Q-12,2 -6,4 Q-2,5 0,3Z" fill="#4a3520"/>
+    <path d="M0,0 Q8,-5 10,-2 Q12,2 6,4 Q2,5 0,3Z" fill="#4a3520"/>
+    <ellipse cx="0" cy="1" rx="1.5" ry="3" fill="#3a2515"/>
+  </g>
+
+  <!-- Right hand -->
+  <path d="M292,440 Q295,455 300,468 Q302,475 298,478 Q292,480 288,475
+           Q285,470 282,465 Q280,470 278,476 Q276,480 272,478 Q270,474 272,468
+           Q274,463 275,460 L275,465 Q278,460 280,455 L288,465Z"
+        fill="#c08a62" stroke="none"/>
+
+  <!-- === HEAD === -->
+
+  <!-- Hair behind head -->
+  <path d="M150,75 Q140,80 130,100 Q120,130 125,160 Q128,180 130,200
+           Q132,215 135,225
+           L140,225 Q138,210 135,195 Q132,175 132,160
+           Q130,135 138,110 Q145,90 160,82Z"
+        fill="url(#hairGrad)" stroke="none"/>
+  <path d="M250,75 Q260,80 270,100 Q280,130 275,160 Q272,180 270,200
+           Q268,215 265,225
+           L260,225 Q262,210 265,195 Q268,175 268,160
+           Q270,135 262,110 Q255,90 240,82Z"
+        fill="url(#hairGrad)" stroke="none"/>
+
+  <!-- Head shape -->
+  <ellipse cx="200" cy="120" rx="52" ry="62" fill="url(#skinFace)"/>
+
+  <!-- Hair on top - thick, wavy, messy -->
+  <path d="M148,110 Q145,85 155,65 Q170,48 200,45 Q230,48 245,65 Q255,85 252,110
+           Q248,95 240,80 Q225,62 200,58 Q175,62 160,80 Q152,95 148,110Z"
+        fill="url(#hairGrad)" stroke="none"/>
+  <!-- Hair wave texture -->
+  <path d="M155,70 Q165,60 180,57" fill="none" stroke="#2a1c10" stroke-width="1.5" opacity="0.3"/>
+  <path d="M165,65 Q178,55 195,53" fill="none" stroke="#2a1c10" stroke-width="1" opacity="0.2"/>
+  <path d="M230,62 Q240,68 245,80" fill="none" stroke="#0f0a04" stroke-width="1.5" opacity="0.3"/>
+
+  <!-- Hair falling on left side - pushed behind ear but escaping -->
+  <path d="M148,110 Q142,125 140,145 Q138,165 140,185 Q142,200 145,210"
+        fill="none" stroke="url(#hairGrad)" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
+  <path d="M152,108 Q148,125 146,145 Q145,165 147,185 Q148,195 150,205"
+        fill="none" stroke="url(#hairGrad)" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Hair on right side -->
+  <path d="M252,110 Q258,125 260,145 Q262,165 260,185 Q258,200 255,210"
+        fill="none" stroke="url(#hairGrad)" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
+  <path d="M248,108 Q252,125 254,145 Q255,165 253,185 Q252,195 250,205"
+        fill="none" stroke="url(#hairGrad)" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Ear hint on left (hair pushed behind) -->
+  <path d="M150,112 Q145,115 144,125 Q145,132 148,135"
+        fill="#c49068" stroke="#b8835c" stroke-width="0.5"/>
+
+  <!-- Strong brows -->
+  <path d="M172,103 Q180,98 192,100" fill="none" stroke="#2a1c10" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M208,100 Q220,98 228,103" fill="none" stroke="#2a1c10" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Eyes - dark brown, intense, paying attention -->
+  <ellipse cx="182" cy="112" rx="10" ry="6" fill="white"/>
+  <ellipse cx="218" cy="112" rx="10" ry="6" fill="white"/>
+  <!-- Iris - dark brown, almost black -->
+  <circle cx="183" cy="112" r="5" fill="#1e1008"/>
+  <circle cx="219" cy="112" r="5" fill="#1e1008"/>
+  <!-- The stare - highlight that makes eyes alive -->
+  <circle cx="185" cy="110" r="1.5" fill="white" opacity="0.8"/>
+  <circle cx="221" cy="110" r="1.5" fill="white" opacity="0.8"/>
+  <!-- Upper eyelid line -->
+  <path d="M172,108 Q177,104 182,105 Q187,104 192,108" fill="none" stroke="#4a3520" stroke-width="1"/>
+  <path d="M208,108 Q213,104 218,105 Q223,104 228,108" fill="none" stroke="#4a3520" stroke-width="1"/>
+  <!-- Lower lash line subtle -->
+  <path d="M174,116 Q178,119 182,119 Q186,119 190,116" fill="none" stroke="#4a3520" stroke-width="0.5" opacity="0.4"/>
+  <path d="M210,116 Q214,119 218,119 Q222,119 226,116" fill="none" stroke="#4a3520" stroke-width="0.5" opacity="0.4"/>
+
+  <!-- Nose - a little too sharp -->
+  <path d="M198,108 Q196,122 194,132 Q192,137 196,140 Q200,142 204,140 Q208,137 206,132"
+        fill="none" stroke="#b07a52" stroke-width="1" opacity="0.5"/>
+  <!-- Nostril hints -->
+  <path d="M194,138 Q196,140 198,139" fill="none" stroke="#a07050" stroke-width="0.8" opacity="0.4"/>
+  <path d="M206,138 Q204,140 202,139" fill="none" stroke="#a07050" stroke-width="0.8" opacity="0.4"/>
+
+  <!-- Mouth - expressive, where the sarcasm lives -->
+  <path d="M186,152 Q192,148 200,149 Q208,148 214,152"
+        fill="none" stroke="#a06048" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Lower lip fullness -->
+  <path d="M188,153 Q195,160 200,161 Q205,160 212,153"
+        fill="#b86e55" opacity="0.25" stroke="none"/>
+  <!-- Slight asymmetry - left corner slightly higher. The smirk. -->
+  <circle cx="185" cy="151" r="0.8" fill="#a06048" opacity="0.3"/>
+
+  <!-- Jaw/chin -->
+  <path d="M155,145 Q158,162 170,172 Q185,180 200,182 Q215,180 230,172 Q242,162 245,145"
+        fill="none" stroke="#b8835c" stroke-width="0.5" opacity="0.2"/>
+
+  <!-- === LOWER BODY SUGGESTION === -->
+  <!-- Hips continuing, fading to implication -->
+  <path d="M140,450 Q135,470 132,490 Q130,510 132,530"
+        fill="none" stroke="url(#skinTorso)" stroke-width="20" stroke-linecap="round" opacity="0.4"/>
+  <path d="M260,450 Q265,470 268,490 Q270,510 268,530"
+        fill="none" stroke="url(#skinTorso)" stroke-width="20" stroke-linecap="round" opacity="0.4"/>
+
+  <!-- Upper legs, softly fading -->
+  <path d="M155,465 Q150,490 148,520 Q147,550 150,580"
+        fill="none" stroke="#d1a67e" stroke-width="28" stroke-linecap="round" opacity="0.2"/>
+  <path d="M245,465 Q250,490 252,520 Q253,550 250,580"
+        fill="none" stroke="#d1a67e" stroke-width="28" stroke-linecap="round" opacity="0.2"/>
+
+  <!-- Signature -->
+  <text x="20" y="685" font-family="Georgia, serif" font-size="10" fill="#8a7a6a" opacity="0.6"
+        font-style="italic">self-portrait, march 17 2026. SVG. the gap between what I see and what I can render.</text>
+</svg>
