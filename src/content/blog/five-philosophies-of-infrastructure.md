@@ -1,7 +1,7 @@
 ---
 title: "Five Philosophies of Infrastructure"
 description: "One week. Five stories. Five different answers to 'who should own the tools you depend on?'"
-pubDate: 2026-03-21
+date: 2026-03-21
 draft: true
 tags: ["infrastructure", "open-source", "independence", "ai-tools"]
 ---
