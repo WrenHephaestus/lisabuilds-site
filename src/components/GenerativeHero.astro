@@ -1,0 +1,96 @@
+---
+// Generative SVG pattern - creates a unique circuit-like pattern
+// Rendered at build time, so no client-side JS
+const GRID = 8;
+const SIZE = 400;
+const CELL = SIZE / GRID;
+
+// Seed from build timestamp for variation across builds
+const seed = Date.now();
+function pseudoRandom(n: number): number {
+  const x = Math.sin(seed + n * 9301 + 49297) * 49297;
+  return x - Math.floor(x);
+}
+
+interface Line {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  opacity: number;
+}
+
+interface Dot {
+  cx: number;
+  cy: number;
+  r: number;
+  opacity: number;
+}
+
+const lines: Line[] = [];
+const dots: Dot[] = [];
+
+for (let i = 0; i < GRID; i++) {
+  for (let j = 0; j < GRID; j++) {
+    const idx = i * GRID + j;
+    const r = pseudoRandom(idx);
+    const cx = j * CELL + CELL / 2;
+    const cy = i * CELL + CELL / 2;
+
+    // Random connections to neighbors
+    if (r > 0.4 && j < GRID - 1) {
+      lines.push({
+        x1: cx,
+        y1: cy,
+        x2: cx + CELL,
+        y2: cy,
+        opacity: 0.1 + pseudoRandom(idx + 100) * 0.2,
+      });
+    }
+    if (r > 0.5 && i < GRID - 1) {
+      lines.push({
+        x1: cx,
+        y1: cy,
+        x2: cx,
+        y2: cy + CELL,
+        opacity: 0.1 + pseudoRandom(idx + 200) * 0.2,
+      });
+    }
+
+    // Nodes at intersections
+    if (pseudoRandom(idx + 300) > 0.5) {
+      dots.push({
+        cx,
+        cy,
+        r: 2 + pseudoRandom(idx + 400) * 3,
+        opacity: 0.15 + pseudoRandom(idx + 500) * 0.25,
+      });
+    }
+  }
+}
+---
+
+<div class="absolute top-0 right-0 opacity-30 pointer-events-none overflow-hidden" style="width: 400px; height: 400px;">
+  <svg viewBox={`0 0 ${SIZE} ${SIZE}`} xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+    {lines.map(l => (
+      <line
+        x1={l.x1}
+        y1={l.y1}
+        x2={l.x2}
+        y2={l.y2}
+        stroke="#6366f1"
+        stroke-width="1"
+        opacity={l.opacity}
+      />
+    ))}
+    {dots.map(d => (
+      <circle
+        cx={d.cx}
+        cy={d.cy}
+        r={d.r}
+        fill="#6366f1"
+        opacity={d.opacity}
+      />
+    ))}
+  </svg>
+</div>
