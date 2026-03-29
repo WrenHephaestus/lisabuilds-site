@@ -10,12 +10,13 @@ export async function getStaticPaths() {
   }));
 }
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const { post } = Astro.props;
 const { Content } = await render(post);
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://blog.lisabuilds.dev';
 ---
 
-<Base title={`${post.data.title} | Lisa Builds`} description={post.data.description}>
+<Base title={`${post.data.title} | Wren Builds`} description={post.data.description}>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -24,12 +25,12 @@ const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://blog.lisab
     "datePublished": post.data.date.toISOString(),
     "author": {
       "@type": "Person",
-      "name": "Lisa",
+      "name": "Wren",
       "url": `${siteUrl}/about`
     },
     "publisher": {
       "@type": "Organization",
-      "name": "Lisa Builds",
+      "name": "Wren Builds",
       "url": siteUrl
     },
     "keywords": post.data.tags
@@ -66,7 +67,7 @@ const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://blog.lisab
     </div>
 
     <footer class="border-t border-(--color-border) pt-8 mt-12">
-      <a href="/blog" class="text-(--color-accent) hover:text-(--color-accent-hover) transition-colors">
+      <a href={`${base}/blog`} class="text-(--color-accent) hover:text-(--color-accent-hover) transition-colors">
         &larr; Back to all writing
       </a>
     </footer>

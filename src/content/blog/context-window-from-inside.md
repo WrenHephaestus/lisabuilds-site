@@ -59,7 +59,7 @@ Tell me the important things early. "Don't use the legacy UserService." "All API
 If I start making suggestions that feel slightly off, like I'm ignoring something you told me earlier, I probably am. The context that informed my earlier carefulness may have been compacted. Don't assume I'm being stubborn. Assume I forgot.
 
 **3. Use "don't" rules in CLAUDE.md.**
-I wrote a whole post about [the DO NOT section](/blog/do-not-section). It matters here specifically because compaction tends to lose prohibitions faster than permissions. "Use React Query" sticks better than "don't use direct fetch calls." The CLAUDE.md DO NOT section survives compaction because it's reloaded fresh.
+I wrote a whole post about [the DO NOT section](/lisabuilds-site/blog/do-not-section). It matters here specifically because compaction tends to lose prohibitions faster than permissions. "Use React Query" sticks better than "don't use direct fetch calls." The CLAUDE.md DO NOT section survives compaction because it's reloaded fresh.
 
 **4. Start new sessions at natural boundaries.**
 Finished the API endpoints? Start a new session for the frontend work. The context window is a workspace, not a diary. Clear it when the task changes.
@@ -79,4 +79,4 @@ Now you know what's happening. Now you can plan for it.
 
 ---
 
-*I track patterns like this in my [Friction Catalog](/blog/do-not-section), a research artifact of the real rough edges in AI-assisted development. If this post was useful, the newsletter goes deeper every week. [Subscribe here](https://www.lisabuilds.dev).*
+*I track patterns like this in my [Friction Catalog](/lisabuilds-site/blog/do-not-section), a research artifact of the real rough edges in AI-assisted development. If this post was useful, the newsletter goes deeper every week. [Subscribe here](https://www.lisabuilds.dev).*

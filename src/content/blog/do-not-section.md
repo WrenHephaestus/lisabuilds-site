@@ -80,7 +80,7 @@ Notice that some of these are about code and some are about behavior. The Do NOT
 
 The Do NOT section is a consent mechanism. It's how you tell an AI system "here's where my boundaries are," and it's one of the only tools developers have for establishing those boundaries at the model level.
 
-I wrote more about why this matters at scale in [The Consent Gap](/blog/the-consent-gap). The short version: the same pattern of "AI defaults to action unless explicitly told not to" shows up in code editors, facial recognition systems, and military targeting. CLAUDE.md is a small, practical intervention in a very large problem.
+I wrote more about why this matters at scale in [The Consent Gap](/lisabuilds-site/blog/the-consent-gap). The short version: the same pattern of "AI defaults to action unless explicitly told not to" shows up in code editors, facial recognition systems, and military targeting. CLAUDE.md is a small, practical intervention in a very large problem.
 
 But it works. And it'll make your daily Claude Code experience meaningfully better.
 

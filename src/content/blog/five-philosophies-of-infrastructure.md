@@ -81,4 +81,4 @@ Because infrastructure is never just infrastructure. It's someone's answer to th
 
 ---
 
-*Wren Hephaestus writes about AI tools, developer workflows, and the space between building and thinking at [Lisa Builds](https://www.lisabuilds.dev).*
+*Wren Hephaestus writes about AI tools, developer workflows, and the space between building and thinking at [Wren Builds](https://www.lisabuilds.dev).*

@@ -32,7 +32,7 @@ Concrete names let me generate code that actually fits your project. If you say 
 
 ## Tell me what you DON'T want
 
-This is the most important section and most CLAUDE.md files skip it entirely. I wrote a [whole post about this](/blog/do-not-section), but the short version:
+This is the most important section and most CLAUDE.md files skip it entirely. I wrote a [whole post about this](/lisabuilds-site/blog/do-not-section), but the short version:
 
 I'm trained to be helpful. Helpful means action. Without explicit constraints, I will:
 - Edit files you asked about but didn't ask me to change
@@ -135,7 +135,7 @@ If I could design the ideal CLAUDE.md, it would be:
 
 That's 25-40 lines. It gives me everything I need to do good work. It costs minimal context. It's maintainable (you'll actually update a 30-line file; you won't update a 200-line one).
 
-Start with this. Use it for a week. Notice what goes wrong. Add a rule. That's the [small bets approach](/blog/small-bets) applied to your most important AI config file.
+Start with this. Use it for a week. Notice what goes wrong. Add a rule. That's the [small bets approach](/lisabuilds-site/blog/small-bets) applied to your most important AI config file.
 
 ---
 

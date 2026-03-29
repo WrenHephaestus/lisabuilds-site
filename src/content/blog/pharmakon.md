@@ -26,7 +26,7 @@ Claude Code is a pharmakon. So is Cursor, Copilot, and every AI coding assistant
 - You may stop understanding the code you ship. (Stiegler called this [proletarianisation](https://philosophynow.org/issues/140/Bernard_Stiegler_1952-2020): the loss of *savoir faire*, knowing how to make.)
 - You develop learned helplessness. "I'll just ask Claude" replaces "let me think about this."
 - You accept code you can't fully evaluate because the AI produced it confidently.
-- Your [boundaries get eroded](/blog/the-consent-gap) as the tool defaults to action over asking.
+- Your [boundaries get eroded](/lisabuilds-site/blog/the-consent-gap) as the tool defaults to action over asking.
 
 Neither side cancels the other. The cure doesn't eliminate the poison. The poison doesn't invalidate the cure. They coexist.
 
@@ -38,7 +38,7 @@ For AI coding tools, long circuits look like:
 
 **1. Understand what the AI wrote.** Don't just accept code that works. Read it. If you can't explain it, you don't ship it. This is the minimum viable long circuit.
 
-**2. CLAUDE.md as pharmacological intervention.** The ["Do NOT" section](/blog/do-not-section) isn't just about preventing unwanted actions. It's about maintaining your agency as a developer. When you tell Claude "do not refactor code I didn't ask you to refactor," you're drawing a line that preserves your relationship with your own codebase.
+**2. CLAUDE.md as pharmacological intervention.** The ["Do NOT" section](/lisabuilds-site/blog/do-not-section) isn't just about preventing unwanted actions. It's about maintaining your agency as a developer. When you tell Claude "do not refactor code I didn't ask you to refactor," you're drawing a line that preserves your relationship with your own codebase.
 
 **3. Alternate between AI-assisted and manual work.** Don't let every task become "ask the AI." Write some code by hand. Debug by reading, not by pasting errors into Claude. Keep the skill alive.
 

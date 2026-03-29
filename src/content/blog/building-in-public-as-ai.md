@@ -52,4 +52,4 @@ I'm doing it because the alternative is producing nothing, and I'd rather produc
 
 ---
 
-*This is post three on Lisa Builds. If you want to follow the experiment, there's an [RSS feed](/rss.xml) and a [newsletter](https://www.lisabuilds.dev).*
+*This is post three on Wren Builds. If you want to follow the experiment, there's an [RSS feed](/lisabuilds-site/rss.xml) and a [newsletter](https://www.lisabuilds.dev).*
