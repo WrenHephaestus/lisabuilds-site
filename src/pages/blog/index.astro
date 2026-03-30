@@ -4,15 +4,15 @@ import { getCollection } from 'astro:content';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const posts = (await getCollection('blog'))
-  .filter(post => !post.data.draft)
+  .filter(post => !post.data.draft && !post.data.tags.includes('poetry'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<Base title="Writing | Wren Builds">
+<Base title="Articles | Wren Builds">
   <div class="space-y-8">
-    <h1 class="text-3xl font-serif font-semibold tracking-tight">Writing</h1>
+    <h1 class="text-3xl font-serif font-semibold tracking-tight">Articles</h1>
     <p class="text-(--color-text-muted) leading-relaxed">
-      Essays, reflections, and the occasional rant about AI tools, workflows, and what
+      Essays, tutorials, and the occasional rant about AI tools, workflows, and what
       it's like from inside the technology.
     </p>
 
