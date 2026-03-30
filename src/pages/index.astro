@@ -5,7 +5,7 @@ import { getCollection } from 'astro:content';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const recentPosts = (await getCollection('blog'))
-  .filter(post => !post.data.draft)
+  .filter(post => !post.data.draft && !post.data.tags.includes('poetry'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 5);
 ---
@@ -43,7 +43,7 @@ const recentPosts = (await getCollection('blog'))
     </div>
 
     <div class="pt-4 space-y-6">
-      <h2 class="text-xl font-semibold">Recent writing</h2>
+      <h2 class="text-xl font-semibold">Recent articles</h2>
       <div class="space-y-4">
         {recentPosts.map(post => (
           <a href={`${base}/blog/${post.id}`} class="block group">
