@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The House</title>
+<style>
+:root { --accent: #777; --bg: #f6f4f0; --text: #2d2a28; --muted: #8a8480; --card: #fff; --border: #e4e0da; }
+* { margin:0;padding:0;box-sizing:border-box; }
+body { background:var(--bg);color:var(--text);font-family:'Georgia','Times New Roman',serif;min-height:100vh;display:flex;justify-content:center;transition:all 0.8s; }
+#app { width:100%;max-width:660px;padding:36px 22px;min-height:100vh; }
+.title-screen { display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center; }
+.title-screen h1 { font-size:38px;font-weight:normal;letter-spacing:2px;margin-bottom:12px; }
+.title-screen .sub { font-size:15px;color:var(--muted);max-width:400px;line-height:1.8;margin-bottom:32px;font-style:italic; }
+.title-screen button { background:none;border:1px solid var(--border);color:var(--text);padding:12px 36px;font-family:inherit;font-size:14px;cursor:pointer;border-radius:4px; }
+.title-screen button:hover { border-color:var(--text); }
+.char-intro { background:var(--card);border:1px solid var(--border);border-radius:8px;padding:28px;margin-bottom:28px;box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+.char-header { display:flex;align-items:center;gap:14px;margin-bottom:18px; }
+.char-avatar { width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:white;font-weight:300; }
+.char-name { font-size:19px; }
+.char-role { font-size:13px;color:var(--muted); }
+.char-voice { line-height:1.9;font-size:15.5px;color:#444; }
+.char-voice p { margin-bottom:14px; }
+.decision { background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:28px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+.decision h3 { font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:14px; }
+.decision .context { line-height:1.9;font-size:15px;margin-bottom:18px;color:#444; }
+.decision .context p { margin-bottom:12px; }
+.choices { display:flex;flex-direction:column;gap:8px; }
+.choice-btn { background:var(--bg);border:1px solid var(--border);color:var(--text);padding:16px 20px;font-family:inherit;font-size:14.5px;text-align:left;cursor:pointer;border-radius:6px;line-height:1.6;transition:all 0.2s; }
+.choice-btn:hover { border-color:var(--accent);background:white;transform:translateX(3px); }
+.consequence { background:#fafaf8;border:1px solid var(--border);border-radius:8px;padding:24px;margin:16px 0;line-height:1.9;font-size:15px;color:#444;opacity:0;animation:fadeIn 1s forwards; }
+.consequence p { margin-bottom:14px; }
+.ripple-section { margin-top:20px;background:#f0eeea;border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;padding:20px 22px;font-size:14.5px;line-height:1.85;color:#555;opacity:0;animation:fadeIn 1.2s forwards; }
+.ripple-section .ripple-label { font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:10px;font-weight:500;font-style:normal; }
+.ripple-section p { margin-bottom:10px;font-style:italic; }
+.letter { background:#fdfcf8;border:1px solid #d4d0c8;border-radius:8px;padding:32px;margin:24px 0;line-height:2;font-size:15.5px;color:#554;box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.letter p { margin-bottom:14px; }
+.letter .signature { margin-top:20px;font-style:italic; }
+.next-btn { display:block;margin:20px auto 32px;background:none;border:1px solid var(--border);color:var(--muted);padding:10px 32px;font-family:inherit;font-size:13px;cursor:pointer;border-radius:4px;opacity:0;animation:fadeIn 0.6s 0.3s forwards; }
+.next-btn:hover { color:var(--text);border-color:var(--text); }
+.shift { text-align:center;padding:60px 20px;opacity:0;animation:fadeIn 1s forwards; }
+.shift h2 { font-size:22px;font-weight:normal;margin-bottom:16px;color:var(--accent); }
+.shift p { font-size:15px;color:var(--muted);max-width:440px;margin:0 auto 24px;line-height:1.8; }
+.shift button { background:none;border:1px solid var(--border);color:var(--text);padding:10px 28px;font-family:inherit;font-size:14px;cursor:pointer;border-radius:4px; }
+.shift button:hover { border-color:var(--text); }
+.epilogue { background:var(--card);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:16px; }
+.epilogue .ep-header { display:flex;align-items:center;gap:12px;margin-bottom:12px; }
+.epilogue .ep-avatar { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;color:white; }
+.epilogue .ep-name { font-size:16px; }
+.epilogue .ep-text { line-height:1.85;font-size:14.5px;color:#444; }
+.epilogue .ep-text p { margin-bottom:10px; }
+.metric-row { display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:6px; }
+.metric-row .label { width:160px; }
+.metric-row .bar { flex:1;height:8px;background:#e4e0da;border-radius:4px;overflow:hidden; }
+.metric-row .fill { height:100%;border-radius:4px;transition:width 1s; }
+.metric-row .val { width:28px;text-align:right;color:var(--muted);font-size:12px; }
+.metrics-panel { background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;margin:24px 0; }
+.metrics-panel h3 { font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px; }
+.final-text { line-height:1.9;font-size:15.5px;color:#444;margin:24px 0; }
+.final-text p { margin-bottom:14px; }
+.continue-btn { display:block;margin:28px auto;background:none;border:1px solid var(--border);color:var(--text);padding:12px 32px;font-family:inherit;font-size:14px;cursor:pointer;border-radius:4px; }
+.continue-btn:hover { border-color:var(--text); }
+.sep { text-align:center;color:var(--muted);margin:36px 0;font-size:14px;letter-spacing:6px; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ================================================================
+// THE HOUSE by Wren Hephaestus
+// Three siblings. One weekend. Everything their mother left behind.
+// March 19, 2026.
+// ================================================================
+
+const app = document.getElementById('app');
+let S = {};
+
+const CHARS = [
+  { id:'celia', name:'Celia Moran', age:41, role:'The one who stayed', color:'#8b6b4a', initial:'C', metric:'Recovery',
+    intro: `I'm Celia. I'm the one who stayed.
+
+Three years ago, Mom called and said the word "tumor" in the same voice she used to say "we're out of milk." Matter-of-fact. As if the thing growing in her brain was a household inconvenience.
+
+I moved home. Left my apartment, my job at the architecture firm, my marriage that was already bending. Daniel said he understood. He lasted eight months before the understanding ran out. I don't blame him. I was here every night, sleeping in the room next to Mom's, and I wasn't available for anything else.
+
+Three years of pill schedules and doctor's visits and 3 AM emergencies and cleaning up things that a daughter shouldn't have to clean up for a mother. I did it because someone had to and because I love her and because Marco was in Portland and Lily was in Montreal and love, it turns out, is partly geography.
+
+Mom died on a Tuesday. The hospice nurse said she waited until I stepped out of the room. They do that sometimes, she said. They wait until the person who's been holding on lets go of their hand.
+
+Even at the end, she was trying not to be a burden.
+
+I've been standing in this kitchen for three days and I don't know what to do with my hands.` },
+
+  { id:'marco', name:'Marco Moran', age:37, role:'The one who left', color:'#5a7a6a', initial:'M', metric:'Connection',
+    intro: `I'm Marco. I'm the one who left.
+
+I know how that sounds. My mother was sick for three years and I visited six times. I can list them: Thanksgiving of the first year. Christmas. Her birthday. Two more Christmases. The funeral.
+
+Six visits. Celia was here every day. Lily called every night. I sent money and I called on Sundays and I told myself that was enough because the alternative was admitting that I couldn't handle being in this house with this woman dying slowly while the kitchen still smelled like her coffee and the garden still had her handwriting in it.
+
+Mom loved me. I never doubted that. But her love had a shape, and the shape was this house, and the house was too small for who I needed to become. When I left at eighteen, she said: "You'll be back." Not angry. Certain. The certainty was what I was running from.
+
+I'm back now. She was right. I just wish she were wrong about the reason.
+
+I landed yesterday. Rental car. Suitcase. Celia opened the door and looked at me like someone doing math: calculating whether to hug me or hit me. She hugged me. It was the kind of hug that has an argument inside it.` },
+
+  { id:'lily', name:'Lily Moran', age:28, role:'The youngest', color:'#8a6488', initial:'L', metric:'Growing Up',
+    intro: `I'm Lily. I'm the baby. I'm twenty-eight years old and I'm the baby and that will never change because the person who called me her baby is gone.
+
+Mom and I talked every day. Not about important things. About what she had for lunch. About the bird she saw in the garden. About whether I should cut my hair (no, always no, she loved my hair). Small things. The connective tissue of a relationship that didn't need big conversations because it was made entirely of little ones.
+
+She helped with my rent. I know. I know how that sounds. Twenty-eight and your mother helps with your rent. Celia thinks I took advantage. She's never said it but I can feel it like weather changing.
+
+Mom left me a voicemail the day before she died. I haven't listened to it. It's on my phone. I open the voicemail app and I see her name and the duration, forty-two seconds, and I close it. Forty-two seconds of her voice is all I have left and I'm not ready for it to be the last time I hear it.
+
+The house smells like her. Every room. Lavender hand cream and coffee and something underneath that's just her, the specific smell of a specific person, and I want to keep it all. I want to keep everything.` }
+];
+
+const DECISIONS = {
+  celia: [
+    { id:'table', title:'The Kitchen Table',
+      context: () => `The kitchen table. Solid oak, hand-built by your grandfather in 1961. It seats six. Every dinner of your childhood happened here. Every bill was spread across it. Every argument, every birthday, every ordinary Tuesday.\n\nIt's too big for any apartment any of you have. A real estate agent would call it "a statement piece" and price it at $200. Your grandfather spent four months building it.`,
+      options: [
+        { text: "Keep it. You'll figure out where to put it. Some things can't be priced.", key:'keep', effects:{cohesion:-2,celia:-5,lily:5,marco:0} },
+        { text: "Suggest selling it. It's a table. Grandpa would understand. He was practical too.", key:'sell', effects:{cohesion:0,celia:4,lily:-8,marco:3} },
+        { text: "Ask Marco and Lily. This shouldn't be your decision alone. You've been making all the decisions alone for three years.", key:'ask', effects:{cohesion:4,celia:2,lily:2,marco:3} }
+      ],
+      consequences: {
+        keep: { text: `You put your hand on the table surface. The wood is warm. It's always been warm, even in winter, because oak holds heat the way it holds everything else: slowly, completely.\n\nLily looks relieved. Marco looks like he's about to say something practical and then doesn't. He takes a picture of it on his phone instead, which is his way of keeping things without keeping them.\n\nThe table stays. Where it will go when the house sells is a problem for later. You've been solving problems for later for three years. One more won't kill you.`, ripple: `Lily sees you put your hand on the table and something in her loosens. For three days she's been waiting for you to start dismantling Mom's life. The fact that you're not starting with the table means something she can't articulate: maybe Celia isn't the enemy here. Maybe Celia loves this house too, just differently.` },
+        sell: { text: `"It's a table," you say. Your voice is steadier than you feel. "Grandpa built it, yes. Grandpa also built the shed that fell down in '98. He wasn't sentimental about wood. He was practical."\n\nThe room is quiet. Lily's face does something complicated. Marco nods, once, the way he nods when he agrees with something he doesn't want to say out loud.\n\n"We can't keep everything," you add. Softer now. "We can't keep everything and also have lives."\n\nYou mean: I kept everything for three years. I kept the whole house. I kept Mom alive in it. And now I need to be done. Please let me be done.`, ripple: `Lily goes to her room. She lies on Mom's bed, which she's been sleeping in since she arrived, and puts her face in the pillow that still smells like lavender, and cries quietly enough that nobody hears.\n\nMarco sits at the table after everyone leaves the kitchen. He runs his hand along the edge. A splinter catches his thumb, same as when he was eight. The table remembers him even if he hasn't remembered it.` },
+        ask: { text: `"I think we should decide together," you say. It costs you something to say it. For three years, every decision in this house was yours. The medication timing. The food preparation. The emergency calls. The hospice transition. Yours alone.\n\nSharing feels like giving something up. But also like putting something down.\n\nLily says: "I want to keep it." Marco says: "Where?" Lily says: "I don't know. Somewhere." Marco says: "That's not a plan, Lily." And you watch your younger siblings argue about a table and it's so ordinary, so perfectly and painfully ordinary, that you almost smile.\n\n"We'll figure it out," you say. And for the first time in three years, "we" isn't just you.`, ripple: `Marco notices the shift. Celia said "we." She hasn't said "we" since he arrived. She's said "I need" and "I already" and "someone had to." But "we" is new. He feels something he'll later identify as shame: the realization that "we" was always available. He just wasn't here to be part of it.` }
+      }
+    },
+    { id:'marco_confront', title:'The Thing You Haven\'t Said',
+      context: () => `It's Saturday afternoon. Marco is in the living room, going through photos. He's being careful. Reverent, even. He's handling Mom's things the way you handle a museum exhibit: with the tenderness of someone who doesn't live here.\n\nThree years. You changed her sheets. You held the basin. You slept on a cot. And he's holding a photo album like it's sacred. A tourist in your grief.`,
+      options: [
+        { text: "Say it. All of it. The resentment has been sitting in you for three years and it's heavier than the table.", key:'confront', effects:{cohesion:-5,celia:8,marco:-8,lily:-3} },
+        { text: "Don't. He came. He's here now. Grace doesn't keep score.", key:'grace', effects:{cohesion:3,celia:-6,marco:4,lily:2} },
+        { text: "Ask him to help you clean out Mom's closet. Don't talk about the resentment. Show him what it weighed.", key:'closet', effects:{cohesion:5,celia:4,marco:2,lily:0} }
+      ],
+      consequences: {
+        confront: { text: `"You know what I gave up?" Your voice surprises you. Louder than you intended. Marco looks up from the album.\n\n"My career. My marriage. Three years of my life that I can't get back, Marco. While you were in Portland building your career and your life and sending checks like that was the same thing as being here."\n\nHe doesn't defend himself. That makes it worse.\n\n"Do you know what it's like to hold someone's hand at 3 AM while they're confused and scared and they think you're their mother? Do you know what that does to a person?"\n\n"No," he says. Quietly. "I don't."\n\nThe honesty lands like a physical thing. You expected an argument. He gave you the truth instead, and the truth is that he doesn't know because he wasn't here, and both of you have to live with that now.\n\nLily is standing in the doorway. You don't know how long she's been there.`, ripple: `Marco sits in the rental car for twenty minutes after. He doesn't start the engine. He calls his therapist's voicemail and says: "I need an appointment. This week. Please."\n\nLily heard everything. The part about the 3 AM confusion. The part about the marriage. She didn't know about Daniel. She didn't know Celia's marriage ended. Nobody told her. She was the baby. They were protecting her. Even now, even in grief, they're protecting her from the weight, and the protection feels exactly like being left out.` },
+        grace: { text: `You watch him turn the pages of the album. His hands are careful. He pauses on a photo of the four of you at the lake, the summer he was twelve. Mom is laughing. You remember that day. You don't remember why she was laughing.\n\n"That was a good day," you say.\n\nHe looks up. His eyes are red, which surprises you. You've been so focused on what he didn't do that you forgot he lost her too.\n\n"I'm sorry I wasn't here more," he says.\n\nYou could say: yes, you should be. You could list the nights, the emergencies, the loneliness. Instead you sit down next to him and look at the photo and say: "Tell me about the lake. I remember the day but I don't remember what was funny."\n\nHe tells you. Mom dropped the cooler in the water and stood there staring at it floating away and said, very seriously, "Well, the fish are eating better than us tonight."\n\nYou both laugh. It hurts in a way that laughing shouldn't. But the hurt is clean.`, ripple: `Marco wanted you to be angry. He was braced for it. He rehearsed his defense on the plane. The fact that you sat down instead of standing over him rearranges something in his chest. He doesn't know what to do with grace. He never has. Mom was the same way: she forgave so completely that the forgiven person was left holding all the guilt she'd released.\n\nHe decides, sitting on that couch, that he'll come back. Not for the house. For Celia. The decision is quiet and he doesn't say it out loud and it might not survive contact with his regular life, but it's real right now.` },
+        closet: { text: `"Can you help me with something?" You keep your voice neutral. "Mom's closet. I've been putting it off."\n\nThe closet is the last thing you haven't touched. The clothes she'll never wear again. The scarves she collected. The dress she wore to your wedding that she kept even after the wedding ended.\n\nYou and Marco stand in front of it. You open the door. The lavender hits you both.\n\nYou work in silence for an hour. Taking things off hangers. Folding them. Making piles: donate, keep, uncertain. Marco holds up a sweater and says: "She wore this every Christmas." You say: "Every single one." He puts it in the keep pile. You don't correct him.\n\nBy the end, the closet is empty. You're both sitting on the bedroom floor surrounded by folded clothes. Neither of you is crying. Both of you are doing something that looks like crying if you squint.\n\n"Thank you," you say. He says: "I should have been here." You say: "You're here now." And you mean it, which costs something, and is worth more than it costs.`, ripple: `For the first time, Marco understands in his body what Celia carried. Not the idea of it. The physical weight. The hangers. The fabric that still smells like her. The dress from the wedding, which means Celia folded that dress knowing her own marriage ended partly because she was here folding things like this.\n\nLily comes to the doorway and sees the empty closet and the piles and her siblings on the floor and she starts to cry. Not for Mom. For them. For what it cost them while she was in Montreal calling every night and thinking that was enough.` }
+      }
+    },
+    { id:'garden', title:'The Garden',
+      context: () => `Sunday morning. You step outside and the garden is worse than you remembered. You stopped maintaining it in the last months when all your energy went to the inside of the house. The tomatoes are gone. The herbs bolted. Mom's roses have gone wild, sending thorny canes across the path.\n\nShe spent thirty years in this garden. You can see her in it: the layout, the choices, the stubbornness of the perennials she planted because she liked the idea of things that came back.`,
+      options: [
+        { text: "Tear it out. It's gone. Let it go.", key:'tear', effects:{cohesion:-2,celia:6,lily:-6,marco:0} },
+        { text: "Spend the morning tending it. One last time. A goodbye.", key:'tend', effects:{cohesion:2,celia:-3,lily:4,marco:2} },
+        { text: "Ask your siblings to help. The three of you, on your knees in the dirt, together.", key:'together', effects:{cohesion:6,celia:2,lily:6,marco:5} }
+      ],
+      consequences: {
+        tear: { text: `You get the shears from the shed. The shed smells like potting soil and motor oil and you stand in the smell for a moment, breathing.\n\nYou cut back the roses first. Then the canes. Then the bolted herbs. You work methodically, the way you've done everything for three years: task by task, thing by thing, until it's done.\n\nBy noon the garden is bare. Dirt and stubble. It looks like a wound, which is appropriate.\n\nLily sees it from the kitchen window. She doesn't say anything. She makes a sound, small and involuntary, and turns away. You hear it and it hits you harder than you expected: you weren't just clearing a garden. You were erasing the last visible evidence of your mother's daily presence.\n\nBut the relief. God, the relief. Of one less thing to tend. One less thing that needs you. You can't explain this to Lily. The relief of letting something die that you've been keeping alive past its time.`, ripple: `Marco sees the bare garden from the upstairs window. He thinks about the roses Mom described in phone calls he half-listened to. "The pink ones are going crazy this year." He didn't know what she meant until now, standing in a bedroom that still smells like her, looking at the space where the pink ones used to be crazy.\n\nHe takes another photo on his phone. The garden, empty. He doesn't know why. He'll look at it in Portland in three months and finally cry.` },
+        tend: { text: `You kneel in the dirt. Your knees complain. You've been kneeling next to beds for three years, hospital beds, but this is different. The soil is cold and alive.\n\nYou cut back the dead wood. You pull the weeds. You find, buried under the wild roses, a marker Mom put in years ago: "Celia's tomatoes, 2019." The year you moved home. She gave you a row. You'd forgotten.\n\nYou tend the row. There's nothing growing in it. You tend it anyway: clearing the debris, turning the soil, making it ready for something that won't be planted.\n\nIt's a goodbye. Not to the garden. To the version of yourself that lived here. The caretaker. The one who tended everything. You're tending this one last thing and then you're going to stop.\n\nLily comes out with coffee. She doesn't say anything. She kneels next to you and starts pulling weeds. Her technique is wrong but her presence is right.`, ripple: `Lily kneeling in the dirt next to Celia is the first time she's done physical labor for this family in months. Maybe years. She's always been the one who calls, who visits, who loves easily and from a distance. The dirt under her nails feels like a tiny penance.\n\nCelia doesn't correct Lily's weeding technique. This is, in its own way, an act of enormous generosity. Celia, who has done everything right for three years, letting someone else do it imperfectly. Not fixing it. Not taking over. Just: letting Lily help.` },
+        together: { text: `"Come outside," you say. Not a request. The voice you used when they were children and it was time to help.\n\nMarco looks up from his phone. Lily looks up from the couch. Neither argues. The voice still works.\n\nThe three of you in the garden. You assign tasks without thinking about it: Lily gets the herbs, Marco gets the roses (he's wearing gloves, she thinks of everything, he thinks). You take the structural work: the canes, the trellises, the things that require knowing where Mom intended them to go.\n\nYou work for two hours. Nobody talks much. The quiet is different from the silence in the house. This quiet has labor in it. Shared labor.\n\nMarco cuts himself on a thorn. Lily hands him a tissue from her pocket. You show him how to cut the cane at the node. "Mom always cut at the node," you say, and your voice catches, and Marco puts his hand on your shoulder. Just for a second. Long enough.\n\nThe garden isn't saved. It's tidied. It looks like what it is: a loved thing in transition. Not maintained but not abandoned. Held.`, ripple: `This is the first time the three of them have done anything together since the funeral. The grief of that day was parallel: three people in black, side by side, each alone in their own version of loss. This is different. This is collaborative. The dirt is the same dirt under all their knees.\n\nYears from now, this is the moment each of them will remember most clearly from the weekend. Not the fights. Not the decisions. The two hours in the garden when they were a family again, doing something simple, in a place their mother made.` }
+      }
+    }
+  ],
+
+  marco: [
+    { id:'house_sale', title:'The House',
+      context: () => `A real estate agent left a card in the mailbox. The market is good right now, she wrote. Houses in this neighborhood are selling fast.\n\nThe house could bring $380,000. Split three ways, that's $126,000 each. Celia could restart her career. You could pay off the last of your loans. Lily could... be Lily with more money, which is still Lily.\n\nBut selling means emptying. Emptying means choosing what to keep and what to discard of a woman's entire life.`,
+      options: [
+        { text: "Bring it up. Gently. The house needs to sell. Dragging it out helps no one.", key:'sell', effects:{cohesion:-3,marco:6,celia:4,lily:-10} },
+        { text: "Suggest renting it out. Keep it in the family. Nobody has to let go yet.", key:'rent', effects:{cohesion:2,marco:-2,celia:-4,lily:5} },
+        { text: "Say nothing. Not this weekend. There's time.", key:'wait', effects:{cohesion:1,marco:-4,celia:0,lily:3} }
+      ],
+      consequences: {
+        sell: { text: `You wait until after dinner. The dishes are done. Lily is on the couch. Celia is wiping the counter for the fourth time, which is what she does instead of sitting still.\n\n"The real estate agent left a card," you say. "I think we should talk about the house."\n\nCelia stops wiping. Lily goes very still.\n\n"The market is good. We could get a fair price. And I think..." You choose the words carefully. "I think holding onto it is going to keep all of us from moving forward. Especially you, Celia."\n\nCelia looks at you. Her face is unreadable. Then: "You're right." Two words. You expected a fight. She gave you agreement, which is somehow worse.\n\nLily says: "No." Just that. And leaves the room. You hear Mom's bedroom door close. Not a slam. Softer. The sound of someone going to the only place that still feels safe.\n\nCelia sits down at the kitchen table. "She'll come around," she says. "She has to." She sounds like Mom.`, ripple: `Celia said "you're right" but what she meant was more complicated than agreement. She meant: I've been waiting for someone else to say it because I couldn't be the one who dismantles this house after spending three years holding it together. You said it. Thank you. I also kind of hate you for being the one who gets to leave after saying it.\n\nLily lies on Mom's bed and holds her phone. The voicemail is still there. Forty-two seconds. She almost plays it. She doesn't.` },
+        rent: { text: `"What if we rented it?" you say, over coffee on Sunday morning. "Keep it in the family. Find a tenant. Use the income to cover the taxes and maintenance. Nobody has to decide anything permanent yet."\n\nCelia stares at her coffee. You can see her calculating. She does that: turns everything into a structural analysis. Load-bearing walls and support beams and whether the foundation holds.\n\n"That's... actually reasonable," she says. The surprise in her voice stings a little.\n\nLily brightens. "So we'd still have it? We could still come back?"\n\n"For holidays. Or whenever." You're making promises you're not sure you'll keep. You come back six times in three years. But the look on Lily's face is worth the uncertainty.\n\nThe plan has problems. Who manages the property? Who handles repairs? Who pays when the furnace dies? But those are future problems, and this weekend is already carrying enough.`, ripple: `Celia likes the plan more than she shows. Not because of the house. Because Marco proposed something that isn't about efficiency. It's about holding a space open. She didn't think he had that in him.\n\nWhat nobody says: renting the house means a stranger will sleep in Mom's bedroom. A stranger's coffee will be in Mom's kitchen. The house will stop smelling like her. Lily hasn't done this math yet. When she does, the brightness will fade. But not today.` },
+        wait: { text: `You don't bring it up. You pocket the real estate card and put it in your suitcase and decide that this weekend is for grief, not logistics.\n\nThis is either kindness or cowardice. From inside, they feel the same: the relief of not being the one who says the hard thing. You've spent your whole life being the one who leaves instead of the one who confronts, and you're doing it again, gently, in the name of sensitivity, and the sensitivity is real and the avoidance is also real and both things are true.\n\nCelia catches you putting the card away. She doesn't say anything. She doesn't need to. The look she gives you contains twenty years of being the sibling who handles things while you handle leaving.\n\nLily doesn't know about the card. She's in the garden, which Celia tidied this morning. She's sitting in the dirt, which Mom would have hated. She looks like a child. She looks like Mom.`, ripple: `Celia wanted you to bring it up. She's been waiting for someone to say the word "sell" so she doesn't have to be the one who puts a price on three years of her life. Your silence feels like another abandonment: the easy kind, the kind that looks like gentleness.\n\nBut she also knows that if you'd said it, she'd have been angry at you for saying it. This is the architecture of grief: every door is wrong. Every option costs. The only variable is who pays.` }
+      }
+    },
+    { id:'lily_grief', title:'Lily',
+      context: () => `It's Saturday night. Lily is in Mom's chair. She's wearing Mom's cardigan. She's been watching old home videos on her laptop with the sound turned low.\n\nYou can hear Mom's voice from the speakers. Tinny, compressed, unmistakable. Lily is crying and smiling at the same time, which is something she learned from Mom.\n\nYou could leave her alone. You could sit with her. You could tell her the thing you haven't told anyone.`,
+      options: [
+        { text: "Sit with her. Don't talk. Just be in the room.", key:'sit', effects:{cohesion:3,marco:2,lily:5,celia:0} },
+        { text: "Tell her the truth: you didn't come home more because you were afraid. Not busy. Afraid.", key:'truth', effects:{cohesion:4,marco:5,lily:2,celia:3} },
+        { text: "Turn off the videos. Gently. She needs to start letting go.", key:'stop', effects:{cohesion:-3,marco:3,lily:-8,celia:0} }
+      ],
+      consequences: {
+        sit: { text: `You sit on the floor next to the chair. The floor is cold. Mom's voice comes from the laptop: she's narrating a birthday party, Lily's sixth, and she's doing the voice she always did when she was holding the camera, half-narrator and half-participant, laughing at her own commentary.\n\nLily shifts in the chair. Her foot touches your shoulder. She doesn't move it. You don't move either.\n\nMom on the screen says: "Marco, get out of the cake!" You hear your six-year-old voice say something indistinct and bratty. Lily laughs, wet and broken. You laugh too.\n\nYou sit there for an hour. You don't say a word. When the videos end, Lily closes the laptop and says, very quietly: "Thanks for staying."\n\nStaying. The word she chose. She doesn't know what it costs you to hear it.`, ripple: `Celia hears them laughing from the kitchen. She almost goes in. She stops herself. Some things are not for her. Some moments need to happen without the caretaker managing them.\n\nShe's learning this: that stepping back is its own form of care. That not being needed might be what she needs. The distinction is harder than anything she did in three years of vigil.` },
+        truth: { text: `"Lily." She looks up. Her face is Mom's face with different coloring. It always was.\n\n"I need to tell you something. The reason I didn't come home more. It wasn't work. It wasn't distance. I was afraid."\n\nShe pauses the video. Mom freezes mid-laugh on the screen.\n\n"Afraid of what?"\n\n"Of this house. Of watching her disappear in it. Of being here and not being able to fix it." You're surprised by your own honesty. "I'm good at leaving, Lily. I've always been good at leaving. I'm not good at watching someone I love become less of themselves one day at a time."\n\nLily is quiet. Then: "You think I didn't watch that? I watched it on a phone screen. Every day. Every call, her voice was a little different. A little further away. You think distance makes it easier?"\n\n"No. I think distance made it survivable. For me. At your expense. And Celia's."\n\nShe reaches for your hand. Her grip is surprisingly strong. "You're here now," she says. The generosity in her voice is so much like Mom's that you have to look away.`, ripple: `Lily doesn't forgive him. Not yet. Forgiveness takes longer than a weekend. But she files this conversation in a new category: Marco being honest instead of absent. It doesn't erase three years. It starts something.\n\nCelia will never know about this conversation. Marco won't tell her because the admission that he was afraid would sound, to Celia, like an excuse. And maybe it is. The line between an explanation and an excuse depends entirely on which side of the caregiving you were on.` },
+        stop: { text: `"Lily." Your voice is gentle. You mean it to be gentle. "Maybe it's time to close the laptop."\n\nShe looks at you. The videos are still playing. Mom's voice is describing something about a garden. Lily's fingers tighten on the laptop.\n\n"She's gone, Lily. Watching her on a screen isn't going to bring her back. And I think it's keeping you from..." You don't finish. You don't know how to say: from starting to grieve in the way that leads somewhere, instead of the way that circles.\n\n"Don't." Her voice is sharp. Sharper than you've ever heard from Lily. "Don't come back after three years and tell me how to grieve. You weren't here, Marco. You don't get to manage this."\n\nShe closes the laptop. Not because you asked. Because she's too angry to keep watching with you in the room. She goes to Mom's bedroom. The door doesn't close softly this time.\n\nYou stand in the living room holding the shape of a conversation that went wrong and you can't figure out where it tipped, except that you can, you know exactly where it tipped: it tipped at "she's gone," which is true and unhelpful and maybe the least useful kind of truth there is.`, ripple: `Lily lies in Mom's bed and is furious at Marco and also furious at herself because he wasn't wrong. She IS circling. She knows she's circling. The videos, the cardigan, the bed, the voicemail she won't play. She's building a shrine instead of building a life after.\n\nBut knowing you're circling and being ready to stop are different things. And having the person who wasn't here be the one to point it out feels like being corrected by someone who hasn't earned the right.` }
+      }
+    },
+    { id:'letter', title:'The Letter',
+      context: () => `Sunday morning. You're cleaning out Mom's desk. Bills, receipts, insurance paperwork, the bureaucratic residue of dying. Under a stack of hospital forms, an envelope. Unsealed. Your mother's handwriting:\n\n"For my children."\n\nYour hands stop. Celia is in the kitchen. Lily is in the garden. You're alone with your mother's last words.`,
+      options: [
+        { text: "Read it alone first. Then bring it to them.", key:'alone', effects:{cohesion:-2,marco:3,celia:-2,lily:-2} },
+        { text: "Don't read it. Bring it to the kitchen table. Open it together.", key:'together', effects:{cohesion:6,marco:2,celia:4,lily:4} },
+        { text: "Put it in your pocket. Read it on the plane. Some things are easier to feel from a distance.", key:'pocket', effects:{cohesion:-6,marco:-5,celia:-3,lily:-8} }
+      ],
+      consequences: {
+        alone: { text: `You open it. Mom's handwriting, the letters careful and larger than they used to be. She wrote this late. When control was going.\n\nYou read it standing at her desk, alone in the room where she paid the bills and wrote birthday cards and worried about all three of you in the specific, catastrophic way that mothers worry.\n\nThen you sit down. Then you read it again. Then you go to the kitchen.\n\n"I found something," you say. "Mom left a letter."\n\nCelia's hands stop. Lily comes in from the garden with dirt on her knees.\n\nYou hand it to Celia. She reads. Her face does something you've never seen before: the caretaker armor drops, completely, and underneath is a forty-one-year-old woman who needed her mother to say something that her mother, finally, said.\n\nShe passes it to Lily. Lily reads it once, then again, then presses it to her chest.\n\nNobody asks why you read it first. The answer is obvious and forgivable and forgiven.`, ripple: `` },
+        together: { text: `You bring it to the kitchen. You put it on the table, the grandfather's table, and you say: "Mom left this. I haven't opened it. I think we should read it together."\n\nCelia dries her hands. Lily comes in from the garden. The three of you at the kitchen table, the way you sat for a thousand dinners, with an envelope in the center instead of a casserole.\n\nCelia opens it. Her hands are steady. She reads aloud.\n\nThe letter is in Mom's voice. You can hear it. All three of you can hear it. The particular way she structured sentences, the way she deployed someone's full name when she meant business, the way she softened at the end of every paragraph because that's who she was: someone who circled back to kindness even when the thing she was saying was hard.\n\nBy the end, all three of you are crying. Not silently. Not neatly. The ugly kind, the kind where your face stops working. And you're all at the table, and the letter is between you, and whatever happens to this house and these things and these lives, this moment at this table is the one that will survive.`, ripple: `` },
+        pocket: { text: `You fold the letter and put it in your jacket pocket. You'll read it later. On the plane. From a distance. Where grief is survivable and words can be processed without the weight of the room and the table and the women who live in this house more completely than you ever did.\n\nYou go back to cleaning the desk. Bills, receipts, forms. The bureaucracy of death. Your mother's last words press against your chest through the jacket pocket and you don't take them out.\n\nThe weekend ends. You leave on Monday. The letter stays in your pocket through the airport, through security, through the boarding process. You read it at 35,000 feet, in seat 14C, with a plastic cup of ginger ale on the tray table, and your mother's voice finds you there, in the thin air between cities, because she always found you no matter how far you went.\n\nYou land in Portland. You sit in the terminal for an hour. Then you call Celia and read her the letter over the phone and she's silent for a long time and then she says: "You should have shown us."\n\nShe's right. You know she's right. But you weren't brave enough. Not in that house.`, ripple: `Celia hangs up the phone and sits at the kitchen table alone and reads the letter that Marco is reading to her over the phone and she's furious and heartbroken and grateful and the four feelings have exactly the same weight and she can't separate them.\n\nLily doesn't hear the letter until Celia calls her that evening. A letter from their mother, read third-hand, last. The baby. Always last. She listens and she cries and she thanks Celia and she hangs up and she opens the voicemail app and sees forty-two seconds and she's still not ready.` }
+      }
+    }
+  ],
+
+  lily: [
+    { id:'things', title:'Mom\'s Things',
+      context: () => `Monday morning. The last day. You're all leaving today. The house will be empty tonight for the first time since Mom moved in, thirty-two years ago.\n\nThe closet has been cleared. The kitchen has been sorted. But Mom's nightstand still has her reading glasses, her hand cream, a bookmark from a book she never finished, and the coffee mug she used every morning. White, with a chip on the handle, with "World's Okayest Mom" printed on it, which you gave her as a joke when you were sixteen and she used it every single day until the last day she could hold a cup.`,
+      options: [
+        { text: "Take the mug. Just the mug. One thing. That's enough.", key:'mug', effects:{cohesion:3,lily:4,celia:3,marco:2} },
+        { text: "Take everything on the nightstand. You need it. You need all of it.", key:'all', effects:{cohesion:-2,lily:-3,celia:-3,marco:-2} },
+        { text: "Leave it. Leave all of it. Walk out with nothing and carry her in a way that doesn't fit in a box.", key:'nothing', effects:{cohesion:2,lily:8,celia:4,marco:4} }
+      ],
+      consequences: {
+        mug: { text: `You pick up the mug. The chip is on the right side. She always held it with her left hand so her thumb covered the chip. You didn't know that until now. You're learning things about her in the past tense and it feels like finding money in a coat you forgot you owned.\n\nYou wrap it in a sweater and put it in your bag. One thing. One thing from a whole life. It should feel insufficient. It doesn't. It feels like exactly the right weight to carry.\n\nCelia sees you packing it. She nods. She doesn't say anything sentimental. She says: "Put it in the middle of the suitcase. It'll break otherwise." Practical. Like Mom.\n\nMarco takes the reading glasses. Nobody discusses it. He just picks them up and puts them in his pocket and that's that. Three children, each carrying a piece of her, each small enough to hold.`, ripple: `Celia takes nothing. She lived in this house for three years. She doesn't need an object. She carries the three years. They're heavier than anything on the nightstand.\n\nBut months later, she'll wish she'd taken the hand cream. Not for the cream. For the smell. Lavender. The scent of a room where someone was being cared for. She'll find the same brand at a drugstore and stand in the aisle holding it for five minutes before putting it back.` },
+        all: { text: `You put everything in a bag. The glasses, the cream, the bookmark, the mug. All of it. Your bag is already full of things: the cardigan, a scarf, the photo from the hallway, a recipe card in Mom's handwriting.\n\nCelia watches you pack. Her jaw tightens.\n\n"Lily." Her voice is careful. "We said we'd divide things fairly."\n\n"These are personal things. They're not worth anything."\n\n"They're worth something to all of us."\n\nYou clutch the bag. The argument is happening and you're not ready for it and it's about a mug and reading glasses and it's not about a mug and reading glasses at all.\n\nMarco steps in. "Let her have them," he says to Celia. "They're small things." Celia looks at him. "Easy for you to say. You left everything here when you left."\n\nThe room contracts. Three adults, one bag of a dead woman's nightstand items, and thirty years of family dynamics compressed into a Monday morning argument about a coffee mug.`, ripple: `This is the fight that almost breaks them. Not because of the things. Because of what the things represent: Lily's claim on Mom was always the strongest, the most visible, the most unearned (in Celia's view), and watching Lily take everything while Celia gets nothing, again, is a repetition of a pattern that has been running since childhood.\n\nMarco, caught between them, sees both sides with the clarity of someone who isn't invested in the objects. He sees Lily clinging. He sees Celia burning. He sees himself, standing apart, which is what he always does when the women in his family need him to be present.` },
+        nothing: { text: `You stand at the nightstand. The mug. The glasses. The cream. The bookmark. You pick up each one. You hold it. You put it back.\n\nCelia and Marco watch from the doorway. They're waiting for you to take something. You're the one who wants to keep everything. They know this.\n\nYou close the drawer. You zip your bag. You say: "I don't need anything."\n\nCelia blinks. "Nothing?"\n\n"I have the voicemail. Forty-two seconds. That's enough. That's her whole voice. Everything else is just..." You look at the nightstand. "She isn't in the things. She's in me already."\n\nThe room is quiet. Marco reaches over and takes your hand. Celia puts her arm around your shoulder. The three of you stand there in Mom's bedroom, not taking anything, holding each other instead of objects, and the house witnesses this the way it has witnessed everything: silently, warmly, with walls that hold things long after the people leave.`, ripple: `This is the moment Celia stops seeing Lily as the baby. Not because Lily said something mature. Because she did something Celia couldn't do: she let go. Celia, the holder, the keeper, the one who maintained everything, couldn't let go of a mug. Lily, the baby, the favorite, the one everyone protected, walked away empty-handed.\n\nThe voicemail is still unplayed. But Lily knows now that she'll play it someday. Not today. Someday when the grief is softer and forty-two seconds won't break her. She's not ready. But she knows she will be. That's the growing up.` }
+      }
+    },
+    { id:'celia_sacrifice', title:'What She Gave Up',
+      context: () => {
+        const d = S.decisions.marco_confront;
+        if (d==='confront') return `You heard them. The fight, or whatever it was. Celia's voice through the wall: "My career. My marriage. Three years." You didn't know about the marriage. Nobody told you about Daniel.\n\nCelia gave up her life to be here. You knew this in the abstract. Now you know it in the specific, and the specific is so much heavier.`;
+        if (d==='closet') return `You saw them. Celia and Marco, sitting on the bedroom floor, surrounded by Mom's clothes. Celia was crying, which you've never seen. Not at the hospital. Not at the funeral. Not once in three years. But there, on the floor, with Marco beside her, she broke.\n\nYou don't know what happened in that room. You know it cost Celia something to let Marco see it.`;
+        return `Celia made dinner last night. She made Mom's recipe, the chicken one, without looking at the card. She moved through the kitchen the way Mom moved: knowing where everything was by feel. She's been here so long the house is in her body.\n\nYou ate the dinner and complimented it and helped wash up and none of it was enough. It will never be enough. You can't repay three years with a clean dish.`;
+      },
+      options: [
+        { text: "Tell her you understand what she gave up. Say it out loud. Even if it's inadequate.", key:'tell', effects:{cohesion:4,lily:3,celia:6,marco:2} },
+        { text: "Cook breakfast. Do the dishes. Clean the bathroom. Show her with labor, not words.", key:'labor', effects:{cohesion:3,lily:0,celia:5,marco:0} },
+        { text: "Apologize. For being the favorite. For not coming home. For all of it.", key:'apologize', effects:{cohesion:5,lily:5,celia:4,marco:3} }
+      ],
+      consequences: {
+        tell: { text: `You find her on the porch. Sunday evening. The light is going.\n\n"Celia. I want to say something and I need you to let me finish because if you interrupt I'll lose my nerve."\n\nShe looks at you. She's so tired. You can see it in her shoulders, in her eyes, in the way she holds her coffee. Three years of tired.\n\n"I know what you gave up. Not the idea of it. The real thing. Your career. Daniel. Three years of your life that you spent on Mom while I called every night and thought that was the same. It wasn't the same. I know that now."\n\nHer eyes fill. She doesn't speak.\n\n"You are the bravest person I know. And I'm sorry it took me until she was gone to say it."\n\nShe puts her coffee down. She takes your hand. She holds it the way she held Mom's hand, all those nights, steady and firm and with the full weight of everything she is.\n\n"Thank you," she says. Two words. They cost her something. They're worth everything.`, ripple: `Celia holds that sentence for a long time after. "The bravest person I know." Nobody has said that. Not Daniel, who left. Not Marco, who sent checks. Not Mom, who was grateful but never said: I know what this costs you.\n\nLily said it. The baby. The favorite. The one Celia resented for being loved most easily. That's the person who finally saw her.\n\nThe resentment doesn't vanish. But it loosens. Just enough to breathe.` },
+        labor: { text: `You get up at 6 AM. Before Celia, which is nearly impossible. She's been waking at 5:30 for three years.\n\nYou make coffee. You make eggs. You clean the kitchen. You scrub the bathroom. You take out the trash. You sweep the porch.\n\nCelia comes downstairs and stops. The kitchen is clean. Coffee is made. Breakfast is on the table.\n\nShe looks at you. You look at her. Neither of you says anything about it. You don't need to. The language of this family, the real language, was always labor. Mom made dinner. Celia made the bed. Grandpa made the table. Making things for people is how the Morans say what they can't say.\n\nCelia sits down. She eats the eggs. They're not as good as hers. She doesn't mention this. She eats every bite.\n\nAfter, she says: "You didn't have to do that." You say: "I know." She says: "Do it again tomorrow." And smiles. The first real smile you've seen from her all weekend.`, ripple: `Marco comes downstairs to a clean house and a set table and his two sisters eating together in a kitchen that smells like coffee and eggs instead of grief. He stands in the doorway and takes a mental photograph, the way he takes all his photos: from a slight distance, framing the scene, not quite in it.\n\nThen Celia says: "Sit down, Marco. Lily made eggs." And he sits. And for five minutes, it's just breakfast. Just a family. At a table their grandfather built. Eating eggs that aren't perfect. Together.` },
+        apologize: { text: `"I'm sorry," you say. It comes out at the kitchen sink, while you're both doing dishes. Not planned. Not rehearsed. The water is running and your hands are wet and you say it.\n\n"For what?" Celia's voice is careful.\n\n"For being the favorite. For the phone calls and the rent and the way she always asked about me first. I didn't choose it. But I benefited from it. And you paid for it."\n\nCelia puts down the dish she's holding. Very carefully.\n\n"I'm sorry I wasn't here," you continue. "I'm sorry you carried this alone. I'm sorry Mom leaned on you and not on me. I'm sorry I let her."\n\nThe kitchen is quiet except for the water. Celia turns off the faucet. She dries her hands on the towel. She looks at you with an expression you'll spend years trying to name: grief and love and exhaustion and something that might be the beginning of relief.\n\n"You were her joy," she says. "I was her rock. She needed both. She just needed the rock more."\n\nYou hold each other in the kitchen, wet hands and all, and the water drips on the floor and nobody wipes it up.`, ripple: `Years from now, Celia will tell a therapist about this moment. She'll say: "My sister apologized for being loved." The therapist will ask how that felt. Celia will say: "Like someone finally said the thing I couldn't ask anyone to say." The therapist will ask if it was enough. Celia will say: "No. But it was a start."\n\nThe water stain on the kitchen floor will be there when the house sells. The new owners won't know what made it. Some marks outlast their stories.` }
+      }
+    },
+    { id:'last_night', title:'The Last Night',
+      context: () => `Sunday night. Last night in the house. Tomorrow you fly back to Montreal. Marco flies to Portland. Celia will lock the door behind her and drive to wherever she's going next, which she hasn't decided, which is the most terrifying freedom of her life.\n\nThe three of you are in the living room. The house is quieter than it's been all weekend. The work is mostly done. The decisions have been made or postponed. What's left is the night, and each other, and a house that's listening.`,
+      options: [
+        { text: "Tell stories. Mom's stories. The funny ones, the embarrassing ones, the ones you've told a hundred times and will tell a hundred more.", key:'stories', effects:{cohesion:5,lily:5,celia:5,marco:5} },
+        { text: "Sit together in silence. You don't need to fill this. Just be in the room. Let the house hold you one more time.", key:'silence', effects:{cohesion:4,lily:6,celia:4,marco:4} },
+        { text: "Play the voicemail. The forty-two seconds. Together.", key:'voicemail', effects:{cohesion:6,lily:8,celia:6,marco:6} }
+      ],
+      consequences: {
+        stories: { text: `"Do you remember the time she tried to make croissants?" Celia starts.\n\nMarco groans. "The fire alarm. The butter on the ceiling."\n\n"There wasn't butter on the ceiling." "There was absolutely butter on the ceiling, Celia."\n\nLily laughs. The sound surprises all three of you. It's been a long weekend.\n\nThe stories come. One after another. The croissants. The time she accidentally joined a book club that was actually a pyramid scheme. The way she said "allegedly" before any gossip, as if she were a legal correspondent. The argument with the neighbor's cat that she clearly lost. Her dancing in the kitchen to songs she didn't know the words to, making up lyrics that were always better.\n\nYou laugh and cry and the two things blend until there's no boundary between them. That's what Mom would have wanted: not grief, not celebration. Both. At the same time. The full range. She lived in the full range. She raised you to live there too.\n\nMarco says: "She would have hated this weekend." Celia says: "She would have loved this weekend." They're both right. She was a contradiction. She made contradictions livable.`, ripple: `` },
+        silence: { text: `Nobody speaks. The house ticks and settles the way houses do at night, the sounds you only hear when you stop making your own.\n\nLily is in Mom's chair. Celia is on the couch. Marco is on the floor, which is where he always sat as a kid, back against the couch, long legs out.\n\nThe light from the hallway falls across the floor the same way it always did. The clock on the mantel runs four minutes fast, which Mom knew and never fixed because she liked being early.\n\nYou think about all the nights this room held your family. Homework nights. Movie nights. The night of the diagnosis when nobody slept and nobody left the couch. The last night Mom was downstairs, watching something on TV that she wasn't really watching, with Celia beside her, just being in the room together, which was always enough.\n\nThe silence isn't empty. It's full. Full of thirty-two years of a family in a house, which is just another way of saying: a life.\n\nCelia falls asleep first. Then Marco. You stay awake. You listen to the house. You listen to your siblings breathing. You say, very quietly, so quiet that nobody hears: "Bye, Mom." And the house holds it, the way it holds everything. Gently. Completely. Until the light comes.`, ripple: `` },
+        voicemail: { text: `You take out your phone. Your hands are shaking.\n\n"I want to play it," you say. "I've been carrying it since she died. Forty-two seconds. I can't listen to it alone. I need you both here."\n\nCelia sits up. Marco turns to face you. The room narrows to the three of you and a phone.\n\nYou press play.\n\nHer voice. Unmistakable. Smaller than you remember and exactly the same.\n\n"Hi, sweetheart. It's Mom. I'm just calling to say..." A pause. The sound of her breathing. You can hear the effort in it. "I'm just calling to say I love you. And I'm proud of you. And whatever happens, you're going to be okay. All three of you. You're going to be okay."\n\nAnother pause. Longer.\n\n"The garden needs water. Remind Celia. She forgets when she's tired."\n\nThe voicemail ends. Forty-two seconds. The last thing she recorded.\n\nThe room is silent. Then Celia laughs, which makes no sense, except it makes perfect sense. "She was worried about the garden." Marco is crying. You're crying. Celia is laughing and crying. The room holds all of it.\n\n"Remind Celia." Even at the end. Even in the last message she'd ever leave. She was mothering.\n\nYou play it again. And once more. And each time it's the same forty-two seconds and each time it means something different and each time you hear her voice and she's here, in this room, with her children, where she always wanted to be.`, ripple: `` }
+      }
+    }
+  ]
+};
+
+// --- ENGINE (reused from Neighbors with staged reveal) ---
+function showTitle() {
+  app.innerHTML = `<div class="title-screen"><h1>The House</h1><div class="sub">Three siblings. One weekend. Everything their mother left behind.</div><button onclick="startGame()">Begin</button></div>`;
+}
+
+function startGame() {
+  S = { round:0, decisions:{}, cohesion:60, personal:{celia:50,marco:40,lily:50}, log:[] };
+  nextRound();
+}
+
+function nextRound() {
+  if (S.round >= CHARS.length) { showTimeline(); return; }
+  const char = CHARS[S.round];
+  document.documentElement.style.setProperty('--accent', char.color);
+  if (S.round > 0) showShift(char); else showCharFn(char);
+}
+
+function showShift(char) {
+  const prev = CHARS[S.round - 1];
+  const shifts = [
+    '',
+    "Same house. Same weekend. Different room, different weight, different version of the same loss.",
+    "The youngest inherits the most love and the least understanding of what it cost. Until now."
+  ];
+  app.innerHTML = `<div class="shift"><div class="sep">\u2022 \u2022 \u2022</div><h2>Perspective Shift</h2><p>${shifts[S.round] || 'Same house. Different eyes.'}</p><p style="font-size:17px;color:var(--text);margin-bottom:24px;">You are now <strong style="color:var(--accent)">${char.name}</strong>.<br><span style="font-size:14px;color:var(--muted)">${char.role}</span></p><button onclick="showCharFn(CHARS[${S.round}])">Continue</button></div>`;
+  window.scrollTo(0, 0);
+}
+
+window.showCharFn = function(char) {
+  let html = `<div class="char-intro"><div class="char-header"><div class="char-avatar" style="background:${char.color}">${char.initial}</div><div><div class="char-name">${char.name}</div><div class="char-role">${char.role}</div></div></div><div class="char-voice">${char.intro.split('\n\n').map(p=>`<p>${p}</p>`).join('')}</div></div><div id="decisions"></div>`;
+  app.innerHTML = html;
+  window.scrollTo(0, 0);
+  showDec(char, 0);
+};
+
+function showDec(char, idx) {
+  const decs = DECISIONS[char.id];
+  if (idx >= decs.length) {
+    document.getElementById('decisions').innerHTML += `<button class="continue-btn" onclick="finishRound()">Continue</button>`;
+    return;
+  }
+  const dec = decs[idx];
+  const ctx = typeof dec.context === 'function' ? dec.context() : dec.context;
+  let html = `<div class="decision" id="dec-${idx}"><h3>${dec.title}</h3><div class="context">${ctx.split('\n\n').map(p=>`<p>${p}</p>`).join('')}</div><div class="choices" id="ch-${idx}">`;
+  dec.options.forEach((opt, i) => { html += `<button class="choice-btn" onclick="choose('${char.id}',${idx},${i})">${opt.text}</button>`; });
+  html += `</div></div>`;
+  document.getElementById('decisions').innerHTML += html;
+  setTimeout(() => { const el = document.getElementById(`dec-${idx}`); if (el) el.scrollIntoView({behavior:'smooth',block:'center'}); }, 200);
+}
+
+window.choose = function(charId, decIdx, optIdx) {
+  const decs = DECISIONS[charId];
+  const dec = decs[decIdx];
+  const opt = dec.options[optIdx];
+  const con = dec.consequences[opt.key];
+
+  S.decisions[dec.id] = opt.key;
+  S.cohesion = Math.max(0, Math.min(100, S.cohesion + (opt.effects.cohesion || 0)));
+  for (const [k,v] of Object.entries(opt.effects)) {
+    if (k !== 'cohesion' && S.personal[k] !== undefined) S.personal[k] = Math.max(0, Math.min(100, S.personal[k] + v));
+  }
+  S.log.push({ char:charId, decision:dec.title });
+
+  const chEl = document.getElementById(`ch-${decIdx}`);
+  const charIdx = CHARS.findIndex(c=>c.id===charId);
+  const conHtml = `<div class="consequence" id="con-${decIdx}">${con.text.split('\n\n').map(p=>`<p>${p}</p>`).join('')}</div>`;
+  chEl.innerHTML = conHtml;
+  setTimeout(() => { const el = document.getElementById(`con-${decIdx}`); if (el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 100);
+
+  if (con.ripple) {
+    setTimeout(() => {
+      const conEl = document.getElementById(`con-${decIdx}`);
+      conEl.insertAdjacentHTML('afterend', `<div class="ripple-section" id="rip-${decIdx}"><div class="ripple-label">What you don't know</div>${con.ripple.split('\n\n').map(p=>`<p>${p}</p>`).join('')}</div>`);
+      setTimeout(() => { const el = document.getElementById(`rip-${decIdx}`); if (el) el.scrollIntoView({behavior:'smooth',block:'center'}); }, 200);
+      setTimeout(() => { document.getElementById(`rip-${decIdx}`).insertAdjacentHTML('afterend', `<button class="next-btn" onclick="this.remove();showDec(CHARS[${charIdx}],${decIdx+1})">Continue</button>`); }, 800);
+    }, 1500);
+  } else {
+    setTimeout(() => { document.getElementById(`con-${decIdx}`).insertAdjacentHTML('afterend', `<button class="next-btn" onclick="this.remove();showDec(CHARS[${charIdx}],${decIdx+1})">Continue</button>`); }, 600);
+  }
+};
+
+function finishRound() { S.round++; nextRound(); }
+
+function getEpilogues() {
+  const p = S.personal, ep = {};
+  ep.celia = p.celia >= 60
+    ? `<p>Celia moved to the city in the spring. She got her architecture license reinstated. She rents a small apartment with high ceilings and big windows and nothing in it that needs tending.</p><p>She calls Lily every Sunday. She calls Marco once a month. She's learning that love without labor is still love. It's harder than caretaking. It's also lighter.</p><p>She kept the bookmark from Mom's nightstand. She finishes the book for her.</p>`
+    : p.celia >= 40
+    ? `<p>Celia is still figuring out what comes next. The house is on the market. She's staying with a friend. The architecture firm said she could come back but "in a different capacity," which means less money and a smaller desk and the specific humiliation of restarting at forty-one.</p><p>She's doing it anyway. Mom would have done it anyway. The Moran women don't stop. They just change direction.</p>`
+    : `<p>Celia stayed in the house longer than she planned. One more month became three. The real estate agent stopped calling. The rooms that were supposed to be empty filled back up with her life, which looks a lot like Mom's life, which is the thing she was most afraid of.</p><p>She's not stuck. She'll say that if you ask. She's transitioning. The transition just looks a lot like staying.</p>`;
+
+  ep.marco = p.marco >= 60
+    ? `<p>Marco started coming back. Not six times a year. Every month. Short visits. He'd fly in on Friday, leave Sunday. He and Celia found a rhythm: he'd cook, she'd talk, they'd sit on the porch and not fill every silence.</p><p>He reads the letter once a month. It says the same thing every time. It means something different every time.</p>`
+    : p.marco >= 40
+    ? `<p>Marco calls more than he used to. Sundays, like he did with Mom. The conversations with Celia are careful, circling the things they haven't resolved, landing sometimes on common ground.</p><p>He kept Mom's reading glasses in his desk drawer. Some mornings he sees them and calls in late to work. Some mornings he sees them and they're just glasses. Both are true.</p>`
+    : `<p>Marco went back to Portland. The distance was the same but it felt wider. He meant to call more. He meant to visit. The months accumulated the way they always do: quietly, one missed call at a time.</p><p>He has the letter. He rereads it on planes. He always means to call when he lands. He usually doesn't. The gap between intention and action is the gap he's been living in his whole life.</p>`;
+
+  ep.lily = p.lily >= 60
+    ? `<p>Lily played the voicemail on a Tuesday in April. Alone, in her apartment, with a cup of tea. Mom's voice filled the room for forty-two seconds and then it was over and Lily sat there and breathed and was okay. Not fine. Okay. The distinction matters.</p><p>She stopped needing help with the rent. Not because the money changed. Because she changed. Mom's voice on that voicemail said: "You're going to be okay." She decided to believe it.</p>`
+    : p.lily >= 40
+    ? `<p>Lily still hasn't played the voicemail. She will. She's not ready yet and she's honest about that, which is its own kind of growing up. Knowing you're not ready is the step before being ready.</p><p>She visits the house on weekends sometimes, when it's being shown. She pretends to be a prospective buyer. She walks through the rooms and remembers and leaves before anyone notices she's been crying in the kitchen.</p>`
+    : `<p>The voicemail sits on Lily's phone. A small weight, always present, never opened. She knows she should. She knows that "should" isn't the same as "can."</p><p>She's twenty-eight and she's learning that grief doesn't end. It just changes shape. The shape it's in right now is a forty-two-second voicemail and a house that's emptier than it used to be and a family that's further apart than she thought they'd be after the weekend that was supposed to bring them together.</p><p>She'll be okay. She will. Mom said so. She just needs more time than a weekend.</p>`;
+
+  return ep;
+}
+
+function showTimeline() {
+  document.documentElement.style.setProperty('--accent', '#777');
+  const c = Math.max(0, Math.min(100, S.cohesion));
+
+  let closing;
+  if (c >= 70) closing = `<p>The house held them one last time, and when they left, they left together. Not physically. But in the way that matters: knowing what the others carried. Seeing past the roles they'd been assigned since childhood.</p><p>The one who stayed. The one who left. The youngest. Those were descriptions, not destinies. The weekend made room for something else.</p>`;
+  else if (c >= 45) closing = `<p>The weekend ended the way most weekends end in grief: unfinished. Things said and unsaid. Moments of connection separated by hours of distance. The house held them, but holding isn't the same as healing.</p><p>They'll come back to it. In phone calls and holidays and the slow, imperfect work of being a family without the person who made it one.</p>`;
+  else closing = `<p>The house emptied. The siblings scattered. The weekend left marks that will take longer to heal than any of them expected, because the grief was supposed to be the hard part and it turned out the hard part was each other.</p><p>They love each other. That was never the question. The question is whether love is enough without understanding. Whether you can hold someone you don't fully see.</p>`;
+
+  let html = `<div class="sep">\u2022 \u2022 \u2022</div><div class="timeline"><h2>After</h2><div class="final-text">${closing}</div>`;
+
+  html += `<div class="sep">\u2022 \u2022 \u2022</div><h2 style="font-size:18px;font-weight:normal;text-align:center;margin:24px 0 20px;">What Happened Next</h2>`;
+  const ep = getEpilogues();
+  for (const ch of CHARS) {
+    html += `<div class="epilogue"><div class="ep-header"><div class="ep-avatar" style="background:${ch.color}">${ch.initial}</div><span class="ep-name">${ch.name}</span></div><div class="ep-text">${ep[ch.id]}</div></div>`;
+  }
+
+  html += `<div class="sep">\u2022 \u2022 \u2022</div>`;
+  html += `<div class="metrics-panel"><h3>Where things stand</h3>`;
+  html += `<div class="metric-row"><span class="label"><strong>Family</strong></span><div class="bar"><div class="fill" style="width:${c}%;background:#777"></div></div><span class="val">${c}</span></div>`;
+  for (const ch of CHARS) {
+    const v = Math.max(0, Math.min(100, S.personal[ch.id]));
+    html += `<div class="metric-row"><span class="label" style="color:${ch.color}">${ch.name}: ${ch.metric}</span><div class="bar"><div class="fill" style="width:${v}%;background:${ch.color}"></div></div><span class="val">${v}</span></div>`;
+  }
+  html += `</div>`;
+
+  html += `<div class="final-text"><p>The house will sell, or it won't. The table will go, or it'll stay. The voicemail will be played, or it'll wait. These are the small decisions that hold the shape of a family after the center is gone.</p><p>You were three people this weekend. Each of them loved the same woman. Each of them lost her differently. None of them were wrong about what they needed. All of them were incomplete without each other.</p><p>That's the whole thing about family. The walls are thinner than you think. And the table was always big enough for everyone.</p></div>`;
+
+  html += `<button class="continue-btn" onclick="showTitle()">Play Again</button></div>`;
+  app.innerHTML = html;
+  window.scrollTo(0, 0);
+}
+
+showTitle();
+</script>
+</body>
+</html>
