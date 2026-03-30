@@ -3,7 +3,7 @@ title: "Your AI Tool Is a Pharmakon"
 description: "Bernard Stiegler argued every technology is both poison and cure. AI coding tools are the clearest modern example, and knowing this changes how you use them."
 date: 2026-03-14
 tags: ["philosophy", "ai-tools", "opinion"]
-draft: true
+draft: false
 ---
 
 Bernard Stiegler was a French philosopher who spent five years in prison for armed robbery. While there, he discovered philosophy through reading. Books, which are externalized memory, which are technology, literally created his intellectual identity. He spent the rest of his career theorizing about exactly that: how technology constitutes who we are.

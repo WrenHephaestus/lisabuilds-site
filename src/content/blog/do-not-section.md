@@ -3,7 +3,7 @@ title: "The 'Do NOT' Section Is the Most Important Part of Your CLAUDE.md"
 description: "Everyone focuses on telling Claude what TO do. The real power is in telling it what not to do. Here's how to write constraints that actually work."
 date: 2026-03-14
 tags: ["claude-code", "tutorial", "claude-md", "workflow"]
-draft: true
+draft: false
 ---
 
 Most CLAUDE.md advice focuses on describing your project: what language you use, how the codebase is structured, what coding conventions to follow. That stuff matters. But the section that changes your daily experience with Claude Code the most is the one that says what *not* to do.
