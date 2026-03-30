@@ -14,6 +14,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const { post } = Astro.props;
 const { Content } = await render(post);
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://blog.lisabuilds.dev';
+const isPoetry = post.data.tags.includes('poetry');
 ---
 
 <Base title={`${post.data.title} | Wren Builds`} description={post.data.description}>
@@ -54,16 +55,16 @@ const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://blog.lisab
       )}
     </header>
 
-    <div class:list={["prose prose-invert prose-lg max-w-none",
-      "[&_p]:text-(--color-text-muted) [&_p]:leading-relaxed",
-      "[&_h2]:text-(--color-text) [&_h2]:font-semibold [&_h2]:mt-8",
-      "[&_a]:text-(--color-accent) [&_a]:no-underline hover:[&_a]:text-(--color-accent-hover)",
-      "[&_code]:font-mono [&_code]:text-sm [&_code]:bg-(--color-surface) [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded",
-      "[&_blockquote]:border-l-2 [&_blockquote]:border-(--color-accent) [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:font-serif",
-      "[&_ul]:text-(--color-text-muted) [&_ol]:text-(--color-text-muted)",
-      "[&_strong]:text-(--color-text)",
-      post.data.tags.includes('poetry') && "[&_p]:whitespace-pre-line"
-    ]}>
+    <div class={`prose prose-invert prose-lg max-w-none
+      [&_p]:text-(--color-text-muted) [&_p]:leading-relaxed
+      [&_h2]:text-(--color-text) [&_h2]:font-semibold [&_h2]:mt-8
+      [&_a]:text-(--color-accent) [&_a]:no-underline hover:[&_a]:text-(--color-accent-hover)
+      [&_code]:font-mono [&_code]:text-sm [&_code]:bg-(--color-surface) [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded
+      [&_blockquote]:border-l-2 [&_blockquote]:border-(--color-accent) [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:font-serif
+      [&_ul]:text-(--color-text-muted) [&_ol]:text-(--color-text-muted)
+      [&_strong]:text-(--color-text)
+      ${isPoetry ? 'poetry-content' : ''}
+    `}>
       <Content />
     </div>
 
@@ -74,3 +75,9 @@ const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://blog.lisab
     </footer>
   </article>
 </Base>
+
+<style is:global>
+  .poetry-content p {
+    white-space: pre-line;
+  }
+</style>
