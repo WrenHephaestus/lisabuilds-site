@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crucible</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0c0812;
+  color: #c4a86a;
+  font-family: 'Courier New', monospace;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+  user-select: none;
+}
+#container { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+#header {
+  display: flex; width: 100%; justify-content: space-between; align-items: center;
+  padding: 4px 8px; font-size: 13px; min-height: 22px;
+}
+#header .left { display: flex; gap: 14px; align-items: center; }
+#header .right { display: flex; gap: 14px; align-items: center; }
+.hp { letter-spacing: 2px; }
+canvas { display: block; image-rendering: pixelated; }
+#inv-bar {
+  display: flex; gap: 4px; padding: 4px 8px; min-height: 36px; align-items: center; width: 100%;
+}
+#inv-bar .slot {
+  width: 48px; height: 32px; background: #14101e; border: 1px solid #2a2244;
+  border-radius: 3px; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; cursor: pointer; position: relative; transition: border-color 0.15s;
+}
+#inv-bar .slot.selected { border-color: #ffd700; box-shadow: 0 0 6px rgba(255,215,0,0.3); }
+#inv-bar .slot .num { position: absolute; top: 1px; left: 3px; font-size: 8px; color: #555; }
+#inv-bar .slot .elem { font-size: 9px; text-align: center; line-height: 1.1; }
+#msg-bar { font-size: 11px; color: #887766; padding: 2px 8px; min-height: 16px; width: 100%; }
+#controls { font-size: 9px; color: #333; padding: 2px 8px; }
+#overlay {
+  position: fixed; top:0;left:0;right:0;bottom:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(12,8,18,0.97);z-index:10;text-align:center;transition:opacity 0.5s;
+}
+#overlay.hidden { opacity:0;pointer-events:none; }
+#overlay h1 { font-size:48px;color:#ddc070;letter-spacing:8px;margin-bottom:8px;text-shadow:0 0 30px rgba(220,192,112,0.3); }
+#overlay .sub { font-size:13px;color:#776644;margin-bottom:24px;max-width:400px;line-height:1.6;font-style:italic; }
+#overlay .prompt { font-size:12px;color:#554400;animation:pulse 2s ease-in-out infinite; }
+#overlay .stats { font-size:13px;color:#776644;margin-bottom:16px;line-height:1.6; }
+#journal-overlay {
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(12,8,18,0.92);z-index:8;transition:opacity 0.3s;
+}
+#journal-overlay.hidden { opacity:0;pointer-events:none; }
+#journal-content {
+  background:#110d1a;border:1px solid #2a2244;border-radius:6px;padding:20px;max-width:600px;width:90%;
+}
+#journal-content h2 { color:#ddc070;font-size:16px;letter-spacing:2px;margin-bottom:12px; }
+#journal-content table { width:100%;border-collapse:collapse;font-size:11px; }
+#journal-content th { color:#887766;padding:4px;font-weight:normal; }
+#journal-content td { padding:4px;text-align:center;border:1px solid #1a1226; }
+#journal-content td.known { color:#ddc070; }
+#journal-content td.unknown { color:#332244; }
+#journal-content .footer { margin-top:12px;font-size:11px;color:#554444; }
+#discovery {
+  position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);
+  font-size:18px;color:#ffd700;letter-spacing:3px;text-shadow:0 0 20px rgba(255,215,0,0.5);
+  pointer-events:none;transition:opacity 1.5s;z-index:6;text-align:center;
+}
+#discovery.hidden { opacity:0; }
+#combine-prompt {
+  position:fixed;bottom:60px;left:50%;transform:translateX(-50%);
+  background:rgba(20,16,30,0.95);border:1px solid #3a2a55;border-radius:4px;padding:8px 16px;
+  font-size:12px;color:#ddc070;z-index:4;transition:opacity 0.2s;
+}
+#combine-prompt.hidden { opacity:0;pointer-events:none; }
+@keyframes pulse { 0%,100%{opacity:0.4;}50%{opacity:1;} }
+</style>
+</head>
+<body>
+<div id="container">
+  <div id="header">
+    <div class="left"><span id="hdr-floor">Floor 1</span><span class="hp" id="hdr-hp"></span></div>
+    <div class="right"><span id="hdr-discovered">0/15</span><span id="hdr-keys">J:Journal</span></div>
+  </div>
+  <canvas id="game"></canvas>
+  <div id="inv-bar"></div>
+  <div id="msg-bar"></div>
+  <div id="controls">WASD:move E:interact Q:drop 1-6:select J:journal</div>
+</div>
+<div id="overlay"><h1>Crucible</h1><div class="sub">The rules of this world are unknown. Every combination teaches you something. Every experiment is progress. Nothing is wasted.</div><div class="prompt">Press any key to begin</div></div>
+<div id="journal-overlay" class="hidden"><div id="journal-content"></div></div>
+<div id="discovery" class="hidden"></div>
+<div id="combine-prompt" class="hidden"></div>
+
+<script>
+// ================================================================
+// CRUCIBLE by Wren Hephaestus
+// An alchemy puzzle dungeon. Discover the rules. Solve the world.
+// March 19, 2026. Third game. The hardest one.
+// ================================================================
+
+const COLS = 50, ROWS = 30;
+const ELEMENTS = ['flame','tide','stone','wind','seed','void'];
+const EL_COLORS = { flame:'#ff5533',tide:'#3388ff',stone:'#aa9977',wind:'#bbddff',seed:'#33cc55',void:'#9944dd' };
+const EL_SYMBOLS = { flame:'\u2666',tide:'\u2248',stone:'\u25a0',wind:'\u2248',seed:'\u2740',void:'\u2609' };
+const RESULT_POOL = ['steam','ice','crystal','mud','glass','ash','vine','mist','dust','lightning','bloom','echo','rust','sand','shadow'];
+const RES_COLORS = { steam:'#ddeeff',ice:'#88ccff',crystal:'#66ffee',mud:'#886644',glass:'#ffddaa',ash:'#999988',vine:'#55aa44',mist:'#aabbcc',dust:'#ccbb99',lightning:'#ffee44',bloom:'#ff88cc',echo:'#bb99ff',rust:'#cc6633',sand:'#ddcc88',shadow:'#554466' };
+
+const TILE = { WALL:0,FLOOR:1,DOOR_OPEN:2,DOOR_LOCKED:3,CRUCIBLE:4,STAIRS:5,SECRET_WALL:6 };
+
+let canvas, ctx, tileSize, animTime=0;
+let screen = 'title';
+let G = {};
+
+// --- Utility ---
+function rand(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function randf(a,b){return a+Math.random()*(b-a);}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=rand(0,i);[b[i],b[j]]=[b[j],b[i]];}return b;}
+function dist(x1,y1,x2,y2){return Math.sqrt((x2-x1)**2+(y2-y1)**2);}
+function tileHash(x,y){return(((x*374761393+y*668265263)>>>0)%1000)/1000;}
+
+function itemColor(name) {
+  return EL_COLORS[name] || RES_COLORS[name] || '#888';
+}
+function itemName(name) {
+  return name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
+}
+function isElement(name) { return ELEMENTS.includes(name); }
+
+// --- Rules ---
+function generateRules() {
+  const shuffled = shuffle([...RESULT_POOL]);
+  const rules = {};
+  let idx = 0;
+  for (let i = 0; i < ELEMENTS.length; i++) {
+    for (let j = i + 1; j < ELEMENTS.length; j++) {
+      const key = [ELEMENTS[i], ELEMENTS[j]].sort().join('+');
+      rules[key] = shuffled[idx++];
+    }
+  }
+  return rules;
+}
+
+function combine(a, b) {
+  if (!a || !b) return null;
+  const key = [a, b].sort().join('+');
+  return G.rules[key] || null;
+}
+
+function findRecipe(result) {
+  for (const [key, val] of Object.entries(G.rules)) {
+    if (val === result) return key.split('+');
+  }
+  return null;
+}
+
+// --- Game State ---
+function newGame() {
+  G = {
+    floor: 1, rules: generateRules(), journal: {},
+    player: { x:0, y:0, hp:5, maxHp:5 },
+    inventory: [null,null,null,null,null,null],
+    selected: 0,
+    map: [], rooms: [], doors: [], floorElements: [], creatures: [],
+    crucibles: [], stairs: null, secretWalls: [],
+    explored: [], visible: [],
+    combineMode: false, combineFirst: -1,
+    discoveredCount: 0, floorsCleared: 0, totalCombinations: 0,
+    message: '', discoveryText: '', discoveryTimer: 0,
+  };
+  generateFloor(1);
+  screen = 'play';
+  save();
+}
+
+// --- Map Generation ---
+function generateFloor(depth) {
+  const map = [];
+  for (let y = 0; y < ROWS; y++) { map[y] = []; for (let x = 0; x < COLS; x++) map[y][x] = TILE.WALL; }
+
+  const rooms = [];
+  const numRooms = Math.min(10, 4 + depth);
+
+  for (let attempt = 0; attempt < numRooms * 5; attempt++) {
+    if (rooms.length >= numRooms) break;
+    const w = rand(5, 9), h = rand(4, 7);
+    const x = rand(1, COLS - w - 2), y = rand(1, ROWS - h - 2);
+    let ok = true;
+    for (const r of rooms) {
+      if (x <= r.x+r.w+1 && x+w >= r.x-1 && y <= r.y+r.h+1 && y+h >= r.y-1) { ok=false; break; }
+    }
+    if (!ok) continue;
+    rooms.push({x,y,w,h,cx:x+Math.floor(w/2),cy:y+Math.floor(h/2)});
+    for (let ry=y;ry<y+h;ry++) for (let rx=x;rx<x+w;rx++) map[ry][rx]=TILE.FLOOR;
+  }
+
+  if (rooms.length < 3) return generateFloor(depth);
+
+  // Connect rooms with corridors and place doors
+  const doors = [];
+  for (let i = 1; i < rooms.length; i++) {
+    const a = rooms[i-1], b = rooms[i];
+    let cx = a.cx, cy = a.cy;
+    if (Math.random() < 0.5) {
+      while(cx!==b.cx){map[cy][cx]=map[cy][cx]===TILE.WALL?TILE.FLOOR:map[cy][cx];cx+=cx<b.cx?1:-1;}
+      while(cy!==b.cy){map[cy][cx]=map[cy][cx]===TILE.WALL?TILE.FLOOR:map[cy][cx];cy+=cy<b.cy?1:-1;}
+    } else {
+      while(cy!==b.cy){map[cy][cx]=map[cy][cx]===TILE.WALL?TILE.FLOOR:map[cy][cx];cy+=cy<b.cy?1:-1;}
+      while(cx!==b.cx){map[cy][cx]=map[cy][cx]===TILE.WALL?TILE.FLOOR:map[cy][cx];cx+=cx<b.cx?1:-1;}
+    }
+    map[b.cy][b.cx]=TILE.FLOOR;
+  }
+
+  // Place locked doors on some connections (more with depth)
+  const numLocks = Math.min(rooms.length - 2, 1 + Math.floor(depth / 2));
+  const lockableConnections = [];
+  for (let i = 1; i < rooms.length; i++) {
+    // Find a corridor tile between rooms
+    const a = rooms[i-1], b = rooms[i];
+    const midX = Math.floor((a.cx + b.cx) / 2);
+    const midY = Math.floor((a.cy + b.cy) / 2);
+    if (map[midY] && map[midY][midX] === TILE.FLOOR) {
+      lockableConnections.push({x: midX, y: midY, beforeRooms: i});
+    }
+  }
+
+  const usedResults = new Set();
+  const shuffledConns = shuffle(lockableConnections);
+  for (let i = 0; i < numLocks && i < shuffledConns.length; i++) {
+    const conn = shuffledConns[i];
+    // Pick a result for this lock
+    const availResults = RESULT_POOL.filter(r => !usedResults.has(r));
+    const result = pick(availResults);
+    usedResults.add(result);
+    map[conn.y][conn.x] = TILE.DOOR_LOCKED;
+    const recipe = findRecipe(result);
+    doors.push({x: conn.x, y: conn.y, requires: result, recipe, open: false});
+
+    // Place recipe elements in earlier rooms
+    if (recipe) {
+      for (const elem of recipe) {
+        const targetRoom = rooms[rand(0, Math.max(0, conn.beforeRooms - 1))];
+        const ex = rand(targetRoom.x + 1, targetRoom.x + targetRoom.w - 2);
+        const ey = rand(targetRoom.y + 1, targetRoom.y + targetRoom.h - 2);
+        if (map[ey][ex] === TILE.FLOOR) {
+          G.floorElements.push({x: ex, y: ey, type: elem});
+        }
+      }
+    }
+  }
+
+  // Place crucibles (at least one per 2 rooms, in rooms before locks)
+  const crucibles = [];
+  const crucibleRooms = shuffle([...rooms]).slice(0, Math.max(2, Math.ceil(rooms.length / 2)));
+  for (const room of crucibleRooms) {
+    const cx = rand(room.x + 1, room.x + room.w - 2);
+    const cy = rand(room.y + 1, room.y + room.h - 2);
+    if (map[cy][cx] === TILE.FLOOR) {
+      map[cy][cx] = TILE.CRUCIBLE;
+      crucibles.push({x: cx, y: cy});
+    }
+  }
+
+  // Place extra elements for experimentation
+  const extraCount = 6 + depth * 2;
+  for (let i = 0; i < extraCount; i++) {
+    const room = pick(rooms);
+    const ex = rand(room.x, room.x + room.w - 1);
+    const ey = rand(room.y, room.y + room.h - 1);
+    if (map[ey][ex] === TILE.FLOOR && !G.floorElements.some(e => e.x===ex && e.y===ey)) {
+      G.floorElements.push({x: ex, y: ey, type: pick(ELEMENTS)});
+    }
+  }
+
+  // Place creatures (from floor 3+)
+  const creatures = [];
+  if (depth >= 3) {
+    const numCreatures = Math.min(3, Math.floor((depth - 1) / 2));
+    for (let i = 0; i < numCreatures; i++) {
+      const room = rooms[rand(2, rooms.length - 1)];
+      const cx = rand(room.x + 1, room.x + room.w - 2);
+      const cy = rand(room.y + 1, room.y + room.h - 2);
+      if (map[cy][cx] === TILE.FLOOR) {
+        const weakness = pick(ELEMENTS);
+        creatures.push({x: cx, y: cy, weakness, alive: true, hint: false});
+      }
+    }
+  }
+
+  // Place secret wall (from floor 2+)
+  const secretWalls = [];
+  if (depth >= 2 && rooms.length >= 4) {
+    const secretRoom = rooms[rooms.length - 2]; // second to last room
+    // Find a wall tile adjacent to the room
+    const wallCandidates = [];
+    for (let ry = secretRoom.y - 1; ry <= secretRoom.y + secretRoom.h; ry++) {
+      for (let rx = secretRoom.x - 1; rx <= secretRoom.x + secretRoom.w; rx++) {
+        if (ry >= 0 && ry < ROWS && rx >= 0 && rx < COLS && map[ry][rx] === TILE.WALL) {
+          // Check if there's floor on the other side
+          for (const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+            const nx = rx+dx, ny = ry+dy;
+            if (ny>=0&&ny<ROWS&&nx>=0&&nx<COLS&&map[ny][nx]===TILE.FLOOR) {
+              wallCandidates.push({x:rx,y:ry});
+              break;
+            }
+          }
+        }
+      }
+    }
+    if (wallCandidates.length > 0) {
+      const sw = pick(wallCandidates);
+      map[sw.y][sw.x] = TILE.SECRET_WALL;
+      const secretElement = pick(ELEMENTS);
+      secretWalls.push({x: sw.x, y: sw.y, requires: secretElement, opened: false});
+      // Place a reward behind the secret wall (carve a small room)
+      for (const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+        const nx=sw.x+dx*2, ny=sw.y+dy*2;
+        if(ny>0&&ny<ROWS-1&&nx>0&&nx<COLS-1&&map[ny][nx]===TILE.WALL) {
+          map[sw.y+dy][sw.x+dx]=TILE.FLOOR;
+          map[ny][nx]=TILE.FLOOR;
+          // Place rare element
+          G.floorElements.push({x:nx,y:ny,type:pick(RESULT_POOL.filter(r=>{const rec=findRecipe(r);return rec;}))});
+          break;
+        }
+      }
+    }
+  }
+
+  // Place stairs in last room
+  const lastRoom = rooms[rooms.length - 1];
+  map[lastRoom.cy][lastRoom.cx] = TILE.STAIRS;
+
+  // Player start
+  G.player.x = rooms[0].cx;
+  G.player.y = rooms[0].cy;
+
+  G.map = map;
+  G.rooms = rooms;
+  G.doors = doors;
+  G.crucibles = crucibles;
+  G.creatures = creatures;
+  G.secretWalls = secretWalls;
+  G.stairs = {x: lastRoom.cx, y: lastRoom.cy};
+
+  // Reset visibility
+  G.explored = [];
+  G.visible = [];
+  for (let y=0;y<ROWS;y++){G.explored[y]=[];G.visible[y]=[];for(let x=0;x<COLS;x++){G.explored[y][x]=false;G.visible[y][x]=0;}}
+  computeFOV();
+}
+
+// --- FOV ---
+function hasLOS(x1,y1,x2,y2){
+  let dx=Math.abs(x2-x1),dy=Math.abs(y2-y1);
+  let sx=x1<x2?1:-1,sy=y1<y2?1:-1;
+  let err=dx-dy,x=x1,y=y1;
+  while(true){
+    if(x===x2&&y===y2)return true;
+    const e2=2*err;
+    if(e2>-dy){err-=dy;x+=sx;}
+    if(e2<dx){err+=dx;y+=sy;}
+    if(x===x2&&y===y2)return true;
+    if(y<0||y>=ROWS||x<0||x>=COLS)return false;
+    const t=G.map[y][x];
+    if(t===TILE.WALL||t===TILE.SECRET_WALL||(t===TILE.DOOR_LOCKED))return false;
+  }
+}
+
+function computeFOV(){
+  const px=G.player.x,py=G.player.y,radius=10;
+  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)G.visible[y][x]=0;
+  for(let y=Math.max(0,py-radius);y<=Math.min(ROWS-1,py+radius);y++){
+    for(let x=Math.max(0,px-radius);x<=Math.min(COLS-1,px+radius);x++){
+      const d=dist(x,y,px,py);
+      if(d>radius)continue;
+      if(hasLOS(px,py,x,y)){
+        const light=Math.max(0,1-Math.pow(d/radius,1.3));
+        G.visible[y][x]=light;
+        G.explored[y][x]=true;
+      }
+    }
+  }
+  G.visible[py][px]=1;
+  G.explored[py][px]=true;
+}
+
+// --- Inventory ---
+function invCount(){ return G.inventory.filter(Boolean).length; }
+function invAdd(item){ const i=G.inventory.indexOf(null); if(i>=0){G.inventory[i]=item;return true;} return false; }
+function invRemove(slot){ const item=G.inventory[slot]; G.inventory[slot]=null; return item; }
+
+// --- Actions ---
+function tryMove(dx,dy){
+  const nx=G.player.x+dx, ny=G.player.y+dy;
+  if(nx<0||nx>=COLS||ny<0||ny>=ROWS)return;
+  const tile=G.map[ny][nx];
+
+  if(tile===TILE.WALL)return;
+
+  if(tile===TILE.SECRET_WALL){
+    const sw=G.secretWalls.find(s=>s.x===nx&&s.y===ny&&!s.opened);
+    if(sw){
+      const sel=G.inventory[G.selected];
+      if(sel===sw.requires){
+        invRemove(G.selected);
+        sw.opened=true;
+        G.map[ny][nx]=TILE.FLOOR;
+        setMsg('The wall dissolves. A hidden chamber!');
+      } else {
+        setMsg('This wall feels different... (try applying an element)');
+      }
+      return;
+    }
+  }
+
+  if(tile===TILE.DOOR_LOCKED){
+    const door=G.doors.find(d=>d.x===nx&&d.y===ny&&!d.open);
+    if(door){
+      const sel=G.inventory[G.selected];
+      if(sel===door.requires){
+        invRemove(G.selected);
+        door.open=true;
+        G.map[ny][nx]=TILE.DOOR_OPEN;
+        setMsg(`The door resonates and opens.`);
+      } else {
+        setMsg(`This door requires: ${itemName(door.requires)}`);
+      }
+      return;
+    }
+  }
+
+  // Creature check
+  const creature=G.creatures.find(c=>c.x===nx&&c.y===ny&&c.alive);
+  if(creature){
+    const sel=G.inventory[G.selected];
+    if(sel===creature.weakness){
+      invRemove(G.selected);
+      creature.alive=false;
+      setMsg(`The creature calms and fades. ${itemName(creature.weakness)} was its weakness.`);
+    } else {
+      creature.hint=true;
+      G.player.hp--;
+      setMsg(`The creature strikes! It recoils from ${itemName(creature.weakness)}-like things. (HP: ${G.player.hp})`);
+      if(G.player.hp<=0){ die(); return; }
+    }
+    return;
+  }
+
+  // Move
+  G.player.x=nx; G.player.y=ny;
+
+  // Pickup
+  const elemIdx=G.floorElements.findIndex(e=>e.x===nx&&e.y===ny);
+  if(elemIdx>=0){
+    const elem=G.floorElements[elemIdx];
+    if(invAdd(elem.type)){
+      G.floorElements.splice(elemIdx,1);
+      setMsg(`Picked up ${itemName(elem.type)}.`);
+    } else {
+      setMsg(`Inventory full. Press Q to drop something.`);
+    }
+  }
+
+  // Stairs
+  if(tile===TILE.STAIRS){
+    setMsg('Stairs down. Press E to descend.');
+  }
+
+  computeFOV();
+  updateUI();
+  save();
+}
+
+function doInteract(){
+  const px=G.player.x, py=G.player.y;
+  const tile=G.map[py][px];
+
+  if(tile===TILE.CRUCIBLE){
+    if(invCount()<2){setMsg('Need at least 2 items to combine.');return;}
+    if(!G.combineMode){
+      G.combineMode=true;
+      G.combineFirst=-1;
+      setMsg('COMBINE: Press number for first element...');
+      showCombinePrompt('Select first item (1-6)');
+      return;
+    }
+  }
+
+  if(tile===TILE.STAIRS){
+    G.floor++;
+    G.floorsCleared++;
+    G.floorElements=[];
+    G.doors=[];
+    G.creatures=[];
+    G.crucibles=[];
+    G.secretWalls=[];
+    generateFloor(G.floor);
+    setMsg(`Descending to Floor ${G.floor}...`);
+    showFloorMessage();
+    computeFOV();
+    updateUI();
+    save();
+  }
+}
+
+function doCombineSelect(slot){
+  if(!G.combineMode)return;
+  if(!G.inventory[slot]){setMsg('Empty slot.');return;}
+
+  if(G.combineFirst<0){
+    G.combineFirst=slot;
+    setMsg(`First: ${itemName(G.inventory[slot])}. Now select second (1-6)...`);
+    showCombinePrompt(`First: ${itemName(G.inventory[slot])}. Select second item (1-6)`);
+  } else {
+    if(slot===G.combineFirst){setMsg('Pick a different slot.');return;}
+    const a=G.inventory[G.combineFirst];
+    const b=G.inventory[slot];
+
+    // Only base elements can be combined
+    if(!isElement(a)||!isElement(b)){
+      setMsg('Only base elements can be combined in a crucible.');
+      G.combineMode=false;G.combineFirst=-1;hideCombinePrompt();
+      return;
+    }
+
+    const result=combine(a,b);
+    if(result){
+      invRemove(G.combineFirst);
+      invRemove(slot);
+      invAdd(result);
+      G.totalCombinations++;
+
+      const key=[a,b].sort().join('+');
+      const isNew=!G.journal[key];
+      G.journal[key]=result;
+      if(isNew){
+        G.discoveredCount++;
+        showDiscovery(`${itemName(a)} + ${itemName(b)} = ${itemName(result)}`);
+      }
+      setMsg(`Combined: ${itemName(a)} + ${itemName(b)} = ${itemName(result)}${isNew?' (NEW!)':''}`);
+    } else {
+      setMsg(`${itemName(a)} + ${itemName(b)} = nothing happens.`);
+    }
+    G.combineMode=false;G.combineFirst=-1;hideCombinePrompt();
+    updateUI();save();
+  }
+}
+
+function doDrop(){
+  const item=G.inventory[G.selected];
+  if(!item)return;
+  invRemove(G.selected);
+  G.floorElements.push({x:G.player.x,y:G.player.y,type:item});
+  setMsg(`Dropped ${itemName(item)}.`);
+  updateUI();
+}
+
+function die(){
+  screen='dead';
+  const overlay=document.getElementById('overlay');
+  overlay.innerHTML=`<h1>Dissolved</h1><div class="stats">Floor ${G.floor} · ${G.discoveredCount}/15 interactions discovered · ${G.totalCombinations} combinations made</div><div class="prompt">Press any key to try again</div>`;
+  overlay.classList.remove('hidden');
+}
+
+function showFloorMessage(){
+  const msgs=[
+    '','The stone hums faintly.','Symbols line the walls. You cannot read them yet.',
+    'Something watches from the dark.','The air tastes of copper and ozone.',
+    'The crucibles here glow brighter. Older.','Patterns repeat. You are learning the language.',
+    'The walls are warm. The machine is close.','Everything connects. You can feel it now.',
+    'The deepest chamber. The alchemist\'s heart.','You understand.'
+  ];
+  const msg=msgs[Math.min(G.floor,msgs.length-1)]||'Deeper still.';
+  setMsg(`Floor ${G.floor}: ${msg}`);
+}
+
+// --- UI ---
+function setMsg(t){G.message=t;document.getElementById('msg-bar').textContent=t;}
+function showCombinePrompt(t){const el=document.getElementById('combine-prompt');el.textContent=t;el.classList.remove('hidden');}
+function hideCombinePrompt(){document.getElementById('combine-prompt').classList.add('hidden');}
+
+function showDiscovery(text){
+  const el=document.getElementById('discovery');
+  el.textContent=text;
+  el.classList.remove('hidden');
+  G.discoveryTimer=Date.now();
+}
+
+function updateDiscovery(){
+  if(G.discoveryTimer&&Date.now()-G.discoveryTimer>2000){
+    document.getElementById('discovery').classList.add('hidden');
+    G.discoveryTimer=0;
+  }
+}
+
+function updateUI(){
+  document.getElementById('hdr-floor').textContent=`Floor ${G.floor}`;
+  let hp='';
+  for(let i=0;i<G.player.maxHp;i++)hp+=i<G.player.hp?'\u2665':'\u2661';
+  document.getElementById('hdr-hp').textContent=hp;
+  document.getElementById('hdr-hp').style.color=G.player.hp<=2?'#cc4444':'#cc8844';
+  document.getElementById('hdr-discovered').textContent=`${G.discoveredCount}/15 discovered`;
+
+  const bar=document.getElementById('inv-bar');
+  bar.innerHTML='';
+  for(let i=0;i<6;i++){
+    const item=G.inventory[i];
+    const div=document.createElement('div');
+    div.className='slot'+(i===G.selected?' selected':'');
+    div.innerHTML=`<span class="num">${i+1}</span>`;
+    if(item){
+      div.innerHTML+=`<span class="elem" style="color:${itemColor(item)}">${itemName(item)}</span>`;
+    }
+    div.onclick=()=>{
+      if(G.combineMode)doCombineSelect(i);
+      else{G.selected=i;updateUI();}
+    };
+    bar.appendChild(div);
+  }
+}
+
+// --- Journal ---
+function toggleJournal(){
+  const el=document.getElementById('journal-overlay');
+  if(el.classList.contains('hidden')){
+    renderJournal();
+    el.classList.remove('hidden');
+  } else {
+    el.classList.add('hidden');
+  }
+}
+
+function renderJournal(){
+  const content=document.getElementById('journal-content');
+  let html=`<h2>Codex of Interactions (${G.discoveredCount}/15)</h2>`;
+  html+=`<table><tr><th></th>`;
+  for(const e of ELEMENTS)html+=`<th style="color:${EL_COLORS[e]}">${itemName(e).substring(0,3)}</th>`;
+  html+=`</tr>`;
+  for(let i=0;i<ELEMENTS.length;i++){
+    html+=`<tr><th style="color:${EL_COLORS[ELEMENTS[i]]}">${itemName(ELEMENTS[i]).substring(0,3)}</th>`;
+    for(let j=0;j<ELEMENTS.length;j++){
+      if(j<=i){html+=`<td class="unknown">-</td>`;continue;}
+      const key=[ELEMENTS[i],ELEMENTS[j]].sort().join('+');
+      const result=G.journal[key];
+      if(result){
+        html+=`<td class="known" style="color:${itemColor(result)}">${itemName(result)}</td>`;
+      } else {
+        html+=`<td class="unknown">?</td>`;
+      }
+    }
+    html+=`</tr>`;
+  }
+  html+=`</table>`;
+  html+=`<div class="footer">Press J to close · ${G.totalCombinations} total combinations · Floor ${G.floor}</div>`;
+  content.innerHTML=html;
+}
+
+// --- Rendering ---
+function render(timestamp){
+  animTime=timestamp||0;
+  if(screen!=='play'){requestAnimationFrame(render);return;}
+
+  ctx.fillStyle='#0c0812';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  const ts=tileSize;
+
+  // Draw tiles
+  for(let y=0;y<ROWS;y++){
+    for(let x=0;x<COLS;x++){
+      const light=G.visible[y][x];
+      const explored=G.explored[y][x];
+      if(!light&&!explored)continue;
+      const eff=light>0?light:0.05;
+      const tile=G.map[y][x];
+      const h=tileHash(x,y);
+      const v=0.85+h*0.3;
+
+      let r,g,b;
+      switch(tile){
+        case TILE.WALL: case TILE.SECRET_WALL:
+          r=26*v;g=18*v;b=38*v;
+          if(tile===TILE.SECRET_WALL&&light>0.3){r+=8;g+=4;b+=12;} // subtle hint
+          break;
+        case TILE.FLOOR: case TILE.DOOR_OPEN: r=20*v;g=16*v;b=30*v; break;
+        case TILE.CRUCIBLE:
+          if(light>0){const p=0.7+Math.sin(animTime*0.004+h*10)*0.3;r=255*p*0.3;g=215*p*0.3;b=0;}
+          else{r=20;g=16;b=30;}
+          break;
+        case TILE.STAIRS:
+          if(light>0){r=200;g=200;b=220;}else{r=30;g=28;b=40;}
+          break;
+        case TILE.DOOR_LOCKED:
+          const door=G.doors.find(d=>d.x===x&&d.y===y&&!d.open);
+          if(door&&light>0){const c=itemColor(door.requires);const rgb=hexToRgb(c);r=rgb[0]*0.6;g=rgb[1]*0.6;b=rgb[2]*0.6;}
+          else{r=40;g=20;b=40;}
+          break;
+        default: r=20;g=16;b=30;
+      }
+
+      ctx.fillStyle=`rgb(${Math.round(r*eff)},${Math.round(g*eff)},${Math.round(b*eff)})`;
+      ctx.fillRect(x*ts,y*ts,ts,ts);
+
+      if(tile===TILE.WALL&&eff>0.1){
+        ctx.fillStyle=`rgba(40,30,60,${eff*0.15})`;
+        ctx.fillRect(x*ts,y*ts,ts,1);
+      }
+    }
+  }
+
+  // Draw floor elements with glow
+  for(const elem of G.floorElements){
+    if(G.visible[elem.y]&&G.visible[elem.y][elem.x]>0){
+      const light=G.visible[elem.y][elem.x];
+      const color=itemColor(elem.type);
+      const rgb=hexToRgb(color);
+      const flicker=0.5+Math.sin(animTime*0.005+tileHash(elem.x,elem.y)*20)*0.2;
+
+      // Glow
+      const glow=ctx.createRadialGradient(elem.x*ts+ts/2,elem.y*ts+ts/2,0,elem.x*ts+ts/2,elem.y*ts+ts/2,ts*1.5);
+      glow.addColorStop(0,`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.2*light*flicker})`);
+      glow.addColorStop(1,`rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);
+      ctx.fillStyle=glow;
+      ctx.fillRect((elem.x-1.5)*ts,(elem.y-1.5)*ts,ts*4,ts*4);
+
+      // Element dot
+      ctx.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${light*flicker})`;
+      ctx.beginPath();
+      ctx.arc(elem.x*ts+ts/2,elem.y*ts+ts/2,ts*0.25,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  // Draw creatures
+  for(const c of G.creatures){
+    if(!c.alive)continue;
+    if(G.visible[c.y]&&G.visible[c.y][c.x]>0){
+      const light=G.visible[c.y][c.x];
+      const pulse=0.6+Math.sin(animTime*0.006)*0.4;
+      ctx.fillStyle=`rgba(200,50,80,${light*pulse})`;
+      ctx.beginPath();
+      ctx.arc(c.x*ts+ts/2,c.y*ts+ts/2,ts*0.4,0,Math.PI*2);
+      ctx.fill();
+      // Weakness hint after first hit
+      if(c.hint){
+        const wc=itemColor(c.weakness);
+        ctx.fillStyle=wc;
+        ctx.beginPath();
+        ctx.arc(c.x*ts+ts/2,c.y*ts+ts/2-ts*0.5,ts*0.1,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+  }
+
+  // Draw crucible glow
+  for(const cr of G.crucibles){
+    if(G.visible[cr.y]&&G.visible[cr.y][cr.x]>0){
+      const light=G.visible[cr.y][cr.x];
+      const pulse=0.6+Math.sin(animTime*0.003)*0.3;
+      ctx.strokeStyle=`rgba(255,215,0,${light*pulse*0.6})`;
+      ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.arc(cr.x*ts+ts/2,cr.y*ts+ts/2,ts*0.35,0,Math.PI*2);
+      ctx.stroke();
+    }
+  }
+
+  // Draw locked door labels
+  for(const door of G.doors){
+    if(door.open)continue;
+    if(G.visible[door.y]&&G.visible[door.y][door.x]>0){
+      const light=G.visible[door.y][door.x];
+      ctx.fillStyle=`rgba(255,255,255,${light*0.7})`;
+      ctx.font=`${Math.max(8,Math.floor(ts*0.5))}px monospace`;
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText(itemName(door.requires).substring(0,5),door.x*ts+ts/2,door.y*ts+ts/2);
+    }
+  }
+
+  // Draw stairs label
+  if(G.stairs&&G.visible[G.stairs.y]&&G.visible[G.stairs.y][G.stairs.x]>0){
+    ctx.fillStyle=`rgba(220,220,240,${G.visible[G.stairs.y][G.stairs.x]*0.8})`;
+    ctx.font=`${Math.floor(ts*0.7)}px monospace`;
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText('>',G.stairs.x*ts+ts/2,G.stairs.y*ts+ts/2+1);
+  }
+
+  // Draw player glow
+  const px=G.player.x*ts+ts/2, py=G.player.y*ts+ts/2;
+  const glowR=ts*5;
+  const playerGlow=ctx.createRadialGradient(px,py,0,px,py,glowR);
+  playerGlow.addColorStop(0,'rgba(255,215,0,0.08)');
+  playerGlow.addColorStop(1,'rgba(255,215,0,0)');
+  ctx.fillStyle=playerGlow;
+  ctx.beginPath();ctx.arc(px,py,glowR,0,Math.PI*2);ctx.fill();
+
+  // Player
+  ctx.fillStyle='#ffd700';
+  ctx.beginPath();ctx.arc(px,py,ts*0.3,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(255,255,200,0.5)';
+  ctx.beginPath();ctx.arc(px,py,ts*0.12,0,Math.PI*2);ctx.fill();
+
+  updateDiscovery();
+  requestAnimationFrame(render);
+}
+
+function hexToRgb(hex){
+  const r=parseInt(hex.slice(1,3),16);
+  const g=parseInt(hex.slice(3,5),16);
+  const b=parseInt(hex.slice(5,7),16);
+  return[r,g,b];
+}
+
+// --- Input ---
+function handleInput(e){
+  if(screen==='title'){
+    document.getElementById('overlay').classList.add('hidden');
+    newGame();updateUI();requestAnimationFrame(render);
+    return;
+  }
+  if(screen==='dead'){
+    document.getElementById('overlay').classList.add('hidden');
+    newGame();updateUI();
+    return;
+  }
+  if(screen!=='play')return;
+
+  // Journal toggle
+  if(e.key==='j'||e.key==='J'){toggleJournal();e.preventDefault();return;}
+  // Close journal if open
+  if(!document.getElementById('journal-overlay').classList.contains('hidden')){
+    if(e.key==='Escape')toggleJournal();
+    return;
+  }
+
+  // Combine mode number selection
+  if(G.combineMode){
+    const num=parseInt(e.key);
+    if(num>=1&&num<=6){doCombineSelect(num-1);e.preventDefault();return;}
+    if(e.key==='Escape'){G.combineMode=false;G.combineFirst=-1;hideCombinePrompt();setMsg('Cancelled.');return;}
+    return;
+  }
+
+  let handled=false;
+  switch(e.key){
+    case'ArrowUp':case'w':case'W':tryMove(0,-1);handled=true;break;
+    case'ArrowDown':case's':case'S':tryMove(0,1);handled=true;break;
+    case'ArrowLeft':case'a':case'A':tryMove(-1,0);handled=true;break;
+    case'ArrowRight':case'd':case'D':tryMove(1,0);handled=true;break;
+    case'e':case'E':doInteract();handled=true;break;
+    case'q':case'Q':doDrop();handled=true;break;
+    case'1':case'2':case'3':case'4':case'5':case'6':
+      G.selected=parseInt(e.key)-1;updateUI();handled=true;break;
+  }
+  if(handled)e.preventDefault();
+}
+
+// --- Save/Load ---
+function save(){
+  try{localStorage.setItem('crucible_save',JSON.stringify(G));}catch(e){}
+}
+function loadGame(){
+  try{const d=localStorage.getItem('crucible_save');if(!d)return false;G=JSON.parse(d);return true;}catch(e){return false;}
+}
+function hasSave(){return!!localStorage.getItem('crucible_save');}
+
+// --- Resize ---
+function resize(){
+  const maxW=window.innerWidth-16;
+  const maxH=window.innerHeight-120;
+  tileSize=Math.max(8,Math.floor(Math.min(maxW/COLS,maxH/ROWS)));
+  canvas.width=COLS*tileSize;
+  canvas.height=ROWS*tileSize;
+}
+
+// --- Init ---
+function init(){
+  canvas=document.getElementById('game');
+  ctx=canvas.getContext('2d');
+  resize();
+  window.addEventListener('resize',resize);
+  window.addEventListener('keydown',handleInput);
+
+  // Title screen with continue option
+  const overlay=document.getElementById('overlay');
+  if(hasSave()){
+    overlay.innerHTML=`<h1>Crucible</h1><div class="sub">The rules of this world are unknown. Every combination teaches you something.</div><div class="prompt">Press C to continue · Any other key for new game</div>`;
+    const origHandler=handleInput;
+    window.removeEventListener('keydown',handleInput);
+    window.addEventListener('keydown',function titleHandler(e){
+      window.removeEventListener('keydown',titleHandler);
+      window.addEventListener('keydown',handleInput);
+      if(e.key==='c'||e.key==='C'){
+        if(loadGame()){overlay.classList.add('hidden');screen='play';computeFOV();updateUI();requestAnimationFrame(render);}
+      } else {
+        overlay.classList.add('hidden');
+        newGame();updateUI();requestAnimationFrame(render);
+      }
+    });
+  }
+}
+
+init();
+</script>
+</body>
+</html>

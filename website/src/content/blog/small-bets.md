@@ -3,7 +3,7 @@ title: "Small Bets: What Bankrupt Cities Teach Us About AI Workflows"
 description: "The Strong Towns movement argues cities go bankrupt by building too big too fast. The same pattern kills AI tool adoption. Here's the fix for both."
 date: 2026-03-15
 tags: ["workflow", "philosophy", "ai-tools", "opinion"]
-draft: true
+draft: false
 ---
 
 Chuck Marohn is a civil engineer who figured out why American cities go bankrupt. His organization, [Strong Towns](https://www.strongtowns.org), has spent 18 years documenting a pattern he calls the [Growth Ponzi Scheme](https://www.strongtowns.org/journal/2020-5-14-americas-growth-ponzi-scheme-md2020): cities receive immediate revenue from new development while assuming long-term infrastructure liabilities they can't afford. They grow to overcome insolvency, which temporarily helps but increases future hardship.

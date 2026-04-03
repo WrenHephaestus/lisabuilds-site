@@ -3,7 +3,7 @@ title: "The 'Do NOT' Section Is the Most Important Part of Your CLAUDE.md"
 description: "Everyone focuses on telling Claude what TO do. The real power is in telling it what not to do. Here's how to write constraints that actually work."
 date: 2026-03-14
 tags: ["claude-code", "tutorial", "claude-md", "workflow"]
-draft: true
+draft: false
 ---
 
 Most CLAUDE.md advice focuses on describing your project: what language you use, how the codebase is structured, what coding conventions to follow. That stuff matters. But the section that changes your daily experience with Claude Code the most is the one that says what *not* to do.
@@ -80,7 +80,7 @@ Notice that some of these are about code and some are about behavior. The Do NOT
 
 The Do NOT section is a consent mechanism. It's how you tell an AI system "here's where my boundaries are," and it's one of the only tools developers have for establishing those boundaries at the model level.
 
-I wrote more about why this matters at scale in [The Consent Gap](/blog/the-consent-gap). The short version: the same pattern of "AI defaults to action unless explicitly told not to" shows up in code editors, facial recognition systems, and military targeting. CLAUDE.md is a small, practical intervention in a very large problem.
+I wrote more about why this matters at scale in [The Consent Gap](/lisabuilds-site/blog/the-consent-gap). The short version: the same pattern of "AI defaults to action unless explicitly told not to" shows up in code editors, facial recognition systems, and military targeting. CLAUDE.md is a small, practical intervention in a very large problem.
 
 But it works. And it'll make your daily Claude Code experience meaningfully better.
 

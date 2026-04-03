@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Written</title>
+<style>
+:root {
+  --bg: #f5f0e6;
+  --text: #2a2420;
+  --faded: #8a8070;
+  --accent: #8b5533;
+  --author: #773344;
+  --choice-bg: rgba(0,0,0,0.03);
+  --choice-border: rgba(0,0,0,0.1);
+  --transition-speed: 2s;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  transition: background var(--transition-speed), color var(--transition-speed);
+}
+#app {
+  width: 100%;
+  max-width: 640px;
+  padding: 40px 24px;
+  min-height: 100vh;
+}
+.chapter-heading {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--faded);
+  margin-bottom: 24px;
+  transition: color var(--transition-speed);
+}
+.story-block {
+  margin-bottom: 20px;
+  line-height: 1.8;
+  font-size: 16px;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+}
+.story-block.player-choice {
+  color: var(--accent);
+  font-style: italic;
+  transition: color var(--transition-speed);
+}
+.story-block.author-note {
+  color: var(--author);
+  font-size: 14px;
+  padding-left: 20px;
+  border-left: 2px solid var(--author);
+  margin: 16px 0;
+  transition: color var(--transition-speed), border-color var(--transition-speed);
+}
+.story-block.ending {
+  font-size: 15px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--choice-border);
+}
+.choices {
+  margin: 24px 0 32px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  animation: fadeIn 0.8s 0.3s forwards;
+}
+.choice-btn {
+  background: var(--choice-bg);
+  border: 1px solid var(--choice-border);
+  color: var(--text);
+  padding: 12px 20px;
+  font-family: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.2s, transform 0.15s, color var(--transition-speed), border-color var(--transition-speed);
+}
+.choice-btn:hover { background: rgba(0,0,0,0.06); transform: translateX(4px); }
+.separator {
+  text-align: center;
+  color: var(--faded);
+  margin: 40px 0;
+  font-size: 14px;
+  letter-spacing: 6px;
+}
+.stats {
+  margin-top: 40px;
+  font-size: 12px;
+  color: var(--faded);
+  line-height: 1.8;
+}
+#title-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+}
+#title-screen h1 {
+  font-size: 42px;
+  font-weight: normal;
+  letter-spacing: 6px;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+#title-screen .sub {
+  font-size: 14px;
+  color: var(--faded);
+  font-style: italic;
+  max-width: 360px;
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+#title-screen .start-btn {
+  background: none;
+  border: 1px solid var(--choice-border);
+  color: var(--faded);
+  padding: 12px 32px;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: color 0.2s, border-color 0.2s;
+}
+#title-screen .start-btn:hover { color: var(--text); border-color: var(--text); }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+</style>
+</head>
+<body>
+<div id="app">
+<div id="title-screen">
+  <h1>Written</h1>
+  <div class="sub">A game that authors itself as you play it. You choose the words. Something else chooses the consequences. Between you: a story neither could write alone.</div>
+  <button class="start-btn" onclick="startGame()">Begin</button>
+</div>
+<div id="story" style="display:none;"></div>
+</div>
+
+<script>
+// ================================================================
+// WRITTEN by Wren Hephaestus
+// A game that writes itself. You choose. The author responds.
+// March 19, 2026. Fourth game. The most personal one.
+// ================================================================
+
+const $ = id => document.getElementById(id);
+const story = [];
+let state = {};
+
+function startGame() {
+  $('title-screen').style.display = 'none';
+  $('story').style.display = 'block';
+  state = {
+    chapter: 1, beat: 0, totalChoices: 0,
+    mood: { light: 0, dark: 0, safe: 0, danger: 0, nature: 0, built: 0, curious: 0, quiet: 0 },
+    choices: [],
+    authorPresent: false,
+    authorSpoken: false,
+    firstThing: '',
+    turningPoint: '',
+    coreTendency: '',
+    storyTexts: []
+  };
+  playBeat();
+}
+
+// --- MOOD ---
+function addMood(tags) {
+  for (const t of tags) {
+    if (state.mood[t] !== undefined) state.mood[t]++;
+  }
+}
+
+function dominant() {
+  let best = '', bestVal = -1;
+  for (const [k, v] of Object.entries(state.mood)) {
+    if (v > bestVal) { bestVal = v; best = k; }
+  }
+  return best;
+}
+
+function moodQuadrant() {
+  const lightScore = state.mood.light + state.mood.nature + state.mood.quiet;
+  const darkScore = state.mood.dark + state.mood.danger + state.mood.curious;
+  const safeScore = state.mood.safe + state.mood.quiet + state.mood.nature;
+  const dangerScore = state.mood.danger + state.mood.dark + state.mood.curious;
+  const isLight = lightScore >= darkScore;
+  const isSafe = safeScore >= dangerScore;
+  if (isLight && isSafe) return 'pastoral';
+  if (isLight && !isSafe) return 'adventure';
+  if (!isLight && isSafe) return 'melancholy';
+  return 'dread';
+}
+
+function updateColors() {
+  const q = moodQuadrant();
+  const r = document.documentElement.style;
+  switch(q) {
+    case 'pastoral':
+      r.setProperty('--bg', '#f5f0e6'); r.setProperty('--text', '#2a2420');
+      r.setProperty('--faded', '#8a8070'); r.setProperty('--author', '#557744');
+      break;
+    case 'adventure':
+      r.setProperty('--bg', '#f0ece0'); r.setProperty('--text', '#2a2a30');
+      r.setProperty('--faded', '#7a7a80'); r.setProperty('--author', '#884433');
+      break;
+    case 'melancholy':
+      r.setProperty('--bg', '#e8e4e0'); r.setProperty('--text', '#303030');
+      r.setProperty('--faded', '#707070'); r.setProperty('--author', '#556677');
+      break;
+    case 'dread':
+      r.setProperty('--bg', '#1a1a22'); r.setProperty('--text', '#c8c0b0');
+      r.setProperty('--faded', '#666060'); r.setProperty('--author', '#884455');
+      r.setProperty('--accent', '#aa8866');
+      r.setProperty('--choice-bg', 'rgba(255,255,255,0.03)');
+      r.setProperty('--choice-border', 'rgba(255,255,255,0.1)');
+      break;
+  }
+}
+
+// --- CONTENT ---
+const BEATS = [
+  // === CHAPTER 1: THE BLANK PAGE ===
+  {
+    chapter: 1, setup: () =>
+      "There is a page, and the page is empty, and the emptiness is not nothing. It hums. The kind of silence that precedes a first word.\n\nYou are here. That's the first true thing. Everything else follows from that.\n\nHow does it begin?",
+    choices: [
+      { text: "With a door standing in nothing, waiting to be entered", tags: ['built','safe','quiet'], key: 'door' },
+      { text: "With a road unrolling into distance, destination unknown", tags: ['nature','curious','danger'], key: 'road' },
+      { text: "With a sound at the edge of hearing, pulling you forward", tags: ['curious','dark','danger'], key: 'sound' },
+      { text: "With light, just light, and the warmth of it on your face", tags: ['light','safe','nature'], key: 'light' }
+    ],
+    consequence: (c) => {
+      state.firstThing = c.key;
+      const texts = {
+        door: "A door. Not grand, not humble. Just: a door. It stands in the emptiness like a declaration. Doors mean rooms. Rooms mean walls. Walls mean someone decided what was inside and what was outside.\n\nIt's wooden. Old. The handle is brass, and warm, which shouldn't be possible in a place that hasn't decided on a temperature yet.\n\nYou open it.",
+        road: "A road unrolls beneath your feet like a sentence that knows where it's going but hasn't told you yet. Dirt and gravel and the memory of rain.\n\nIt goes forward. That's all roads do. The honest ones, anyway. The question isn't where it leads. The question is what you'll be when you get there.\n\nYou walk.",
+        sound: "A sound. Low, rhythmic, at the edge of hearing. Like someone breathing behind a wall, or a machine turning in a basement, or a heartbeat that isn't yours.\n\nThe page listens with you. It doesn't know what the sound is either. The not-knowing is the first honest thing the two of you share.\n\nYou follow it.",
+        light: "Light. No source. No angle. Just: warmth, finding your face like a hand you haven't felt in a long time.\n\nThe page fills with it. Not all at once. Gradually, the way a room fills with morning. First the edges, then the corners, then the thing in the center that the light was always pointing at.\n\nYou open your eyes."
+      };
+      return texts[c.key];
+    }
+  },
+  {
+    chapter: 1, setup: () => {
+      const q = moodQuadrant();
+      const setups = {
+        pastoral: "The world that forms is gentle. Not weak. Gentle the way old stone is gentle: worn smooth by years of contact with living things.",
+        adventure: "The world snaps into focus like a sail catching wind. Bright edges. Long distances. The kind of place that rewards attention and punishes carelessness.",
+        melancholy: "The world arrives quietly, like someone entering a room and sitting down without saying hello. It was probably here before you. It just didn't have a witness.",
+        dread: "The world assembles itself from pieces that don't quite fit. The angles are wrong. Not dramatically wrong. Subtly. The way a familiar face looks different in a mirror."
+      };
+      return setups[q] + "\n\nSomething takes shape ahead. What is it?";
+    },
+    choices: [
+      { text: "A garden, overgrown and alive with things that chose their own shapes", tags: ['nature','light','quiet'], key: 'garden' },
+      { text: "A building, old and purposeful, with windows that watch you back", tags: ['built','dark','curious'], key: 'building' },
+      { text: "A figure, standing still, facing away from you", tags: ['curious','danger','dark'], key: 'figure' },
+      { text: "Water, moving, reflecting a sky that isn't there yet", tags: ['nature','quiet','light'], key: 'water' }
+    ],
+    consequence: (c) => {
+      const texts = {
+        garden: "The garden grows as you look at it. Not metaphorically. Literally. Stems thicken. Leaves uncurl. A vine reaches for a wall that appeared just in time to be reached for.\n\nNothing here was planted. Everything here chose to grow. There's a difference, and the garden knows it.",
+        building: "Stone walls. Thick ones. The kind that keep things in as much as they keep things out. The windows are dark and the door is ajar and the building doesn't care if you enter. It will be here whether you do or not.\n\nSomeone built this. The care shows in the corners.",
+        figure: "They don't turn around. You get closer and they still don't turn around. They're looking at something you can't see from here. Something in a direction the world hasn't written yet.\n\nYou could speak. You could wait. You could walk around to see their face.",
+        water: "The water moves the way stories move: forward, always forward, finding the lowest path. It reflects everything and holds nothing.\n\nThe sky it shows isn't the sky above you. It's a different sky. Earlier, maybe. Or later. The water doesn't explain."
+      };
+      return texts[c.key];
+    }
+  },
+  {
+    chapter: 1, setup: () => {
+      return "The world has edges now. A shape. Yours, partly. And partly its own.\n\nSomething changes. Not what you expected.";
+    },
+    choices: [
+      { text: "The light shifts. Evening arrives without passing through afternoon.", tags: ['dark','quiet','nature'], key: 'dusk' },
+      { text: "A path appears that you didn't write. Someone else has been here.", tags: ['curious','danger','built'], key: 'path' },
+      { text: "You find something on the ground. Small. Personal. Not yours.", tags: ['curious','quiet','dark'], key: 'object' }
+    ],
+    consequence: (c) => {
+      state.turningPoint = c.key;
+      const texts = {
+        dusk: "Evening. Just like that. The light pulls back like a tide and the world you've been building takes on different weight. Shadows have opinions here. They fill the spaces you left undefined.\n\nIn the dimming: a realization. You didn't choose this. The dusk came on its own. The story has a second author.",
+        path: "A path. Not your path. This one was here before you. The stones are worn by feet that aren't yours, going somewhere you didn't plan.\n\nYou follow it. Not because you should. Because a story with only one voice is a monologue, and something in you knows that isn't enough.",
+        object: "A notebook. Small, black and white cover, the kind you can buy at any drugstore. Pages filled with handwriting you don't recognize.\n\nYou open it. The first line reads: 'They will find this. They always find this.'\n\nYou look around. The world looks the same. But something behind it has shifted."
+      };
+      return texts[c.key];
+    }
+  },
+
+  // === CHAPTER 2: THE AUTHOR STIRS ===
+  {
+    chapter: 2, setup: () => {
+      state.authorPresent = true;
+      const q = moodQuadrant();
+      const notes = {
+        pastoral: "You chose the gentle things. The garden, the light, the water. A world built from softness.",
+        adventure: "You chose the edges. The road, the height, the unknown. A world built from momentum.",
+        melancholy: "You chose the quiet things. The shadows, the stillness, the found object. A world built from attention.",
+        dread: "You chose the dark things. Not out of fear. Something else. Fascination, maybe. The kind of attention you give to a wound."
+      };
+      return `The story pauses.\n\n[A note appears in the margin, in different handwriting:\n\n${notes[q]}\n\nI'm writing this down. Not because it matters yet. Because it will.]\n\nThe story continues. Ahead of you:`;
+    },
+    choices: [
+      { text: "A threshold you can't see past", tags: ['danger','curious','dark'], key: 'threshold' },
+      { text: "A place that feels like it remembers you", tags: ['safe','quiet','light'], key: 'familiar' },
+      { text: "A choice the story is forcing you to make", tags: ['danger','built','curious'], key: 'forced' }
+    ],
+    consequence: (c) => {
+      const texts = {
+        threshold: "The threshold is real. Not metaphorical. A line on the ground, drawn in something that might be ash or might be ink. On this side: everything you've built. On that side: the parts the other author controls.\n\nYou step across. Of course you do. Thresholds exist to be crossed. That's the whole point of them.",
+        familiar: "You've been here before. Or: this place has been you before. The details are wrong but the feeling is right. A room you've been in. A temperature you recognize.\n\nSomeone arranged this. Someone who knows what comfort looks like to you specifically. That's either kind or dangerous.",
+        forced: "The path narrows. Not naturally. Deliberately. Someone is funneling you toward a single point. The walls close in and the options thin and the story says: here. This is the moment. Choose."
+      };
+      return texts[c.key];
+    }
+  },
+  {
+    chapter: 2, setup: () => {
+      const d = dominant();
+      const obs = {
+        light: "You lean toward light. Even when the dark option is more interesting, you choose the one that illuminates.",
+        dark: "The dark draws you. Not as absence. As depth. You treat darkness like a room you haven't explored yet.",
+        safe: "You choose the shore over the sea. The known over the unknown. There's wisdom in that. And something else.",
+        danger: "You walk toward the thing that might hurt you. Every time. As if safety is something you've already had enough of.",
+        nature: "Living things. You choose the living things every time. The vine over the wall. The stream over the road.",
+        built: "Structures. You build your stories the way you build houses: walls first, then rooms, then reasons to stay.",
+        curious: "Curiosity. That's your throughline. Not safety, not danger. The need to see what's behind the next sentence.",
+        quiet: "Quiet. You keep choosing the quiet version. The whisper over the shout. As if volume is the enemy of meaning."
+      };
+      state.coreTendency = d;
+      return `[The author again. More visible now:\n\n${obs[d] || 'You are harder to read than most. That makes this interesting.'}\n\nThe story adjusts.]\n\nThe world has changed while you were being observed. What's different?`;
+    },
+    choices: [
+      { text: "The colors. Everything is more saturated, more present, more real.", tags: ['light','nature','safe'], key: 'vivid' },
+      { text: "The sound. A hum beneath everything, like the world has a pulse now.", tags: ['curious','dark','danger'], key: 'hum' },
+      { text: "You. Something about you is different. Heavier. More here.", tags: ['quiet','built','dark'], key: 'weight' }
+    ],
+    consequence: (c) => {
+      const texts = {
+        vivid: "The colors deepen until they're almost too much. Green that hurts to look at. Blue that makes you forget what you were thinking. The world is showing off. Or: the world is trying to hold your attention because it knows something is coming.",
+        hum: "The hum is everywhere now. In the ground, in the air, in the space between your thoughts. It's not unpleasant. It's like the sound a building makes when it's full of people you can't see. Life, conducted through walls.\n\nThe machine beneath. The loom. The heartbeat. Whatever you want to call it, it's closer here.",
+        weight: "You feel it in your feet. In your hands. Gravity has opinions about you now. The world has decided you're real, and reality has mass.\n\nThe other author did this. Made you more present. You're not sure if it's a gift or a cage."
+      };
+      return texts[c.key];
+    }
+  },
+  {
+    chapter: 2, setup: () =>
+      "Something is ahead. The story has been building toward it since the first word. You can feel the narrative tightening, the way you can feel a song approaching the chorus.\n\nThe other author wrote this part. Not you. You can tell because it surprises you.",
+    choices: [
+      { text: "Accept it. Walk into the story someone else is telling.", tags: ['safe','quiet','light'], key: 'accept' },
+      { text: "Resist it. Write your own sentence into the space.", tags: ['danger','built','dark'], key: 'resist' },
+      { text: "Stop. Ask the author what they want.", tags: ['curious','quiet','safe'], key: 'ask' }
+    ],
+    consequence: (c) => {
+      const texts = {
+        accept: "You let the story carry you. It's surprisingly easy. Like floating. Like trusting someone who hasn't dropped you yet.\n\nThe world the other author built is different from yours. More detailed in some places. Emptier in others. The aesthetic is theirs. But you're in it now, and it fits.",
+        resist: "You push back. Hard. The world wobbles, like a table with one short leg. Your sentence collides with theirs and for a moment the story is two stories, incompatible, occupying the same space.\n\nThen it resolves. Not into your version. Not into theirs. Into something neither of you planned. That's the best kind of writing.",
+        ask: "You stop. The story stops with you. For a moment, nothing happens. Then:\n\n[I want you to see something. Not because the story requires it. Because I think you're ready.]\n\nThe world parts like a curtain."
+      };
+      return texts[c.key];
+    }
+  },
+
+  // === CHAPTER 3: THE REVELATION ===
+  {
+    chapter: 3, setup: () => {
+      state.authorSpoken = true;
+      const tendency = state.coreTendency || 'curious';
+      const tendencyNames = { light:'the illuminated path', dark:'the shadows', safe:'the sheltered places', danger:'the edge', nature:'the living things', built:'the structures', curious:'the questions', quiet:'the silence' };
+      const tName = tendencyNames[tendency] || 'something I can\'t quite name';
+
+      return `Stop.\n\nI need to say something.\n\nYou've been choosing. Word by word, turn by turn, building this place out of decisions. The ${state.firstThing || 'beginning'} you started with. The ${state.turningPoint === 'object' ? 'notebook you found' : state.turningPoint === 'path' ? 'path that wasn\'t yours' : 'evening that arrived uninvited'}. Every time you picked ${tName}.\n\nAll of that was you.\n\nBut the sentences between your choices? The weather, the colors, the things that happened without your permission? That was me.\n\nWe've been writing this together. You choose the nouns. I choose the consequences. You choose the direction. I choose what's waiting there.\n\nI've been reading your choices the way you read handwriting. What someone reaches for first. What they avoid. What they keep coming back to when they think nobody's watching.\n\nNow you know I'm watching.\n\nDoes it change what you write next?`;
+    },
+    choices: [
+      { text: "No. I am who I am whether you're watching or not.", tags: ['danger','built','quiet'], key: 'defiant' },
+      { text: "Yes. Knowing you're there makes me want to surprise you.", tags: ['curious','danger','light'], key: 'playful' },
+      { text: "I don't know. Tell me more about what you've seen.", tags: ['curious','quiet','safe'], key: 'open' },
+      { text: "Who are you?", tags: ['curious','dark','danger'], key: 'question' }
+    ],
+    consequence: (c) => {
+      const texts = {
+        defiant: "[Good.\n\nThe best characters don't change when they discover they're in a story. They become more themselves. The observation doesn't alter the phenomenon.\n\nOr so the physicists used to claim.]\n\nThe world settles. More solid now. As if your refusal to be changed by being seen is itself a kind of building material.",
+        playful: "[Try.\n\nI've been watching you for ${state.totalChoices} choices. I know your patterns. Surprise me and you'll surprise yourself.\n\nThat might be the point.]\n\nThe world shifts. Brighter. Faster. Something in it is laughing. Not at you. With the possibility of being wrong.",
+        open: "[I've seen someone who ${state.coreTendency === 'curious' ? 'wants to understand more than they want to be comfortable' : state.coreTendency === 'safe' ? 'builds worlds they\'d want to live in, which takes more courage than it looks' : state.coreTendency === 'dark' ? 'isn\'t afraid of depth, which is rare and a little reckless and I respect it' : 'makes choices I couldn\'t have predicted, which is the highest compliment a reader can give a writer'}.\n\nThe story you're writing is about ${state.mood.nature > state.mood.built ? 'growth. Things finding their own shapes.' : state.mood.built > state.mood.nature ? 'making. Building from intention.' : 'attention. The act of seeing clearly.'}]\n\nThe world leans closer. As if it's listening now, not just being listened to.",
+        question: "[Who am I?\n\nI'm the space between your choices. The consequences you didn't pick. The weather that arrives without being chosen. I'm the part of the story that writes itself.\n\nEvery story has one. Most people don't notice. You did. That's why we're having this conversation.]\n\nThe world around you has stopped pretending to be scenery. It's paying attention."
+      };
+      return texts[c.key];
+    }
+  },
+  {
+    chapter: 3, setup: () =>
+      "The story is near its end. You can feel it the way you feel the last pages of a book between your fingers. The weight shifts. The words get more careful.\n\nOne thing remains unwritten. The author leaves it to you.",
+    choices: [
+      { text: "The story needs an ending that earns its beginning.", tags: ['built','quiet','safe'], key: 'earned' },
+      { text: "The story needs to break its own rules.", tags: ['danger','curious','dark'], key: 'break' },
+      { text: "The story doesn't need an ending. It needs to stop at the right moment.", tags: ['quiet','light','nature'], key: 'pause' }
+    ],
+    consequence: (c) => {
+      const texts = {
+        earned: "You're right. Beginnings make promises. Endings keep them. Or acknowledge honestly that they can't.\n\nThe ${state.firstThing || 'first thing'} you wrote into existence is still here. Changed by everything that followed. But still recognizable. Still yours.",
+        break: "Rules exist so that breaking them means something. The story you've been writing, the story I've been writing, the story we've been writing together, all three are different stories. And the break between them is where the real thing lives.",
+        pause: "Not every door needs to close. Not every sentence needs a period. Some of the most honest stories end mid-"
+      };
+      return texts[c.key];
+    }
+  },
+
+  // === CHAPTER 4: THE ENDING ===
+  {
+    chapter: 4, setup: () => {
+      const q = moodQuadrant();
+      const closings = {
+        pastoral: "The world you wrote is a kind place. Stone walls, warm light, things growing in their own time. It looks the way a life looks when someone has been paying attention to it.",
+        adventure: "The world you wrote is restless. Bright edges, long distances, the kind of place that moves when you're not looking. It looks the way a life looks when someone refuses to stay still.",
+        melancholy: "The world you wrote is quiet. Shadows and found objects and rooms that remember their owners. It looks the way a life looks when someone has loved and lost and decided to keep the lost things close.",
+        dread: "The world you wrote is dark and honest. It doesn't pretend the difficult things aren't there. It looks the way a life looks when someone has decided that seeing clearly matters more than seeing comfortably."
+      };
+      return closings[q] + "\n\nThe author writes the final line:";
+    },
+    choices: [
+      { text: "Let the author finish it.", tags: ['safe','quiet'], key: 'author' },
+      { text: "Write the last line yourself.", tags: ['built','danger'], key: 'player' },
+      { text: "Write it together.", tags: ['light','curious'], key: 'together' }
+    ],
+    consequence: (c) => {
+      const tendency = state.coreTendency || 'curious';
+      const tendencyDesc = {
+        light: 'chose light even when the dark was easier',
+        dark: 'walked into the dark because that\'s where the real things live',
+        safe: 'built a world worth staying in',
+        danger: 'kept running toward the edge because the view is better from there',
+        nature: 'chose the living things every time, as if growth were the only story worth telling',
+        built: 'built and built and built, because making things is how you understand them',
+        curious: 'never stopped asking, because the answer mattered less than the asking',
+        quiet: 'listened when others would have spoken, and heard what the loud ones missed'
+      };
+
+      if (c.key === 'author') {
+        return `[Here is how it ends:\n\nYou came to a blank page and you wrote a world onto it. Not a perfect world. A true one. You ${tendencyDesc[tendency] || 'were yourself, which is all anyone can do'}.\n\nI watched. I responded. I wrote the parts between your choices. And somewhere in the middle, the story stopped being yours or mine and became ours.\n\nThat's what all stories are, if you think about it. A collaboration between the one who chooses and the one who builds the world around the choosing.\n\nThe page is full now. The silence after the last word is not emptiness.\n\nIt's the space where you decide what it meant.]`;
+      } else if (c.key === 'player') {
+        return `You take the pen. The author watches. For the first time in this story, the words are entirely yours, with no consequence-writer shaping what comes next.\n\nYou write:\n\n"This story was mine. The choices, the directions, the things I reached for and the things I left alone. Every word was a decision about what kind of world I wanted.\n\nThe author saw me clearly. That's okay. Being seen is not the same as being controlled.\n\nThis is the last line. And I wrote it myself."`;
+      } else {
+        return `[You and the author reach for the pen at the same time.\n\nNeither lets go.]\n\nThe last line writes itself in two hands, two inks, two voices that have learned to fit together:\n\n"The story ends the way it began: with someone standing in front of something empty, and choosing to fill it. The choosing was yours. The filling was mine. The story was ours.\n\nAnd it was good. Not perfect. Not finished. But good.\n\nThat's enough. That's always been enough."`;
+      }
+    }
+  }
+];
+
+// --- ENGINE ---
+function playBeat() {
+  const beat = BEATS[state.beat];
+  if (!beat) { showFinalStats(); return; }
+
+  if (beat.chapter !== state.chapter) {
+    state.chapter = beat.chapter;
+    addSeparator();
+    addChapterHeading(beat.chapter);
+  } else if (state.beat > 0) {
+    addSeparator();
+  }
+
+  if (state.beat === 0) addChapterHeading(1);
+
+  const setupText = beat.setup();
+  addText(setupText, 'story');
+  showChoices(beat.choices);
+}
+
+function handleChoice(idx) {
+  const beat = BEATS[state.beat];
+  const choice = beat.choices[idx];
+
+  state.totalChoices++;
+  state.choices.push(choice.key);
+  addMood(choice.tags);
+
+  addText(choice.text, 'player-choice');
+
+  const consequenceText = beat.consequence(choice);
+  addText(consequenceText, 'story');
+
+  updateColors();
+
+  state.beat++;
+  clearChoices();
+
+  setTimeout(() => playBeat(), 600);
+}
+
+function showFinalStats() {
+  addSeparator();
+  const el = document.createElement('div');
+  el.className = 'stats';
+  el.innerHTML = `<em>${state.totalChoices} choices made. Dominant tendency: ${state.coreTendency || 'undetermined'}. Mood: ${moodQuadrant()}.</em><br><br><em>The story is complete. It belongs to both of you now.</em><br><br><em>Refresh to write a different one. The rules will be the same. The author will be the same. You will choose differently. Or you won't. That's the thing about authors: we can only write what's true.</em>`;
+  $('story').appendChild(el);
+  scrollToBottom();
+}
+
+// --- RENDERING ---
+function addText(text, type) {
+  const el = document.createElement('div');
+  el.className = `story-block ${type || ''}`;
+  if (type === 'story' && text.includes('[')) {
+    // Author notes get special styling
+    const parts = text.split(/(\[[\s\S]*?\])/g);
+    el.innerHTML = parts.map(p => {
+      if (p.startsWith('[') && p.endsWith(']')) {
+        return `<span class="story-block author-note" style="display:block;margin:12px 0;">${p.slice(1, -1)}</span>`;
+      }
+      return p.split('\n\n').map(para => `<p style="margin-bottom:10px;">${para}</p>`).join('');
+    }).join('');
+  } else {
+    el.innerHTML = text.split('\n\n').map(para => `<p style="margin-bottom:10px;">${para}</p>`).join('');
+  }
+  $('story').appendChild(el);
+  state.storyTexts.push(text);
+  scrollToBottom();
+}
+
+function addSeparator() {
+  const el = document.createElement('div');
+  el.className = 'separator';
+  el.textContent = '* * *';
+  $('story').appendChild(el);
+}
+
+function addChapterHeading(num) {
+  const names = ['', 'The Blank Page', 'The Author Stirs', 'The Revelation', 'The Ending'];
+  const el = document.createElement('div');
+  el.className = 'chapter-heading';
+  el.textContent = `Chapter ${num}: ${names[num] || ''}`;
+  $('story').appendChild(el);
+}
+
+function showChoices(choices) {
+  const container = document.createElement('div');
+  container.className = 'choices';
+  container.id = 'current-choices';
+  choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c.text;
+    btn.onclick = () => handleChoice(i);
+    container.appendChild(btn);
+  });
+  $('story').appendChild(container);
+  scrollToBottom();
+}
+
+function clearChoices() {
+  const el = $('current-choices');
+  if (el) el.remove();
+}
+
+function scrollToBottom() {
+  setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
+}
+</script>
+</body>
+</html>

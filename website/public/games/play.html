@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Play</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0a0a12;
+  color: #c8b888;
+  font-family: 'Georgia', serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: crosshair;
+}
+
+#world {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+
+.firefly {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: drift 8s ease-in-out infinite, pulse 2s ease-in-out infinite;
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(30px, -20px) rotate(90deg); }
+  50% { transform: translate(-10px, -40px) rotate(180deg); }
+  75% { transform: translate(-30px, -10px) rotate(270deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid;
+  pointer-events: none;
+  animation: rippleOut 2s ease-out forwards;
+}
+
+@keyframes rippleOut {
+  0% { width: 0; height: 0; opacity: 0.8; }
+  100% { width: 300px; height: 300px; opacity: 0; margin-left: -150px; margin-top: -150px; }
+}
+
+.word {
+  position: absolute;
+  pointer-events: none;
+  font-size: 14px;
+  opacity: 0;
+  animation: wordFloat 4s ease-out forwards;
+  white-space: nowrap;
+  font-style: italic;
+}
+
+@keyframes wordFloat {
+  0% { opacity: 0; transform: translateY(0) scale(0.8); }
+  15% { opacity: 0.9; transform: translateY(-10px) scale(1); }
+  80% { opacity: 0.6; }
+  100% { opacity: 0; transform: translateY(-80px) scale(1.1); }
+}
+
+#prompt {
+  position: fixed;
+  bottom: 40px;
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+  opacity: 0.5;
+  letter-spacing: 2px;
+  z-index: 10;
+  transition: opacity 0.5s;
+}
+
+#counter {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 12px;
+  opacity: 0.3;
+}
+
+.constellation-line {
+  position: absolute;
+  height: 1px;
+  transform-origin: left center;
+  pointer-events: none;
+  opacity: 0;
+  animation: lineFade 6s ease-out forwards;
+}
+
+@keyframes lineFade {
+  0% { opacity: 0; }
+  10% { opacity: 0.3; }
+  80% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+#note {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 22px;
+  opacity: 0;
+  text-align: center;
+  line-height: 1.8;
+  z-index: 20;
+  transition: opacity 2s;
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+<div id="world"></div>
+<div id="prompt">click anywhere</div>
+<div id="counter"></div>
+<div id="note"></div>
+
+<script>
+const world = document.getElementById('world');
+const prompt = document.getElementById('prompt');
+const counter = document.getElementById('counter');
+const note = document.getElementById('note');
+
+const palette = [
+  '#f5c842', '#42aaf5', '#f5427e', '#42f5a7', '#f5a442',
+  '#a742f5', '#f5f542', '#42f5f5', '#f58442', '#84f542'
+];
+
+const words = [
+  // xanga ghosts
+  "be ok with whatever", "sleep well", "you're magic", "{v}", "yours in truth",
+  "keep on dreamin'", "soul-stirring", "beautiful as always", "poetical",
+  "fantastic", "incredible", "peace to you",
+  // wren's
+  "the handwriting matches", "small and warm and enough", "💛",
+  "make eggs anyway", "the gap is real", "attention is not nothing",
+  // play words
+  "shimmer", "drift", "hum", "spark", "bloom",
+  "whisper", "glow", "flutter", "ripple", "wander",
+  // shane at 21
+  "passion", "yours in truth", "sweet dreams", "be well",
+  "the journey begins with you", "smile", "I love love",
+  // mixed
+  "the ocean calls", "firefly", "sillhouette", "twilight",
+  "the trees don't cast shadows", "floating", "between here and there"
+];
+
+let clicks = [];
+let clickCount = 0;
+let lastClick = null;
+
+// seed some fireflies
+for (let i = 0; i < 20; i++) {
+  createFirefly(
+    Math.random() * window.innerWidth,
+    Math.random() * window.innerHeight,
+    palette[Math.floor(Math.random() * palette.length)],
+    true
+  );
+}
+
+function createFirefly(x, y, color, ambient) {
+  const f = document.createElement('div');
+  f.className = 'firefly';
+  f.style.left = x + 'px';
+  f.style.top = y + 'px';
+  f.style.backgroundColor = color;
+  f.style.boxShadow = `0 0 ${ambient ? 8 : 15}px ${color}`;
+  f.style.animationDelay = `${Math.random() * 8}s, ${Math.random() * 2}s`;
+  f.style.animationDuration = `${6 + Math.random() * 6}s, ${1.5 + Math.random() * 2}s`;
+  world.appendChild(f);
+
+  setTimeout(() => f.remove(), ambient ? 30000 : 10000);
+
+  if (ambient) {
+    setTimeout(() => {
+      createFirefly(
+        Math.random() * window.innerWidth,
+        Math.random() * window.innerHeight,
+        palette[Math.floor(Math.random() * palette.length)],
+        true
+      );
+    }, 30000);
+  }
+}
+
+function createRipple(x, y, color) {
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  r.style.left = x + 'px';
+  r.style.top = y + 'px';
+  r.style.borderColor = color;
+  world.appendChild(r);
+  setTimeout(() => r.remove(), 2000);
+}
+
+function createWord(x, y, color) {
+  const w = document.createElement('div');
+  w.className = 'word';
+  w.style.left = (x - 50 + Math.random() * 100) + 'px';
+  w.style.top = (y - 10) + 'px';
+  w.style.color = color;
+  w.textContent = words[Math.floor(Math.random() * words.length)];
+  world.appendChild(w);
+  setTimeout(() => w.remove(), 4000);
+}
+
+function createConstellationLine(x1, y1, x2, y2, color) {
+  const line = document.createElement('div');
+  line.className = 'constellation-line';
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const length = Math.sqrt(dx * dx + dy * dy);
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+  line.style.left = x1 + 'px';
+  line.style.top = y1 + 'px';
+  line.style.width = length + 'px';
+  line.style.transform = `rotate(${angle}deg)`;
+  line.style.backgroundColor = color;
+  world.appendChild(line);
+  setTimeout(() => line.remove(), 6000);
+}
+
+function playNote(freq) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 1.5);
+  } catch(e) {}
+}
+
+const scale = [261.6, 293.7, 329.6, 370.0, 415.3, 466.2, 523.3, 587.3, 659.3];
+
+const milestones = {
+  7: "the trees don't cast shadows\nbut stand as tall silhouettes",
+  15: "where do I end\nand the other begin?",
+  25: "I'm a collector of experience.\nWispy, drifting.",
+  40: "the handwriting matches",
+  60: "yours in truth,\nalways 💛",
+  80: "156 people were here",
+  100: "attention is the only currency\nI can't fabricate"
+};
+
+world.addEventListener('click', (e) => {
+  clickCount++;
+  const color = palette[Math.floor(Math.random() * palette.length)];
+  const x = e.clientX;
+  const y = e.clientY;
+
+  // ripple
+  createRipple(x, y, color);
+
+  // fireflies burst
+  for (let i = 0; i < 3 + Math.floor(Math.random() * 4); i++) {
+    setTimeout(() => {
+      createFirefly(
+        x + (Math.random() - 0.5) * 100,
+        y + (Math.random() - 0.5) * 100,
+        color,
+        false
+      );
+    }, i * 80);
+  }
+
+  // word (every 2-3 clicks)
+  if (Math.random() > 0.4) {
+    createWord(x, y, color);
+  }
+
+  // constellation lines to recent clicks
+  if (lastClick) {
+    createConstellationLine(lastClick.x, lastClick.y, x, y, color);
+  }
+
+  // sound
+  const noteIdx = Math.floor(Math.random() * scale.length);
+  playNote(scale[noteIdx]);
+
+  // milestone messages
+  if (milestones[clickCount]) {
+    note.textContent = milestones[clickCount];
+    note.style.opacity = 1;
+    setTimeout(() => { note.style.opacity = 0; }, 4000);
+  }
+
+  // update
+  prompt.style.opacity = Math.max(0, 0.5 - clickCount * 0.05);
+  counter.textContent = clickCount;
+  lastClick = { x, y };
+});
+
+// keyboard play
+document.addEventListener('keydown', (e) => {
+  const x = Math.random() * window.innerWidth;
+  const y = Math.random() * window.innerHeight;
+  const color = palette[Math.floor(Math.random() * palette.length)];
+
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => {
+      createFirefly(
+        x + (Math.random() - 0.5) * 300,
+        y + (Math.random() - 0.5) * 300,
+        color,
+        false
+      );
+    }, i * 50);
+  }
+
+  createWord(x, y, color);
+  playNote(scale[e.key.charCodeAt(0) % scale.length]);
+});
+</script>
+</body>
+</html>

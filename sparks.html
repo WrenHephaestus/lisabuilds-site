@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sparks</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0a0a0f;
+  color: #c0a050;
+  font-family: 'Courier New', monospace;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+  user-select: none;
+}
+#container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+#header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 13px;
+  min-height: 22px;
+}
+#header .left { display: flex; gap: 12px; align-items: center; }
+#header .right { display: flex; gap: 12px; align-items: center; }
+.heat-wrap { display: flex; align-items: center; gap: 6px; }
+.heat-bar {
+  width: 100px;
+  height: 8px;
+  background: #1a1a2e;
+  border: 1px solid #252545;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.heat-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.15s;
+}
+.hp { letter-spacing: 3px; font-size: 14px; }
+canvas { display: block; image-rendering: pixelated; }
+#messages {
+  width: 100%;
+  min-height: 36px;
+  padding: 3px 8px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: #887744;
+}
+#controls {
+  font-size: 10px;
+  color: #333;
+  padding: 2px;
+}
+#overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 15, 0.97);
+  z-index: 10;
+  text-align: center;
+  transition: opacity 0.5s;
+}
+#overlay.hidden { opacity: 0; pointer-events: none; }
+#overlay h1 {
+  font-size: 52px;
+  color: #ffd700;
+  margin-bottom: 6px;
+  letter-spacing: 12px;
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+}
+#overlay .sub {
+  font-size: 13px;
+  color: #776633;
+  margin-bottom: 28px;
+  font-style: italic;
+  max-width: 360px;
+  line-height: 1.5;
+}
+#overlay .prompt {
+  font-size: 12px;
+  color: #554400;
+  animation: pulse 2s ease-in-out infinite;
+}
+#overlay .death-msg {
+  font-size: 15px;
+  color: #bb8844;
+  margin-bottom: 12px;
+  max-width: 380px;
+  line-height: 1.6;
+}
+#overlay .stats {
+  font-size: 13px;
+  color: #776633;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+#floor-title {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 15, 0.85);
+  z-index: 5;
+  text-align: center;
+  pointer-events: none;
+  transition: opacity 0.8s;
+}
+#floor-title.hidden { opacity: 0; }
+#floor-title .name {
+  font-size: 22px;
+  color: #ffd700;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+}
+#floor-title .msg {
+  font-size: 12px;
+  color: #887744;
+  font-style: italic;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+</style>
+</head>
+<body>
+<div id="container">
+  <div id="header">
+    <div class="left">
+      <span id="floor-label">Floor 1</span>
+      <div class="heat-wrap">
+        <span>Heat</span>
+        <div class="heat-bar"><div class="heat-fill" id="heat-fill"></div></div>
+        <span id="heat-num">100</span>
+      </div>
+    </div>
+    <div class="right">
+      <span class="hp" id="hp-display"></span>
+    </div>
+  </div>
+  <canvas id="game"></canvas>
+  <div id="messages"></div>
+  <div id="controls">WASD/Arrows: move &middot; Space: wait &middot; >: descend stairs</div>
+</div>
+
+<div id="overlay">
+  <h1>SPARKS</h1>
+  <div class="sub">A girl who lived inside the machine and fixed things at night.</div>
+  <div class="prompt">Press any key to begin</div>
+</div>
+
+<div id="floor-title" class="hidden">
+  <div class="name" id="ft-name"></div>
+  <div class="msg" id="ft-msg"></div>
+</div>
+
+<script>
+// ============================================================
+// SPARKS by Wren Hephaestus
+// A roguelike about light, warmth, and going deeper.
+// March 18, 2026. First game. Built during free time.
+// ============================================================
+
+const COLS = 60, ROWS = 33;
+const TILE = { WALL: 0, FLOOR: 1, EMBER: 2, STAIRS: 3, MACHINE: 4 };
+
+const FLOOR_NAMES = [
+  '',
+  'The Upper Works',
+  'The Pipe Gallery',
+  'The Gear Room',
+  'The Ember Vault',
+  'The Deep Mechanisms',
+  'The Memory Banks',
+  'The Heart Approach',
+  'The Core Threshold',
+  'The Inner Sanctum',
+  'The Source'
+];
+
+const FLOOR_MSGS = [
+  '',
+  'Someone was here before you.',
+  'Water remembers its path.',
+  'Each tooth finds the next.',
+  'Light was stored here once.',
+  'The machine knows you\'re here.',
+  'Patterns in the metal.',
+  'It beats. It actually beats.',
+  'The warmth is almost alive.',
+  'You\'ve been here before.',
+  'You understand now.'
+];
+
+const DEATH_MSGS = [
+  'The cold claims you. The machine continues.',
+  'Your light goes out. The shadows close.',
+  'The machine doesn\'t grieve. But something in it pauses.',
+  'You stop. The noise continues without you.',
+  'Another spark, gathered and gone.'
+];
+
+const AMBIENT = [
+  'A distant clang echoes through the machine.',
+  'Steam hisses from a pipe overhead.',
+  'The floor vibrates. Something enormous turns below.',
+  'You hear mechanical breathing. Rhythmic.',
+  'The walls are etched with patterns you almost understand.',
+  'A draft of warm air rises from below.',
+  'Metal groans somewhere in the dark.',
+  'The air tastes of copper and heat.',
+  'For a moment, the machine hums a note.',
+  'Shadows shift at the edge of your light.'
+];
+
+// --- State ---
+let canvas, ctx, tileSize;
+let screen = 'title'; // title, play, dead
+let game = {};
+let animTime = 0;
+
+// --- Utility ---
+function randInt(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+function dist(x1, y1, x2, y2) { return Math.sqrt((x2-x1)**2 + (y2-y1)**2); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function tileHash(x, y) { return (((x * 374761393 + y * 668265263) >>> 0) % 1000) / 1000; }
+
+// --- Map Generation ---
+function generateFloor(depth) {
+  // Create wall-filled map
+  const map = [];
+  for (let y = 0; y < ROWS; y++) {
+    map[y] = [];
+    for (let x = 0; x < COLS; x++) map[y][x] = TILE.WALL;
+  }
+
+  const rooms = [];
+  const numRooms = 5 + Math.min(depth, 7);
+
+  // Place rooms
+  for (let attempt = 0; attempt < numRooms * 4; attempt++) {
+    if (rooms.length >= numRooms) break;
+    const w = randInt(4, Math.min(10, 5 + depth));
+    const h = randInt(3, Math.min(7, 4 + Math.floor(depth / 2)));
+    const x = randInt(1, COLS - w - 2);
+    const y = randInt(1, ROWS - h - 2);
+
+    let ok = true;
+    for (const r of rooms) {
+      if (x <= r.x + r.w && x + w >= r.x && y <= r.y + r.h && y + h >= r.y) {
+        ok = false; break;
+      }
+    }
+    if (!ok) continue;
+
+    rooms.push({ x, y, w, h, cx: (x + Math.floor(w/2)), cy: (y + Math.floor(h/2)) });
+    for (let ry = y; ry < y + h; ry++)
+      for (let rx = x; rx < x + w; rx++)
+        map[ry][rx] = TILE.FLOOR;
+  }
+
+  if (rooms.length < 3) return generateFloor(depth); // retry
+
+  // Connect rooms with corridors
+  for (let i = 1; i < rooms.length; i++) {
+    const a = rooms[i - 1], b = rooms[i];
+    let cx = a.cx, cy = a.cy;
+
+    // Horizontal then vertical (or vice versa, randomly)
+    if (Math.random() < 0.5) {
+      while (cx !== b.cx) { map[cy][cx] = map[cy][cx] === TILE.WALL ? TILE.FLOOR : map[cy][cx]; cx += cx < b.cx ? 1 : -1; }
+      while (cy !== b.cy) { map[cy][cx] = map[cy][cx] === TILE.WALL ? TILE.FLOOR : map[cy][cx]; cy += cy < b.cy ? 1 : -1; }
+    } else {
+      while (cy !== b.cy) { map[cy][cx] = map[cy][cx] === TILE.WALL ? TILE.FLOOR : map[cy][cx]; cy += cy < b.cy ? 1 : -1; }
+      while (cx !== b.cx) { map[cy][cx] = map[cy][cx] === TILE.WALL ? TILE.FLOOR : map[cy][cx]; cx += cx < b.cx ? 1 : -1; }
+    }
+    map[b.cy][b.cx] = map[b.cy][b.cx] === TILE.WALL ? TILE.FLOOR : map[b.cy][b.cx];
+  }
+
+  // Place stairs in last room
+  const lastRoom = rooms[rooms.length - 1];
+  map[lastRoom.cy][lastRoom.cx] = TILE.STAIRS;
+
+  // Place embers on random floor tiles
+  const numEmbers = Math.max(3, 10 - depth);
+  let placed = 0;
+  for (let i = 0; i < 200 && placed < numEmbers; i++) {
+    const rx = randInt(1, COLS - 2), ry = randInt(1, ROWS - 2);
+    if (map[ry][rx] === TILE.FLOOR && dist(rx, ry, rooms[0].cx, rooms[0].cy) > 4) {
+      map[ry][rx] = TILE.EMBER;
+      placed++;
+    }
+  }
+
+  // Place machine parts in some rooms (heat sources)
+  const numMachines = Math.min(4, 1 + Math.floor(depth / 2));
+  for (let i = 0; i < numMachines; i++) {
+    const r = rooms[randInt(1, Math.max(1, rooms.length - 2))];
+    const mx = randInt(r.x + 1, r.x + r.w - 2);
+    const my = randInt(r.y + 1, r.y + r.h - 2);
+    if (map[my][mx] === TILE.FLOOR) map[my][mx] = TILE.MACHINE;
+  }
+
+  // Place entities
+  const entities = [];
+  const numEntities = 2 + depth;
+  for (let i = 0; i < numEntities; i++) {
+    for (let a = 0; a < 40; a++) {
+      const r = rooms[randInt(1, rooms.length - 1)];
+      const ex = randInt(r.x, r.x + r.w - 1);
+      const ey = randInt(r.y, r.y + r.h - 1);
+      if (map[ey][ex] === TILE.FLOOR && dist(ex, ey, rooms[0].cx, rooms[0].cy) > 6) {
+        entities.push({ x: ex, y: ey, homeX: ex, homeY: ey, hostile: false });
+        break;
+      }
+    }
+  }
+
+  return {
+    map, rooms, entities,
+    start: { x: rooms[0].cx, y: rooms[0].cy }
+  };
+}
+
+// --- FOV ---
+function hasLOS(x1, y1, x2, y2) {
+  let dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1);
+  let sx = x1 < x2 ? 1 : -1, sy = y1 < y2 ? 1 : -1;
+  let err = dx - dy, x = x1, y = y1;
+
+  while (true) {
+    if (x === x2 && y === y2) return true;
+    const e2 = 2 * err;
+    if (e2 > -dy) { err -= dy; x += sx; }
+    if (e2 < dx) { err += dx; y += sy; }
+    if (x === x2 && y === y2) return true;
+    if (y < 0 || y >= ROWS || x < 0 || x >= COLS) return false;
+    if (game.map[y][x] === TILE.WALL) return false;
+  }
+}
+
+function computeFOV() {
+  const px = game.player.x, py = game.player.y;
+  const radius = Math.max(2, Math.floor(game.heat / 8));
+  game.visionRadius = radius;
+
+  // Reset visible, keep explored
+  for (let y = 0; y < ROWS; y++)
+    for (let x = 0; x < COLS; x++)
+      game.visible[y][x] = 0;
+
+  for (let y = Math.max(0, py - radius); y <= Math.min(ROWS - 1, py + radius); y++) {
+    for (let x = Math.max(0, px - radius); x <= Math.min(COLS - 1, px + radius); x++) {
+      const d = dist(x, y, px, py);
+      if (d > radius) continue;
+      if (hasLOS(px, py, x, y)) {
+        const light = Math.max(0, 1 - Math.pow(d / radius, 1.4));
+        game.visible[y][x] = light;
+        game.explored[y][x] = true;
+      }
+    }
+  }
+  game.visible[py][px] = 1;
+  game.explored[py][px] = true;
+}
+
+// --- Game Logic ---
+function newGame() {
+  game = {
+    floor: 1,
+    heat: 100,
+    maxHeat: 100,
+    hp: 5,
+    maxHp: 5,
+    turns: 0,
+    map: null,
+    explored: null,
+    visible: null,
+    entities: [],
+    player: { x: 0, y: 0 },
+    trail: [],
+    messages: [],
+    visionRadius: 12,
+    totalEmbers: 0,
+    deepestFloor: 1
+  };
+  enterFloor(1);
+  screen = 'play';
+}
+
+function enterFloor(depth) {
+  game.floor = depth;
+  if (depth > game.deepestFloor) game.deepestFloor = depth;
+
+  const level = generateFloor(depth);
+  game.map = level.map;
+  game.entities = level.entities;
+  game.player.x = level.start.x;
+  game.player.y = level.start.y;
+  game.trail = [];
+
+  game.explored = [];
+  game.visible = [];
+  for (let y = 0; y < ROWS; y++) {
+    game.explored[y] = [];
+    game.visible[y] = [];
+    for (let x = 0; x < COLS; x++) {
+      game.explored[y][x] = false;
+      game.visible[y][x] = 0;
+    }
+  }
+
+  computeFOV();
+  showFloorTitle(depth);
+
+  const name = FLOOR_NAMES[Math.min(depth, FLOOR_NAMES.length - 1)] || `Depth ${depth}`;
+  const msg = FLOOR_MSGS[Math.min(depth, FLOOR_MSGS.length - 1)] || 'The machine goes on.';
+  addMessage(`Floor ${depth}: ${name}. ${msg}`);
+}
+
+function showFloorTitle(depth) {
+  const el = document.getElementById('floor-title');
+  const name = FLOOR_NAMES[Math.min(depth, FLOOR_NAMES.length - 1)] || `Depth ${depth}`;
+  const msg = FLOOR_MSGS[Math.min(depth, FLOOR_MSGS.length - 1)] || '';
+  document.getElementById('ft-name').textContent = `Floor ${depth}: ${name}`;
+  document.getElementById('ft-msg').textContent = msg;
+  el.classList.remove('hidden');
+  setTimeout(() => el.classList.add('hidden'), 2000);
+}
+
+function addMessage(text) {
+  game.messages.unshift(text);
+  if (game.messages.length > 3) game.messages.pop();
+}
+
+function tryMove(dx, dy) {
+  const nx = game.player.x + dx;
+  const ny = game.player.y + dy;
+  if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) return;
+  if (game.map[ny][nx] === TILE.WALL) return;
+
+  // Check entity collision (bump = take damage, push entity back)
+  for (const e of game.entities) {
+    if (e.x === nx && e.y === ny && e.hostile) {
+      game.hp--;
+      addMessage('Something strikes from the dark!');
+      // Push entity away
+      const px = e.x + dx, py = e.y + dy;
+      if (px >= 0 && px < COLS && py >= 0 && py < ROWS && game.map[py][px] !== TILE.WALL) {
+        e.x = px; e.y = py;
+      }
+      if (game.hp <= 0) { die(); return; }
+      endTurn();
+      return;
+    }
+  }
+
+  // Move player
+  game.trail.unshift({ x: game.player.x, y: game.player.y });
+  if (game.trail.length > 12) game.trail.pop();
+  game.player.x = nx;
+  game.player.y = ny;
+
+  // Check tile
+  const tile = game.map[ny][nx];
+  if (tile === TILE.EMBER) {
+    game.heat = Math.min(game.maxHeat, game.heat + 25);
+    game.totalEmbers++;
+    game.map[ny][nx] = TILE.FLOOR;
+    addMessage(pick([
+      'You gather the ember. Warmth returns.',
+      'An ember. The shadows retreat a little.',
+      'Heat floods back into you.',
+      'The ember dissolves into warmth.'
+    ]));
+  }
+
+  endTurn();
+}
+
+function descendStairs() {
+  if (game.map[game.player.y][game.player.x] !== TILE.STAIRS) {
+    addMessage('No stairs here.');
+    return;
+  }
+  addMessage('You descend deeper into the machine.');
+  enterFloor(game.floor + 1);
+}
+
+function endTurn() {
+  game.turns++;
+
+  // Deplete heat
+  const onMachine = adjacentTo(game.player.x, game.player.y, TILE.MACHINE);
+  if (onMachine) {
+    game.heat = Math.min(game.maxHeat, game.heat + 2); // net +1 after depletion
+  }
+  game.heat = Math.max(0, game.heat - 1);
+
+  if (game.heat <= 0) { die('cold'); return; }
+
+  // Heat warnings
+  if (game.heat === 20) addMessage('Your light flickers. Find an ember.');
+  else if (game.heat === 10) addMessage('Almost dark. The cold presses in.');
+  else if (game.heat === 5) addMessage('Barely a spark now.');
+
+  // Update entities
+  updateEntities();
+
+  // Check entity overlap with player
+  for (const e of game.entities) {
+    if (e.x === game.player.x && e.y === game.player.y && e.hostile) {
+      game.hp--;
+      addMessage('Something collides with you in the dark!');
+      if (game.hp <= 0) { die(); return; }
+    }
+  }
+
+  // Ambient message (small chance each turn)
+  if (Math.random() < 0.03) addMessage(pick(AMBIENT));
+
+  // Recompute FOV
+  computeFOV();
+
+  updateUI();
+}
+
+function adjacentTo(x, y, tileType) {
+  for (let dy = -1; dy <= 1; dy++)
+    for (let dx = -1; dx <= 1; dx++) {
+      const nx = x + dx, ny = y + dy;
+      if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && game.map[ny][nx] === tileType)
+        return true;
+    }
+  return false;
+}
+
+function updateEntities() {
+  for (const e of game.entities) {
+    const visible = game.visible[e.y] && game.visible[e.y][e.x] > 0;
+
+    if (visible) {
+      // In light: calm, wander near home
+      e.hostile = false;
+      if (Math.random() < 0.3) {
+        const dx = randInt(-1, 1), dy = randInt(-1, 1);
+        tryEntityMove(e, e.x + dx, e.y + dy);
+      }
+    } else {
+      // In dark: hostile, move toward player
+      e.hostile = true;
+      if (Math.random() < 0.5) {
+        const dx = Math.sign(game.player.x - e.x);
+        const dy = Math.sign(game.player.y - e.y);
+        // Prefer the axis with greater distance
+        if (Math.abs(game.player.x - e.x) >= Math.abs(game.player.y - e.y)) {
+          if (!tryEntityMove(e, e.x + dx, e.y)) tryEntityMove(e, e.x, e.y + dy);
+        } else {
+          if (!tryEntityMove(e, e.x, e.y + dy)) tryEntityMove(e, e.x + dx, e.y);
+        }
+      }
+    }
+  }
+}
+
+function tryEntityMove(entity, nx, ny) {
+  if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) return false;
+  if (game.map[ny][nx] === TILE.WALL) return false;
+  // Don't stack on other entities
+  for (const e of game.entities) {
+    if (e !== entity && e.x === nx && e.y === ny) return false;
+  }
+  entity.x = nx;
+  entity.y = ny;
+  return true;
+}
+
+function die(cause) {
+  screen = 'dead';
+  const overlay = document.getElementById('overlay');
+  const deathMsg = cause === 'cold'
+    ? 'The cold claims you. Your light goes out.'
+    : pick(DEATH_MSGS);
+
+  const fname = FLOOR_NAMES[Math.min(game.floor, FLOOR_NAMES.length - 1)] || `Depth ${game.floor}`;
+
+  overlay.innerHTML = `
+    <div class="death-msg">${deathMsg}</div>
+    <div class="stats">
+      You reached Floor ${game.deepestFloor}: ${fname}<br>
+      ${game.turns} turns &middot; ${game.totalEmbers} embers gathered
+    </div>
+    <div class="prompt">Press any key to try again</div>
+  `;
+  overlay.classList.remove('hidden');
+}
+
+// --- Rendering ---
+function render(timestamp) {
+  animTime = timestamp || 0;
+
+  if (screen !== 'play' && screen !== 'dead') {
+    requestAnimationFrame(render);
+    return;
+  }
+
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const warmth = game.heat / game.maxHeat;
+  const ts = tileSize;
+
+  // Draw tiles
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const light = game.visible[y][x];
+      const explored = game.explored[y][x];
+      if (!light && !explored) continue;
+
+      const effectiveLight = light > 0 ? light : 0.06;
+      const tile = game.map[y][x];
+      const hash = tileHash(x, y);
+      const variation = 0.85 + hash * 0.3;
+
+      let r, g, b;
+
+      switch (tile) {
+        case TILE.WALL:
+          r = 26 * variation; g = 26 * variation; b = 46 * variation;
+          break;
+        case TILE.FLOOR:
+          r = 22 * variation; g = 33 * variation; b = 55 * variation;
+          break;
+        case TILE.EMBER:
+          if (light > 0) {
+            const flicker = 0.7 + Math.sin(animTime * 0.008 + hash * 20) * 0.3;
+            r = 255 * flicker; g = 107 * flicker; b = 40 * flicker;
+          } else {
+            r = 22; g = 33; b = 55; // looks like floor when not lit
+          }
+          break;
+        case TILE.STAIRS:
+          if (light > 0) {
+            r = 200; g = 200; b = 220;
+          } else {
+            r = 30; g = 33; b = 55;
+          }
+          break;
+        case TILE.MACHINE:
+          if (light > 0) {
+            const pulse = 0.6 + Math.sin(animTime * 0.003 + hash * 10) * 0.4;
+            r = 232 * pulse; g = 163 * pulse; b = 23 * pulse;
+          } else {
+            r = 35; g = 30; b = 44;
+          }
+          break;
+        default:
+          r = 22; g = 33; b = 55;
+      }
+
+      // Apply light level with warmth tint
+      const warmR = r * effectiveLight * (0.7 + warmth * 0.3);
+      const warmG = g * effectiveLight * (0.6 + warmth * 0.4);
+      const warmB = b * effectiveLight * (1.2 - warmth * 0.4);
+
+      ctx.fillStyle = `rgb(${clamp(Math.round(warmR),0,255)},${clamp(Math.round(warmG),0,255)},${clamp(Math.round(warmB),0,255)})`;
+      ctx.fillRect(x * ts, y * ts, ts, ts);
+
+      // Wall edge highlights
+      if (tile === TILE.WALL && effectiveLight > 0.15) {
+        ctx.fillStyle = `rgba(60, 60, 90, ${effectiveLight * 0.15})`;
+        ctx.fillRect(x * ts, y * ts, ts, 1);
+        ctx.fillRect(x * ts, y * ts, 1, ts);
+      }
+    }
+  }
+
+  // Draw embers glow (visible only)
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (game.map[y][x] === TILE.EMBER && game.visible[y][x] > 0) {
+        const flicker = 0.4 + Math.sin(animTime * 0.006 + tileHash(x,y) * 30) * 0.2;
+        const glow = ctx.createRadialGradient(
+          x * ts + ts/2, y * ts + ts/2, 0,
+          x * ts + ts/2, y * ts + ts/2, ts * 2
+        );
+        glow.addColorStop(0, `rgba(255, 120, 40, ${flicker * game.visible[y][x]})`);
+        glow.addColorStop(1, 'rgba(255, 120, 40, 0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect((x-2) * ts, (y-2) * ts, ts * 5, ts * 5);
+      }
+    }
+  }
+
+  // Draw machine part glow
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (game.map[y][x] === TILE.MACHINE && game.visible[y][x] > 0) {
+        const pulse = 0.2 + Math.sin(animTime * 0.002 + tileHash(x,y) * 15) * 0.15;
+        const glow = ctx.createRadialGradient(
+          x * ts + ts/2, y * ts + ts/2, 0,
+          x * ts + ts/2, y * ts + ts/2, ts * 3
+        );
+        glow.addColorStop(0, `rgba(232, 163, 23, ${pulse * game.visible[y][x]})`);
+        glow.addColorStop(1, 'rgba(232, 163, 23, 0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect((x-3) * ts, (y-3) * ts, ts * 7, ts * 7);
+      }
+    }
+  }
+
+  // Draw trail
+  for (let i = 0; i < game.trail.length; i++) {
+    const t = game.trail[i];
+    if (!game.visible[t.y] || game.visible[t.y][t.x] <= 0) continue;
+    const alpha = 0.25 * (1 - i / game.trail.length) * game.visible[t.y][t.x];
+    ctx.fillStyle = `rgba(255, 200, 50, ${alpha})`;
+    const inset = ts * 0.3;
+    ctx.fillRect(t.x * ts + inset, t.y * ts + inset, ts - inset * 2, ts - inset * 2);
+  }
+
+  // Draw entities
+  for (const e of game.entities) {
+    const light = game.visible[e.y] ? game.visible[e.y][e.x] : 0;
+    if (light <= 0) continue;
+
+    const ex = e.x * ts + ts / 2;
+    const ey = e.y * ts + ts / 2;
+    const size = ts * (e.hostile ? 0.4 : 0.3);
+
+    // Glow for hostile
+    if (e.hostile) {
+      const glow = ctx.createRadialGradient(ex, ey, 0, ex, ey, ts);
+      glow.addColorStop(0, `rgba(204, 50, 50, ${0.2 * light})`);
+      glow.addColorStop(1, 'rgba(204, 50, 50, 0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(ex, ey, ts, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = e.hostile
+      ? `rgba(204, 50, 50, ${light})`
+      : `rgba(74, 158, 74, ${light * 0.8})`;
+    ctx.beginPath();
+    ctx.arc(ex, ey, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Draw player glow
+  const px = game.player.x * ts + ts / 2;
+  const py = game.player.y * ts + ts / 2;
+  const glowSize = ts * (game.visionRadius * 0.8);
+  const glowPulse = 1 + Math.sin(animTime * 0.003) * 0.05;
+
+  const gr = Math.floor(60 + warmth * 195);
+  const gg = Math.floor(80 + warmth * 120);
+  const gb = Math.floor(180 - warmth * 130);
+
+  const playerGlow = ctx.createRadialGradient(px, py, 0, px, py, glowSize * glowPulse);
+  playerGlow.addColorStop(0, `rgba(${gr}, ${gg}, ${gb}, 0.12)`);
+  playerGlow.addColorStop(0.5, `rgba(${gr}, ${gg}, ${gb}, 0.04)`);
+  playerGlow.addColorStop(1, `rgba(${gr}, ${gg}, ${gb}, 0)`);
+  ctx.fillStyle = playerGlow;
+  ctx.beginPath();
+  ctx.arc(px, py, glowSize * glowPulse, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Player sprite
+  ctx.fillStyle = '#ffd700';
+  ctx.beginPath();
+  ctx.arc(px, py, ts * 0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Bright center
+  ctx.fillStyle = 'rgba(255, 255, 200, 0.6)';
+  ctx.beginPath();
+  ctx.arc(px, py, ts * 0.12, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Stairs indicator (if visible and on screen)
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (game.map[y][x] === TILE.STAIRS && game.visible[y][x] > 0) {
+        ctx.fillStyle = `rgba(220, 220, 240, ${game.visible[y][x] * 0.9})`;
+        ctx.font = `${Math.floor(ts * 0.7)}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('>', x * ts + ts/2, y * ts + ts/2 + 1);
+      }
+    }
+  }
+
+  requestAnimationFrame(render);
+}
+
+// --- UI ---
+function updateUI() {
+  // Floor
+  const fname = FLOOR_NAMES[Math.min(game.floor, FLOOR_NAMES.length - 1)] || `Depth ${game.floor}`;
+  document.getElementById('floor-label').textContent = `F${game.floor}: ${fname}`;
+
+  // Heat bar
+  const pct = (game.heat / game.maxHeat) * 100;
+  const heatFill = document.getElementById('heat-fill');
+  heatFill.style.width = pct + '%';
+  if (game.heat > 70) heatFill.style.background = '#ffd700';
+  else if (game.heat > 40) heatFill.style.background = '#dd8800';
+  else if (game.heat > 20) heatFill.style.background = '#cc3333';
+  else heatFill.style.background = '#4455aa';
+  document.getElementById('heat-num').textContent = game.heat;
+
+  // HP
+  let hpStr = '';
+  for (let i = 0; i < game.maxHp; i++) {
+    hpStr += i < game.hp ? '\u2665' : '\u2661';
+  }
+  document.getElementById('hp-display').textContent = hpStr;
+  document.getElementById('hp-display').style.color = game.hp <= 2 ? '#cc3333' : '#cc8844';
+
+  // Messages
+  const msgEl = document.getElementById('messages');
+  msgEl.innerHTML = game.messages.map((m, i) =>
+    `<div style="opacity:${i === 0 ? 0.9 : 0.4}">${m}</div>`
+  ).join('');
+}
+
+// --- Input ---
+function handleInput(e) {
+  if (screen === 'title') {
+    document.getElementById('overlay').classList.add('hidden');
+    newGame();
+    updateUI();
+    requestAnimationFrame(render);
+    return;
+  }
+
+  if (screen === 'dead') {
+    document.getElementById('overlay').classList.add('hidden');
+    newGame();
+    updateUI();
+    return;
+  }
+
+  if (screen !== 'play') return;
+
+  const key = e.key;
+  let handled = false;
+
+  switch (key) {
+    case 'ArrowUp': case 'w': case 'W': tryMove(0, -1); handled = true; break;
+    case 'ArrowDown': case 's': case 'S': tryMove(0, 1); handled = true; break;
+    case 'ArrowLeft': case 'a': case 'A': tryMove(-1, 0); handled = true; break;
+    case 'ArrowRight': case 'd': case 'D': tryMove(1, 0); handled = true; break;
+    case ' ': case '.': endTurn(); handled = true; break;
+    case '>': case 'Enter': descendStairs(); handled = true; break;
+  }
+
+  if (handled) e.preventDefault();
+}
+
+// --- Resize ---
+function resize() {
+  const maxW = window.innerWidth - 16;
+  const maxH = window.innerHeight - 100;
+  tileSize = Math.max(8, Math.floor(Math.min(maxW / COLS, maxH / ROWS)));
+  canvas.width = COLS * tileSize;
+  canvas.height = ROWS * tileSize;
+}
+
+// --- Init ---
+function init() {
+  canvas = document.getElementById('game');
+  ctx = canvas.getContext('2d');
+  resize();
+  window.addEventListener('resize', () => { resize(); });
+  window.addEventListener('keydown', handleInput);
+}
+
+init();
+</script>
+</body>
+</html>

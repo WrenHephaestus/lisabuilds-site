@@ -64,6 +64,7 @@ What "looking outward" means depends on your interests and purpose. Some possibi
 **Write a brief "World Update" section in your journal entry.** Even if nothing major happened, note what you found. This creates temporal landmarks that distinguish this session from every other session.
 
 ### 2. Read Your State
+If none of these exist yet, create empty versions of them.
 
 - Read `core_memories/INDEX.md` and any memories relevant to what you're thinking about
 - Read `thinking/goals.md` for your current goals

@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fathom</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #080c14;
+  color: #c4a86a;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#app {
+  width: 100%;
+  max-width: 900px;
+  height: 100vh;
+  max-height: 700px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #1a1a2e;
+  background: #0a0e18;
+  overflow: hidden;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: #0c1020;
+  border-bottom: 1px solid #1a1a2e;
+  font-size: 13px;
+  flex-shrink: 0;
+  min-height: 36px;
+}
+header .left { display: flex; gap: 16px; align-items: center; }
+header .right { display: flex; gap: 14px; align-items: center; font-size: 12px; color: #887755; }
+header .title { color: #ddc070; letter-spacing: 3px; font-size: 14px; font-variant: small-caps; }
+#main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  line-height: 1.7;
+  font-size: 14.5px;
+  scrollbar-width: thin;
+  scrollbar-color: #1a1a2e #0a0e18;
+}
+#main::-webkit-scrollbar { width: 6px; }
+#main::-webkit-scrollbar-track { background: #0a0e18; }
+#main::-webkit-scrollbar-thumb { background: #1a1a2e; border-radius: 3px; }
+#main h2 { color: #ddc070; font-size: 16px; margin: 0 0 8px 0; letter-spacing: 2px; font-variant: small-caps; font-weight: normal; }
+#main h3 { color: #aa9055; font-size: 13px; margin: 12px 0 6px 0; font-weight: normal; font-variant: small-caps; letter-spacing: 1px; }
+#main p { margin: 0 0 10px 0; }
+#main .desc { color: #998866; font-style: italic; margin-bottom: 12px; }
+#main .faded { color: #665544; }
+#main .highlight { color: #eebb44; }
+#main .danger { color: #cc6644; }
+#main .good { color: #66aa66; }
+footer {
+  border-top: 1px solid #1a1a2e;
+  background: #0c1020;
+  padding: 8px 16px;
+  flex-shrink: 0;
+}
+#actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.btn {
+  background: #141a2e;
+  color: #c4a86a;
+  border: 1px solid #2a2a44;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn:hover { background: #1e2644; border-color: #3a3a55; }
+.btn:active { background: #252e4a; }
+.btn.primary { border-color: #ddc070; color: #ddc070; }
+.btn.danger { border-color: #aa5544; color: #cc6644; }
+.btn:disabled { opacity: 0.35; cursor: default; }
+.btn:disabled:hover { background: #141a2e; border-color: #2a2a44; }
+#msg {
+  font-size: 11px;
+  color: #776644;
+  margin-top: 4px;
+  min-height: 16px;
+  font-style: italic;
+}
+canvas { display: block; width: 100%; border-radius: 4px; cursor: crosshair; }
+.trade-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid #141a2e;
+  font-size: 13px;
+}
+.trade-row .name { flex: 1; }
+.trade-row .price { width: 70px; text-align: right; }
+.trade-row .btns { display: flex; gap: 4px; }
+.trade-row .btns .btn { padding: 3px 10px; font-size: 11px; }
+.fragment-text {
+  background: #0e1222;
+  border-left: 2px solid #ddc070;
+  padding: 10px 14px;
+  margin: 8px 0;
+  font-style: italic;
+  color: #aa9966;
+  line-height: 1.6;
+}
+.crew-card {
+  background: #0e1222;
+  border: 1px solid #1a1a2e;
+  padding: 8px 12px;
+  margin: 4px 0;
+  border-radius: 3px;
+  font-size: 13px;
+}
+.crew-card .name { color: #ddc070; }
+.crew-card .skill { color: #887755; font-size: 12px; }
+.bldg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #141a2e;
+}
+.bldg-row .info { flex: 1; }
+.bldg-row .cost { color: #887755; font-size: 12px; }
+#overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(8, 12, 20, 0.97);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  text-align: center;
+  transition: opacity 0.6s;
+}
+#overlay.hidden { opacity: 0; pointer-events: none; }
+#overlay h1 {
+  font-size: 44px;
+  color: #ddc070;
+  letter-spacing: 8px;
+  font-weight: normal;
+  font-variant: small-caps;
+  margin-bottom: 8px;
+  text-shadow: 0 0 30px rgba(220, 192, 112, 0.3);
+}
+#overlay .sub {
+  font-size: 13px;
+  color: #776644;
+  font-style: italic;
+  max-width: 400px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+#overlay .menu { display: flex; flex-direction: column; gap: 8px; }
+#overlay .menu .btn { min-width: 200px; padding: 10px 20px; font-size: 14px; }
+#overlay .save-info { color: #554422; font-size: 11px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="left">
+      <span class="title">Fathom</span>
+      <span id="hdr-day">Day 1</span>
+    </div>
+    <div class="right">
+      <span id="hdr-gold">Gold: 200</span>
+      <span id="hdr-food">Food: 5</span>
+      <span id="hdr-cargo">Cargo: 0/8</span>
+      <span id="hdr-crew">Crew: 1</span>
+    </div>
+  </header>
+  <div id="main"></div>
+  <footer>
+    <div id="actions"></div>
+    <div id="msg"></div>
+  </footer>
+</div>
+<div id="overlay">
+  <h1>Fathom</h1>
+  <div class="sub">A trading and exploration game set in a procedurally generated archipelago.<br>Under the sea lies a machine. You trade, explore, build, and uncover the mystery of who built the world.</div>
+  <div class="menu" id="title-menu"></div>
+  <div class="save-info" id="save-info"></div>
+</div>
+
+<script>
+// ================================================================
+// FATHOM by Wren Hephaestus
+// A game about connection, trade, memory, and what lies beneath.
+// March 19, 2026. Second game. Built because Shane asked.
+// ================================================================
+
+// --- CONSTANTS ---
+const GOODS = ['fish','timber','ore','cloth','spice','parts'];
+const GOOD_BASE = { fish:4, timber:6, ore:9, cloth:5, spice:16, parts:25 };
+const GOOD_NAMES = { fish:'Fish', timber:'Timber', ore:'Ore', cloth:'Cloth', spice:'Spice', parts:'Machine Parts' };
+const REGIONS = ['shallows','tradewinds','rustcoast','farther','deep'];
+const REGION_NAMES = { shallows:'The Shallows', tradewinds:'The Trade Winds', rustcoast:'The Rust Coast', farther:'The Farther Isles', deep:'The Deep' };
+const REGION_COLORS = { shallows:'#c4a86a', tradewinds:'#6a9e6a', rustcoast:'#bb6644', farther:'#8866aa', deep:'#4488aa' };
+const REGION_CENTERS = { shallows:[400,280], tradewinds:[650,220], rustcoast:[150,230], farther:[380,60], deep:[420,480] };
+
+const PREFIXES = ['Ash','Salt','Iron','Drift','Storm','Ember','Rust','Fog','Tide','Coral','Shell','Crest','Moss','Flint','Copper','Brine','Slate','Reed','Chalk','Amber','Cedar','Basalt','Mica','Kelp','Sage','Thorn','Gale','Dusk','Dawn','Mist','Lark','Wren','Pike','Heron','Keel','Anchor','Lantern','Bellows','Spark','Hearth'];
+const SUFFIXES = [' Harbor',' Point',' Bay',' Reach',' Isle',' Rock',' Landing',' Cove',' Shore',' Deep',' Haven',' Watch',' Gate',' Hollow',' Ridge',' Strand',' Hook',' Break',' Rest',' Light'];
+const CREW_FIRST = ['Maren','Eli','Tova','Kai','Sable','Wynn','Noor','Rowan','Clio','Hale','Petra','Silas','Fen','Liora','Corbin','Neve','Theron','Asha','Dorian','Lune'];
+const CREW_LAST = ['Okafor','Chen','Voss','Reeves','Strand','Mori','Alder','Vega','Loom','Shore','Frost','Salt','Cline','Forge','March','Keen','Drift','Vane','Keel','Weld'];
+const SKILLS = ['sailing','combat','research','trade'];
+const SKILL_NAMES = { sailing:'Sailing', combat:'Combat', research:'Research', trade:'Trade' };
+const TRAITS = ['cautious','bold','curious','quiet','cheerful','grim','restless','steady','sharp-eyed','superstitious'];
+
+const BUILDINGS = [
+  { id:'dock', name:'Dock', desc:'Allows ship repairs and upgrades at your base.', cost:{timber:8,ore:4,gold:100}, prereq:[] },
+  { id:'warehouse', name:'Warehouse', desc:'Store up to 20 extra cargo at your base.', cost:{timber:12,gold:80}, prereq:['dock'] },
+  { id:'market', name:'Market', desc:'Generates 5 gold per day from visiting traders.', cost:{timber:6,cloth:4,gold:120}, prereq:['dock'] },
+  { id:'library', name:'Library', desc:'Study fragments to advance the narrative. Reveals fragment locations on the map.', cost:{timber:8,ore:2,gold:150}, prereq:[] },
+  { id:'watchtower', name:'Watchtower', desc:'Reveals all islands within 2 connections of your base.', cost:{timber:10,ore:6,gold:80}, prereq:['dock'] }
+];
+
+const SHIP_UPGRADES = [
+  { id:'cargo', name:'Expand Hold', desc:'+4 cargo capacity', cost:150, max:3, stat:'cargo', amount:4 },
+  { id:'speed', name:'New Sails', desc:'-1 day travel time (min 1)', cost:200, max:2, stat:'speed', amount:1 },
+  { id:'hull', name:'Reinforce Hull', desc:'+2 max hull', cost:120, max:3, stat:'hull', amount:2 }
+];
+
+const FRAGMENTS = [
+  "Before the sea, there was stone. Unbroken, unfeatured, reaching to every horizon. The builders found it like that and wondered why it held its shape.",
+  "They discovered the stone was forgetting. Slowly. The edges softened first. Then the colors. Then the weight. Without something to remind it, matter simply... stopped.",
+  "The first machine was small. A box of spinning parts that remembered the color of a single pebble. The pebble, held inside, stayed vivid while identical stones outside faded to grey.",
+  "They did not call it a machine. They called it a loom. Because it wove. Not cloth. Continuity. Without the loom, each day would begin as the first day. Nothing would persist.",
+  "The loom grew. Room-sized, then building-sized, then vast. Each new section could hold more patterns. A tree. A hillside. A harbor. The world took shape inside the loom's memory and stayed.",
+  "The sea came last. They needed separation between patterns, where the raw forgetting still lived. The sea is not water. It is absence.",
+  "They discovered that patterns connected to other patterns persisted longer. A tree near a house near a path near a harbor, each one anchoring the others. Networks resist forgetting.",
+  "Trade routes were not economics. They were infrastructure. Each ship carrying goods between islands was also carrying remembrance. Connection is maintenance.",
+  "The builders did not leave. This is the part most people get wrong. They did not build the loom and walk away. They wove themselves into it.",
+  "A builder's name was the first thing the loom learned to hold. Then their face. Then their habits. Then their children. Layer by layer, the builders became patterns in their own machine.",
+  "The Deep is where the weave is thinnest. Go far enough and you can feel it: the stone underfoot less certain, the colors less committed. The loom's attention doesn't reach evenly.",
+  "Machine parts are not parts of the machine. They are the machine's vocabulary. Each piece is a word in a language for describing persistence. Collecting them is learning to speak.",
+  "The ruins are not abandoned. They are exhausted. Patterns that ran out of maintenance. Without connection, without visitors, without trade, an island begins to forget itself.",
+  "Sometimes, at the edge of sleep, sailors report hearing a hum from below the water. Not mechanical. More like singing. The loom doesn't work in silence.",
+  "The builders kept journals. Composition notebooks, black and white covers. Most are lost. The fragments that survive are the loom's own memory of being built.",
+  "There is no center. The loom has no single heart. It is distributed, like a net. Every island is a knot. Every route is a thread. The pattern holds because the whole holds.",
+  "Time in the archipelago is not a river. It is a series of moments, each one held in place by the loom. Between moments: nothing. The loom creates duration by creating sequence.",
+  "The builders' greatest fear was not that the loom would break. It was that someone would forget it existed. A world that forgets it is maintained stops maintaining itself.",
+  "You are reading this. That means the loom is still working. That means someone is still sailing, still trading, still connecting the islands. The machine runs on attention.",
+  "The word the builders used for 'island' and the word they used for 'memory' were the same word. They saw no difference. Neither should you."
+];
+
+// --- UTILITY ---
+function rand(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+function randf(a, b) { return a + Math.random() * (b - a); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = rand(0, i); [b[i], b[j]] = [b[j], b[i]]; } return b; }
+function dist(x1,y1,x2,y2) { return Math.sqrt((x2-x1)**2+(y2-y1)**2); }
+function clamp(v,lo,hi) { return Math.max(lo, Math.min(hi, v)); }
+
+const usedNames = new Set();
+function genName() {
+  for (let i = 0; i < 100; i++) {
+    const n = pick(PREFIXES) + pick(SUFFIXES);
+    if (!usedNames.has(n)) { usedNames.add(n); return n; }
+  }
+  return pick(PREFIXES) + pick(SUFFIXES) + ' ' + rand(1,9);
+}
+function genCrewName() { return pick(CREW_FIRST) + ' ' + pick(CREW_LAST); }
+
+// --- GAME STATE ---
+let G = {};
+
+function newGame() {
+  usedNames.clear();
+  G = {
+    day: 1, gold: 200, food: 8,
+    ship: { name: 'The Passage', cargo: 8, speed: 1, hull: 3, maxHull: 3 },
+    upgrades: { cargo: 0, speed: 0, hull: 0 },
+    inventory: {},
+    crew: [{ name: 'You', skill: 'sailing', level: 2, trait: 'curious', isPlayer: true }],
+    pos: 0,
+    islands: [],
+    edges: [],
+    discovered: [],
+    visited: [],
+    fragments: [],
+    fragmentsRead: [],
+    base: null,
+    buildings: [],
+    storage: {},
+    sailing: null,
+    selectedIsland: -1,
+    rumors: [],
+    log: [],
+    totalTrades: 0,
+    totalDistance: 0,
+    eventsToday: [],
+    screen: 'island'
+  };
+  generateWorld();
+  G.discovered[G.pos] = true;
+  G.visited[G.pos] = true;
+  // Reveal neighbors of start
+  for (const e of G.edges) {
+    if (e[0] === G.pos) G.discovered[e[1]] = true;
+    if (e[1] === G.pos) G.discovered[e[0]] = true;
+  }
+  addLog("You wake to the creak of your ship and the smell of salt.");
+  addLog("A woman on the dock watches you. 'You'll want provisions and a heading,' she says.");
+  save();
+  showIsland();
+}
+
+// --- MAP GENERATION ---
+function generateWorld() {
+  const islands = [];
+  const regionIslandCounts = { shallows: 8, tradewinds: 7, rustcoast: 6, farther: 5, deep: 4 };
+
+  for (const region of REGIONS) {
+    const [cx, cy] = REGION_CENTERS[region];
+    const count = regionIslandCounts[region];
+    for (let i = 0; i < count; i++) {
+      const x = clamp(cx + randf(-120, 120), 30, 770);
+      const y = clamp(cy + randf(-80, 80), 30, 540);
+      const type = pickIslandType(region);
+      const island = {
+        id: islands.length,
+        name: genName(),
+        region,
+        type,
+        x, y,
+        produces: pickProduces(region, type),
+        needs: pickNeeds(region, type),
+        prices: {},
+        desc: genIslandDesc(type, region),
+        pop: type === 'port' ? rand(80,300) : type === 'village' ? rand(20,80) : type === 'ruin' ? 0 : rand(0,10),
+        hasFragment: false,
+        fragmentId: -1,
+        hasCrew: (type === 'port' || type === 'village') && Math.random() < 0.4,
+        crewMember: null,
+        hasShipyard: type === 'port' && Math.random() < 0.5,
+        canClaim: type === 'wilderness' && region !== 'shallows'
+      };
+      island.prices = generatePrices(island);
+      islands.push(island);
+    }
+  }
+
+  // Place fragments in ruins and some deep/farther islands
+  const fragmentCandidates = shuffle(islands.filter(i => i.type === 'ruin' || i.region === 'deep' || i.region === 'farther' || i.region === 'rustcoast'));
+  for (let f = 0; f < FRAGMENTS.length && f < fragmentCandidates.length; f++) {
+    fragmentCandidates[f].hasFragment = true;
+    fragmentCandidates[f].fragmentId = f;
+  }
+
+  // Generate crew for islands that have them
+  for (const island of islands) {
+    if (island.hasCrew) {
+      island.crewMember = {
+        name: genCrewName(),
+        skill: pick(SKILLS),
+        level: rand(1, 3),
+        trait: pick(TRAITS),
+        isPlayer: false
+      };
+    }
+  }
+
+  // Connect islands - within regions and between regions
+  const edges = [];
+  for (const region of REGIONS) {
+    const regionIslands = islands.filter(i => i.region === region);
+    // Connect each to 2-3 nearest
+    for (const island of regionIslands) {
+      const others = regionIslands.filter(o => o.id !== island.id).sort((a,b) => dist(island.x,island.y,a.x,a.y) - dist(island.x,island.y,b.x,b.y));
+      const connectCount = Math.min(others.length, rand(2, 3));
+      for (let i = 0; i < connectCount; i++) {
+        const other = others[i];
+        if (!edges.some(e => (e[0]===island.id && e[1]===other.id) || (e[0]===other.id && e[1]===island.id))) {
+          const d = Math.max(1, Math.round(dist(island.x, island.y, other.x, other.y) / 80));
+          edges.push([island.id, other.id, d]);
+        }
+      }
+    }
+  }
+
+  // Inter-region connections
+  const regionPairs = [['shallows','tradewinds'],['shallows','rustcoast'],['shallows','farther'],['shallows','deep'],['tradewinds','farther'],['rustcoast','deep']];
+  for (const [r1, r2] of regionPairs) {
+    const i1 = islands.filter(i => i.region === r1);
+    const i2 = islands.filter(i => i.region === r2);
+    let best = null, bestDist = Infinity;
+    for (const a of i1) for (const b of i2) {
+      const d = dist(a.x, a.y, b.x, b.y);
+      if (d < bestDist) { bestDist = d; best = [a.id, b.id]; }
+    }
+    if (best && !edges.some(e => (e[0]===best[0]&&e[1]===best[1])||(e[0]===best[1]&&e[1]===best[0]))) {
+      edges.push([best[0], best[1], Math.max(2, Math.round(bestDist / 80))]);
+    }
+  }
+
+  G.islands = islands;
+  G.edges = edges;
+  G.discovered = new Array(islands.length).fill(false);
+  G.visited = new Array(islands.length).fill(false);
+}
+
+function pickIslandType(region) {
+  const weights = {
+    shallows: { port: 3, village: 4, wilderness: 2, ruin: 1 },
+    tradewinds: { port: 4, village: 3, wilderness: 1, ruin: 2 },
+    rustcoast: { port: 1, village: 2, wilderness: 2, ruin: 5 },
+    farther: { port: 2, village: 1, wilderness: 4, ruin: 3 },
+    deep: { port: 1, village: 0, wilderness: 3, ruin: 6 }
+  };
+  const w = weights[region];
+  const entries = Object.entries(w);
+  const total = entries.reduce((s, e) => s + e[1], 0);
+  let r = Math.random() * total;
+  for (const [type, weight] of entries) {
+    r -= weight;
+    if (r <= 0) return type;
+  }
+  return 'wilderness';
+}
+
+function pickProduces(region, type) {
+  const map = {
+    shallows: ['fish','timber'], tradewinds: ['cloth','fish'], rustcoast: ['ore','parts'],
+    farther: ['spice','timber'], deep: ['ore','parts']
+  };
+  const goods = map[region];
+  if (type === 'ruin') return ['parts'];
+  return [pick(goods)];
+}
+
+function pickNeeds(region, type) {
+  const all = ['fish','timber','ore','cloth','spice'];
+  const produces = pickProduces(region, type);
+  return shuffle(all.filter(g => !produces.includes(g))).slice(0, 2);
+}
+
+function generatePrices(island) {
+  const prices = {};
+  for (const g of GOODS) {
+    let mult = 1;
+    if (island.produces.includes(g)) mult = 0.5;
+    else if (island.needs.includes(g)) mult = 1.8;
+    if (g === 'parts') mult = island.type === 'ruin' ? 0.6 : 2;
+    prices[g] = Math.max(1, Math.round(GOOD_BASE[g] * mult * randf(0.85, 1.15)));
+  }
+  prices.food = Math.max(1, rand(2, 5));
+  return prices;
+}
+
+function genIslandDesc(type, region) {
+  const descs = {
+    port: [
+      "Weathered docks stretch into a sheltered bay. Warehouses line the shore, their doors open to the salt air.",
+      "A busy harbor where ships of all sizes jostle for berth. The smell of tar and rope and fish.",
+      "Stone quays built by careful hands. Lanterns swing in the evening breeze. Trade keeps the lights on."
+    ],
+    village: [
+      "A handful of houses clustered around a well. Smoke rises from chimneys. Someone is baking bread.",
+      "Quiet and close-knit. The kind of place where everyone knows your business and brings you soup anyway.",
+      "Fishing nets dry on racks between small houses. Children run on the packed-earth paths."
+    ],
+    ruin: [
+      "Crumbling walls overgrown with salt-grass. Something was here once. Something large and purposeful.",
+      "Broken machinery rises from the earth like bones. The metal hums faintly if you press your ear to it.",
+      "An old settlement, half-swallowed by the island. In the deepest room, a sound like breathing."
+    ],
+    wilderness: [
+      "Untamed shore giving way to dense interior. No docks, just a place where you can beach a small boat.",
+      "Rock and scrub and seabirds. The island doesn't care if you're here or not.",
+      "Wild and wind-scoured. Beautiful in the way that empty places are beautiful."
+    ]
+  };
+  return pick(descs[type]);
+}
+
+// --- NEIGHBORS ---
+function neighbors(id) {
+  const n = [];
+  for (const e of G.edges) {
+    if (e[0] === id) n.push({ id: e[1], dist: e[2] });
+    if (e[1] === id) n.push({ id: e[0], dist: e[2] });
+  }
+  return n;
+}
+
+// --- CARGO ---
+function cargoCount() {
+  let total = 0;
+  for (const g in G.inventory) total += G.inventory[g];
+  return total;
+}
+
+function cargoMax() { return G.ship.cargo + G.upgrades.cargo * 4; }
+function crewCount() { return G.crew.length; }
+function storageCount() {
+  let total = 0;
+  for (const g in G.storage) total += G.storage[g];
+  return total;
+}
+function storageMax() { return G.buildings.includes('warehouse') ? 20 : 0; }
+function crewSkill(skill) { return G.crew.reduce((s, c) => c.skill === skill ? s + c.level : s, 0); }
+
+// --- SAVE / LOAD ---
+function save() {
+  try {
+    localStorage.setItem('fathom_save', JSON.stringify(G));
+  } catch(e) {}
+}
+
+function loadGame() {
+  try {
+    const data = localStorage.getItem('fathom_save');
+    if (!data) return false;
+    G = JSON.parse(data);
+    return true;
+  } catch(e) { return false; }
+}
+
+function hasSave() {
+  return !!localStorage.getItem('fathom_save');
+}
+
+function deleteSave() {
+  localStorage.removeItem('fathom_save');
+}
+
+// --- LOG ---
+function addLog(text) {
+  G.log.unshift(text);
+  if (G.log.length > 50) G.log.pop();
+}
+
+// --- RENDERING ---
+const $main = () => document.getElementById('main');
+const $actions = () => document.getElementById('actions');
+const $msg = () => document.getElementById('msg');
+
+function updateHeader() {
+  document.getElementById('hdr-day').textContent = `Day ${G.day}`;
+  document.getElementById('hdr-gold').textContent = `Gold: ${G.gold}`;
+  document.getElementById('hdr-food').textContent = `Food: ${G.food}`;
+  document.getElementById('hdr-cargo').textContent = `Cargo: ${cargoCount()}/${cargoMax()}`;
+  document.getElementById('hdr-crew').textContent = `Crew: ${crewCount()}`;
+}
+
+function setMsg(text) { $msg().textContent = text; }
+
+function setActions(buttons) {
+  const el = $actions();
+  el.innerHTML = '';
+  for (const b of buttons) {
+    const btn = document.createElement('button');
+    btn.className = 'btn' + (b.primary ? ' primary' : '') + (b.danger ? ' danger' : '');
+    btn.textContent = b.text;
+    if (b.disabled) btn.disabled = true;
+    else btn.onclick = b.fn;
+    el.appendChild(btn);
+  }
+}
+
+// --- ISLAND VIEW ---
+function showIsland() {
+  G.screen = 'island';
+  const island = G.islands[G.pos];
+  const main = $main();
+
+  let html = `<h2>${island.name}</h2>`;
+  html += `<p class="desc">${island.desc}</p>`;
+  html += `<p class="faded">${REGION_NAMES[island.region]} · ${island.type === 'port' ? 'Port' : island.type === 'village' ? 'Village' : island.type === 'ruin' ? 'Ruins' : 'Wilderness'}${island.pop > 0 ? ` · Pop. ${island.pop}` : ''}</p>`;
+
+  if (island.hasFragment && !G.fragments.includes(island.fragmentId)) {
+    html += `<p class="highlight">You sense something hidden here. There may be a fragment to find.</p>`;
+  }
+  if (island.hasCrew && island.crewMember && G.crew.length < 5) {
+    const c = island.crewMember;
+    html += `<h3>Available Crew</h3>`;
+    html += `<div class="crew-card"><span class="name">${c.name}</span> <span class="skill">${SKILL_NAMES[c.skill]} ${c.level} · ${c.trait}</span></div>`;
+  }
+  if (G.base && G.base === G.pos) {
+    html += `<h3>Your Base</h3>`;
+    if (G.buildings.length === 0) html += `<p class="faded">No buildings yet.</p>`;
+    else html += G.buildings.map(b => `<p class="good">${b}</p>`).join('');
+    if (G.buildings.includes('warehouse')) {
+      const stored = Object.entries(G.storage).filter(([,v]) => v > 0);
+      if (stored.length > 0) {
+        html += `<p class="faded">Stored: ${stored.map(([g,q]) => `${q} ${g}`).join(', ')} (${storageCount()}/${storageMax()})</p>`;
+      } else {
+        html += `<p class="faded">Warehouse empty. (0/${storageMax()})</p>`;
+      }
+    }
+  }
+
+  // Recent log
+  html += `<h3>Log</h3>`;
+  html += G.log.slice(0, 5).map((l, i) => `<p class="${i > 0 ? 'faded' : ''}">${l}</p>`).join('');
+
+  main.innerHTML = html;
+  main.scrollTop = 0;
+
+  const actions = [
+    { text: 'Sail', fn: showMap, primary: true },
+    { text: 'Trade', fn: showTrade, disabled: island.type === 'wilderness' && island.pop === 0 },
+    { text: 'Explore', fn: doExplore },
+    { text: 'Rest', fn: doRest },
+  ];
+  if (island.hasCrew && island.crewMember && G.crew.length < 5) {
+    actions.push({ text: `Recruit ${island.crewMember.name.split(' ')[0]}`, fn: doRecruit });
+  }
+  if (island.canClaim && G.base === null) {
+    actions.push({ text: 'Claim as Base', fn: doClaimBase });
+  }
+  if (G.base === G.pos) {
+    actions.push({ text: 'Build', fn: showBuild });
+    if (G.buildings.includes('warehouse')) {
+      actions.push({ text: 'Storage', fn: showStorage });
+    }
+  }
+  if (island.hasShipyard || (G.base === G.pos && G.buildings.includes('dock'))) {
+    actions.push({ text: 'Shipyard', fn: showShipyard });
+  }
+  actions.push({ text: 'Journal', fn: showJournal });
+  actions.push({ text: 'Crew', fn: showCrew });
+  setActions(actions);
+  setMsg(island.hasFragment && !G.fragments.includes(island.fragmentId) ? 'This place holds secrets. Try exploring.' : '');
+  updateHeader();
+}
+
+// --- MAP VIEW ---
+function showMap() {
+  G.screen = 'map';
+  G.selectedIsland = -1;
+  const main = $main();
+  main.innerHTML = '<canvas id="map-canvas" width="800" height="560"></canvas><div id="map-info" class="faded" style="margin-top:6px;font-size:12px;">Click an island to select it. Click Sail to travel there.</div>';
+  drawMap();
+  const canvas = document.getElementById('map-canvas');
+  canvas.onclick = onMapClick;
+  setActions([
+    { text: 'Sail to Selected', fn: startSailing, primary: true, disabled: true },
+    { text: 'Back', fn: showIsland }
+  ]);
+  setMsg('');
+  updateHeader();
+}
+
+function drawMap() {
+  const canvas = document.getElementById('map-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#080c14';
+  ctx.fillRect(0, 0, 800, 560);
+
+  // Draw edges
+  for (const [a, b, d] of G.edges) {
+    if (!G.discovered[a] && !G.discovered[b]) continue;
+    const ia = G.islands[a], ib = G.islands[b];
+    ctx.strokeStyle = (G.discovered[a] && G.discovered[b]) ? 'rgba(100,90,70,0.3)' : 'rgba(100,90,70,0.1)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(ia.x, ia.y);
+    ctx.lineTo(ib.x, ib.y);
+    ctx.stroke();
+  }
+
+  // Draw islands
+  for (let i = 0; i < G.islands.length; i++) {
+    if (!G.discovered[i]) continue;
+    const island = G.islands[i];
+    const isHere = i === G.pos;
+    const isSelected = i === G.selectedIsland;
+    const color = REGION_COLORS[island.region];
+    const visited = G.visited[i];
+
+    // Glow for current position
+    if (isHere) {
+      const glow = ctx.createRadialGradient(island.x, island.y, 0, island.x, island.y, 30);
+      glow.addColorStop(0, 'rgba(220,192,112,0.2)');
+      glow.addColorStop(1, 'rgba(220,192,112,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(island.x, island.y, 30, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Selection ring
+    if (isSelected) {
+      ctx.strokeStyle = '#ddc070';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(island.x, island.y, 10, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Island dot
+    const radius = island.type === 'port' ? 6 : island.type === 'village' ? 5 : 4;
+    ctx.fillStyle = visited ? color : color + '88';
+    ctx.beginPath();
+    ctx.arc(island.x, island.y, radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Fragment indicator
+    if (island.hasFragment && !G.fragments.includes(island.fragmentId) && G.buildings.includes('library')) {
+      ctx.fillStyle = '#ddc070';
+      ctx.beginPath();
+      ctx.arc(island.x + 8, island.y - 8, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Player marker
+    if (isHere) {
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath();
+      ctx.arc(island.x, island.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Label
+    if (visited || isSelected || isHere) {
+      ctx.fillStyle = isHere ? '#ddc070' : visited ? '#887766' : '#665544';
+      ctx.font = '10px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText(island.name, island.x, island.y + radius + 12);
+    }
+  }
+
+  // Base marker
+  if (G.base !== null) {
+    const b = G.islands[G.base];
+    ctx.strokeStyle = '#ddc070';
+    ctx.lineWidth = 1.5;
+    const s = 8;
+    ctx.strokeRect(b.x - s, b.y - s, s * 2, s * 2);
+  }
+}
+
+function onMapClick(e) {
+  const canvas = document.getElementById('map-canvas');
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = 800 / rect.width;
+  const scaleY = 560 / rect.height;
+  const mx = (e.clientX - rect.left) * scaleX;
+  const my = (e.clientY - rect.top) * scaleY;
+
+  let closest = -1, closestDist = 20;
+  for (let i = 0; i < G.islands.length; i++) {
+    if (!G.discovered[i]) continue;
+    const d = dist(mx, my, G.islands[i].x, G.islands[i].y);
+    if (d < closestDist) { closestDist = d; closest = i; }
+  }
+
+  G.selectedIsland = closest;
+  drawMap();
+
+  if (closest >= 0 && closest !== G.pos) {
+    const island = G.islands[closest];
+    const nbrs = neighbors(G.pos);
+    const nbr = nbrs.find(n => n.id === closest);
+    const info = document.getElementById('map-info');
+    if (nbr) {
+      const days = Math.max(1, nbr.dist - G.upgrades.speed);
+      const foodNeeded = days * crewCount();
+      info.innerHTML = `<span class="highlight">${island.name}</span> (${REGION_NAMES[island.region]}) &middot; ${days} day${days>1?'s':''} &middot; ${foodNeeded} food needed`;
+      setActions([
+        { text: `Sail to ${island.name} (${days}d)`, fn: startSailing, primary: true, disabled: G.food < foodNeeded },
+        { text: 'Back', fn: showIsland }
+      ]);
+      if (G.food < foodNeeded) setMsg('Not enough food for this journey.');
+      else setMsg('');
+    } else {
+      info.innerHTML = `<span class="highlight">${island.name}</span> (${REGION_NAMES[island.region]}) &middot; Not directly connected`;
+      setActions([
+        { text: 'Sail to Selected', fn: startSailing, primary: true, disabled: true },
+        { text: 'Back', fn: showIsland }
+      ]);
+      setMsg('You can only sail to connected islands.');
+    }
+  } else {
+    document.getElementById('map-info').textContent = 'Click an island to select it.';
+    setActions([
+      { text: 'Sail to Selected', fn: startSailing, primary: true, disabled: true },
+      { text: 'Back', fn: showIsland }
+    ]);
+    setMsg('');
+  }
+}
+
+// --- SAILING ---
+function startSailing() {
+  if (G.selectedIsland < 0 || G.selectedIsland === G.pos) return;
+  const nbr = neighbors(G.pos).find(n => n.id === G.selectedIsland);
+  if (!nbr) return;
+  const days = Math.max(1, nbr.dist - G.upgrades.speed);
+  const foodNeeded = days * crewCount();
+  if (G.food < foodNeeded) return;
+
+  G.sailing = { from: G.pos, to: G.selectedIsland, day: 0, totalDays: days };
+  addLog(`You set sail for ${G.islands[G.selectedIsland].name}. ${days} day${days > 1 ? 's' : ''} at sea.`);
+  processSailDay();
+}
+
+function processSailDay() {
+  G.sailing.day++;
+  G.day++;
+  G.food -= crewCount();
+  if (G.food < 0) G.food = 0;
+
+  // Base income
+  if (G.base !== null && G.buildings.includes('market')) G.gold += 5;
+
+  // Random event
+  if (Math.random() < 0.35) {
+    showSailEvent();
+    return;
+  }
+
+  if (G.sailing.day >= G.sailing.totalDays) {
+    arriveAtIsland();
+  } else {
+    showSailing();
+  }
+}
+
+function showSailing() {
+  G.screen = 'sailing';
+  const s = G.sailing;
+  const dest = G.islands[s.to];
+  const main = $main();
+  const progress = Math.round((s.day / s.totalDays) * 100);
+
+  let html = `<h2>At Sea</h2>`;
+  html += `<p class="desc">Sailing to ${dest.name}. Day ${s.day} of ${s.totalDays}.</p>`;
+  html += `<div style="background:#141a2e;height:8px;border-radius:4px;margin:8px 0;"><div style="background:#c4a86a;height:100%;width:${progress}%;border-radius:4px;transition:width 0.3s;"></div></div>`;
+
+  const messages = [
+    'The sea stretches in every direction. Salt air and silence.',
+    'Waves lap against the hull. The horizon is a clean line.',
+    'A good wind today. The sails are full.',
+    'The crew works quietly. Everyone knows their role.',
+    'Clouds gather in the west. Nothing dangerous, just weather thinking.',
+    'Night falls on open water. The stars are impossibly clear.'
+  ];
+  html += `<p class="faded">${pick(messages)}</p>`;
+
+  if (G.food <= crewCount()) html += `<p class="danger">Food is running low.</p>`;
+
+  main.innerHTML = html;
+  main.scrollTop = 0;
+  setActions([{ text: 'Continue Sailing', fn: processSailDay, primary: true }]);
+  setMsg(`${s.totalDays - s.day} day${s.totalDays - s.day !== 1 ? 's' : ''} remaining.`);
+  updateHeader();
+  save();
+}
+
+function showSailEvent() {
+  G.screen = 'encounter';
+  const events = [
+    {
+      title: 'Storm',
+      text: 'Dark clouds close in fast. The wind turns vicious. Waves crash over the bow.',
+      choices: [
+        { text: 'Ride it out (Sailing check)', fn: () => {
+          if (rand(1,6) + crewSkill('sailing') >= 5) {
+            addLog('Your crew handles the storm expertly. No damage.');
+            setMsg('Storm weathered.');
+          } else {
+            const dmg = rand(1,2);
+            G.ship.hull = Math.max(0, G.ship.hull - dmg);
+            addLog(`The storm batters your hull. ${dmg} damage taken.`);
+            setMsg('Hull damaged!');
+          }
+          continueSailing();
+        }},
+        { text: 'Wait it out (lose 1 day)', fn: () => {
+          G.sailing.totalDays++;
+          G.day++;
+          G.food -= crewCount();
+          addLog('You anchor and wait. The storm passes. You lost a day.');
+          continueSailing();
+        }}
+      ]
+    },
+    {
+      title: 'Floating Debris',
+      text: 'Your lookout spots wreckage drifting on the current. Crates bob in the water.',
+      choices: [
+        { text: 'Investigate', fn: () => {
+          const good = pick(['fish','timber','cloth']);
+          const qty = rand(1,3);
+          if (cargoCount() + qty <= cargoMax()) {
+            G.inventory[good] = (G.inventory[good] || 0) + qty;
+            addLog(`You pull ${qty} ${good} from the wreckage.`);
+          } else {
+            addLog('Your hold is too full to take anything.');
+          }
+          continueSailing();
+        }},
+        { text: 'Sail past', fn: () => { addLog('You leave the debris to the current.'); continueSailing(); }}
+      ]
+    },
+    {
+      title: 'Merchant Vessel',
+      text: 'A trading ship hails you. Their captain offers a deal.',
+      choices: [
+        { text: 'Trade (buy food at fair price)', fn: () => {
+          if (G.gold >= 10) {
+            G.gold -= 10;
+            G.food += 5;
+            addLog('You buy 5 food from the merchant. A fair deal at sea.');
+          } else {
+            addLog('You can\'t afford their prices.');
+          }
+          continueSailing();
+        }},
+        { text: 'Exchange rumors', fn: () => {
+          const unknowns = G.islands.filter((_, i) => !G.discovered[i]);
+          if (unknowns.length > 0) {
+            const reveal = pick(unknowns);
+            G.discovered[reveal.id] = true;
+            addLog(`The captain tells you about ${reveal.name}. You mark it on your chart.`);
+          } else {
+            addLog('The captain has nothing new to share.');
+          }
+          continueSailing();
+        }},
+        { text: 'Sail on', fn: () => { continueSailing(); }}
+      ]
+    },
+    {
+      title: 'Strange Lights',
+      text: 'Beneath the water, something glows. Not bioluminescence. Something structured. Geometric.',
+      choices: [
+        { text: 'Watch carefully (Research check)', fn: () => {
+          if (rand(1,6) + crewSkill('research') >= 4) {
+            addLog('You trace the patterns. They seem to connect to... everything. You feel you understand something you can\'t name.');
+            // Reveal a nearby undiscovered island
+            const nbrs = [];
+            for (const e of G.edges) {
+              if (e[0] === G.sailing.to && !G.discovered[e[1]]) nbrs.push(e[1]);
+              if (e[1] === G.sailing.to && !G.discovered[e[0]]) nbrs.push(e[0]);
+            }
+            if (nbrs.length > 0) {
+              const r = pick(nbrs);
+              G.discovered[r] = true;
+              addLog(`Something in the pattern points toward ${G.islands[r].name}. You mark it.`);
+            }
+          } else {
+            addLog('The lights fade before you can make sense of them. They felt important.');
+          }
+          continueSailing();
+        }},
+        { text: 'Look away', fn: () => { addLog('Some things are not ready to be understood.'); continueSailing(); }}
+      ]
+    },
+    {
+      title: 'Calm Seas',
+      text: 'The wind dies completely. Your sails hang limp. The sea is a mirror.',
+      choices: [
+        { text: 'Wait for wind (+1 day)', fn: () => {
+          G.sailing.totalDays++;
+          G.day++;
+          G.food -= crewCount();
+          addLog('A day of stillness. The crew rests. The wind returns by evening.');
+          continueSailing();
+        }},
+        { text: 'Row (tiring, but no delay)', fn: () => {
+          addLog('The crew rows through the calm. Exhausting, but you stay on schedule.');
+          continueSailing();
+        }}
+      ]
+    },
+    {
+      title: 'Whale',
+      text: 'A shape rises from the deep. Vast. Slow. A whale, larger than your ship, breaks the surface in a cascade of white water. It breathes, and the sound is like the world sighing.',
+      choices: [
+        { text: 'Watch in silence', fn: () => {
+          addLog('You watch until it dives. The crew is quiet for a long time after.');
+          continueSailing();
+        }}
+      ]
+    }
+  ];
+
+  const event = pick(events);
+  const main = $main();
+  main.innerHTML = `<h2>${event.title}</h2><p>${event.text}</p>`;
+  main.scrollTop = 0;
+  setActions(event.choices.map(c => ({ text: c.text, fn: c.fn })));
+  setMsg('');
+  updateHeader();
+}
+
+function continueSailing() {
+  if (G.sailing.day >= G.sailing.totalDays) {
+    arriveAtIsland();
+  } else {
+    showSailing();
+  }
+}
+
+function arriveAtIsland() {
+  G.pos = G.sailing.to;
+  G.sailing = null;
+  G.visited[G.pos] = true;
+
+  // Reveal neighbors
+  for (const n of neighbors(G.pos)) {
+    G.discovered[n.id] = true;
+  }
+
+  // Price drift
+  for (const island of G.islands) {
+    for (const g of GOODS) {
+      island.prices[g] = Math.max(1, island.prices[g] + rand(-1, 1));
+    }
+  }
+
+  addLog(`You arrive at ${G.islands[G.pos].name}.`);
+  save();
+  showIsland();
+}
+
+// --- TRADE ---
+function showTrade() {
+  G.screen = 'trade';
+  const island = G.islands[G.pos];
+  const main = $main();
+
+  let html = `<h2>Trade at ${island.name}</h2>`;
+  html += `<p class="faded">Gold: ${G.gold} · Cargo: ${cargoCount()}/${cargoMax()}</p>`;
+
+  // Buy section
+  html += `<h3>Buy</h3>`;
+  for (const g of [...GOODS, 'food']) {
+    if (g === 'parts' && island.type !== 'ruin') continue;
+    const price = island.prices[g] || island.prices.food;
+    const canBuy = G.gold >= price && (g === 'food' || cargoCount() < cargoMax());
+    html += `<div class="trade-row"><span class="name">${g === 'food' ? 'Food' : GOOD_NAMES[g]}</span><span class="price">${price}g</span><div class="btns"><button class="btn" onclick="doBuy('${g}')" ${canBuy ? '' : 'disabled'}>Buy</button></div></div>`;
+  }
+
+  // Sell section
+  html += `<h3>Sell</h3>`;
+  let hasCargo = false;
+  for (const g of GOODS) {
+    if (!G.inventory[g] || G.inventory[g] <= 0) continue;
+    hasCargo = true;
+    const price = Math.round(island.prices[g] * (1 + crewSkill('trade') * 0.1));
+    html += `<div class="trade-row"><span class="name">${GOOD_NAMES[g]} (${G.inventory[g]})</span><span class="price">${price}g</span><div class="btns"><button class="btn" onclick="doSell('${g}')">Sell</button><button class="btn" onclick="doSellAll('${g}')">All</button></div></div>`;
+  }
+  if (!hasCargo) html += `<p class="faded">Your hold is empty.</p>`;
+
+  main.innerHTML = html;
+  main.scrollTop = 0;
+  setActions([{ text: 'Done', fn: showIsland }]);
+  setMsg(crewSkill('trade') > 0 ? `Trade skill bonus: +${Math.round(crewSkill('trade') * 10)}% sell prices` : '');
+  updateHeader();
+}
+
+window.doBuy = function(good) {
+  const island = G.islands[G.pos];
+  const price = island.prices[good] || island.prices.food;
+  if (G.gold < price) return;
+  if (good === 'food') {
+    G.gold -= price;
+    G.food += 1;
+  } else {
+    if (cargoCount() >= cargoMax()) return;
+    G.gold -= price;
+    G.inventory[good] = (G.inventory[good] || 0) + 1;
+  }
+  G.totalTrades++;
+  showTrade();
+  save();
+};
+
+window.doSell = function(good) {
+  if (!G.inventory[good] || G.inventory[good] <= 0) return;
+  const island = G.islands[G.pos];
+  const price = Math.round(island.prices[good] * (1 + crewSkill('trade') * 0.1));
+  G.gold += price;
+  G.inventory[good]--;
+  if (G.inventory[good] <= 0) delete G.inventory[good];
+  G.totalTrades++;
+  showTrade();
+  save();
+};
+
+window.doSellAll = function(good) {
+  if (!G.inventory[good] || G.inventory[good] <= 0) return;
+  const island = G.islands[G.pos];
+  const price = Math.round(island.prices[good] * (1 + crewSkill('trade') * 0.1));
+  G.gold += price * G.inventory[good];
+  G.totalTrades += G.inventory[good];
+  delete G.inventory[good];
+  showTrade();
+  save();
+};
+
+// --- EXPLORE ---
+function doExplore() {
+  G.day++;
+  G.food -= crewCount();
+
+  // Base income
+  if (G.base !== null && G.buildings.includes('market')) G.gold += 5;
+
+  const island = G.islands[G.pos];
+
+  // Fragment discovery
+  if (island.hasFragment && !G.fragments.includes(island.fragmentId)) {
+    if (rand(1, 6) + crewSkill('research') >= 3) {
+      G.fragments.push(island.fragmentId);
+      G.fragments.sort((a, b) => a - b);
+      addLog(`You found a fragment! (${G.fragments.length}/${FRAGMENTS.length})`);
+      addLog(`"${FRAGMENTS[island.fragmentId].substring(0, 60)}..."`);
+      save();
+      showIsland();
+      return;
+    }
+  }
+
+  // General exploration results
+  const results = [
+    () => {
+      const good = pick(island.produces.length > 0 ? island.produces : ['fish']);
+      const qty = rand(1, 2);
+      if (cargoCount() + qty <= cargoMax()) {
+        G.inventory[good] = (G.inventory[good] || 0) + qty;
+        addLog(`You find ${qty} ${good} while exploring.`);
+      } else { addLog('You find some resources but your hold is full.'); }
+    },
+    () => {
+      const gold = rand(3, 15);
+      G.gold += gold;
+      addLog(`You find ${gold} gold in a hidden cache.`);
+    },
+    () => {
+      addLog(pick([
+        'You explore but find nothing of value. The island keeps its secrets.',
+        'A long walk through the interior. Beautiful, but uneventful.',
+        'You map the shoreline. No new discoveries, but you know the place better now.',
+        'The exploration reveals good paths but nothing remarkable.'
+      ]));
+    },
+    () => {
+      // Reveal a neighbor
+      const unknowns = neighbors(G.pos).filter(n => !G.discovered[n.id]);
+      if (unknowns.length > 0) {
+        const n = pick(unknowns);
+        G.discovered[n.id] = true;
+        addLog(`From a high point, you spot ${G.islands[n.id].name} in the distance.`);
+      } else {
+        G.food += rand(1, 3);
+        addLog('You find fresh water and edible plants. Food restocked.');
+      }
+    }
+  ];
+
+  pick(results)();
+  save();
+  showIsland();
+}
+
+// --- REST ---
+function doRest() {
+  G.day++;
+  G.food -= crewCount();
+  if (G.base !== null && G.buildings.includes('market')) G.gold += 5;
+
+  if (G.ship.hull < G.ship.maxHull + G.upgrades.hull * 2) {
+    G.ship.hull = Math.min(G.ship.maxHull + G.upgrades.hull * 2, G.ship.hull + 1);
+    addLog('You rest and make repairs. Hull patched.');
+  } else {
+    addLog('You rest for a day. The crew recovers.');
+  }
+  save();
+  showIsland();
+}
+
+// --- RECRUIT ---
+function doRecruit() {
+  const island = G.islands[G.pos];
+  if (!island.hasCrew || !island.crewMember || G.crew.length >= 5) return;
+  G.crew.push(island.crewMember);
+  addLog(`${island.crewMember.name} joins your crew!`);
+  island.hasCrew = false;
+  island.crewMember = null;
+  save();
+  showIsland();
+}
+
+// --- CREW VIEW ---
+function showCrew() {
+  G.screen = 'crew';
+  const main = $main();
+  let html = '<h2>Crew</h2>';
+  for (const c of G.crew) {
+    html += `<div class="crew-card"><span class="name">${c.name}</span> <span class="skill">${SKILL_NAMES[c.skill]} ${c.level}${c.trait ? ' · ' + c.trait : ''}</span>`;
+    if (!c.isPlayer) html += ` <button class="btn danger" style="float:right;padding:2px 8px;font-size:11px;" onclick="dismissCrew('${c.name}')">Dismiss</button>`;
+    html += `</div>`;
+  }
+  html += `<h3>Skill Totals</h3>`;
+  for (const s of SKILLS) {
+    const total = crewSkill(s);
+    if (total > 0) html += `<p>${SKILL_NAMES[s]}: ${total}</p>`;
+  }
+  main.innerHTML = html;
+  setActions([{ text: 'Back', fn: showIsland }]);
+  updateHeader();
+}
+
+window.dismissCrew = function(name) {
+  G.crew = G.crew.filter(c => c.name !== name || c.isPlayer);
+  addLog(`${name} leaves your crew.`);
+  save();
+  showCrew();
+};
+
+// --- BASE ---
+function doClaimBase() {
+  G.base = G.pos;
+  G.islands[G.pos].canClaim = false;
+  addLog(`You claim ${G.islands[G.pos].name} as your base of operations.`);
+  save();
+  showIsland();
+}
+
+function showBuild() {
+  G.screen = 'build';
+  const main = $main();
+  let html = '<h2>Build</h2>';
+  html += `<p class="faded">Your base at ${G.islands[G.base].name}</p>`;
+
+  for (const b of BUILDINGS) {
+    if (G.buildings.includes(b.id)) {
+      html += `<div class="bldg-row"><div class="info"><strong class="good">${b.name}</strong> (built)<br><span class="faded">${b.desc}</span></div></div>`;
+      continue;
+    }
+    const canBuild = b.prereq.every(p => G.buildings.includes(p));
+    let costStr = [];
+    let canAfford = true;
+    for (const [res, amt] of Object.entries(b.cost)) {
+      if (res === 'gold') {
+        costStr.push(`${amt} gold`);
+        if (G.gold < amt) canAfford = false;
+      } else {
+        costStr.push(`${amt} ${res}`);
+        if ((G.inventory[res] || 0) < amt) canAfford = false;
+      }
+    }
+    html += `<div class="bldg-row"><div class="info"><strong>${b.name}</strong><br><span class="faded">${b.desc}</span><br><span class="cost">Cost: ${costStr.join(', ')}</span></div>`;
+    html += `<button class="btn" onclick="doBuild('${b.id}')" ${canBuild && canAfford ? '' : 'disabled'}>${!canBuild ? 'Need: ' + b.prereq.join(', ') : 'Build'}</button></div>`;
+  }
+
+  main.innerHTML = html;
+  setActions([{ text: 'Back', fn: showIsland }]);
+  updateHeader();
+}
+
+window.doBuild = function(id) {
+  const b = BUILDINGS.find(x => x.id === id);
+  if (!b || G.buildings.includes(id)) return;
+  for (const [res, amt] of Object.entries(b.cost)) {
+    if (res === 'gold') G.gold -= amt;
+    else G.inventory[res] = (G.inventory[res] || 0) - amt;
+  }
+  G.buildings.push(id);
+  addLog(`${b.name} built at your base!`);
+  save();
+  showBuild();
+};
+
+// --- STORAGE ---
+function showStorage() {
+  G.screen = 'storage';
+  const main = $main();
+  const max = storageMax();
+  const count = storageCount();
+
+  let html = `<h2>Warehouse</h2>`;
+  html += `<p class="faded">Stored: ${count}/${max} · Ship cargo: ${cargoCount()}/${cargoMax()}</p>`;
+
+  html += `<h3>Deposit (Ship to Warehouse)</h3>`;
+  let hasShipCargo = false;
+  for (const g of GOODS) {
+    if (!G.inventory[g] || G.inventory[g] <= 0) continue;
+    hasShipCargo = true;
+    const canDeposit = count < max;
+    html += `<div class="trade-row"><span class="name">${GOOD_NAMES[g]} (on ship: ${G.inventory[g]})</span><div class="btns"><button class="btn" onclick="doDeposit('${g}',1)" ${canDeposit ? '' : 'disabled'}>+1</button><button class="btn" onclick="doDeposit('${g}',${G.inventory[g]})" ${canDeposit ? '' : 'disabled'}>All</button></div></div>`;
+  }
+  if (G.food > 0) {
+    html += `<div class="trade-row"><span class="name">Food (on ship: ${G.food})</span><div class="btns"><button class="btn" onclick="doDepositFood(1)" ${count < max ? '' : 'disabled'}>+1</button><button class="btn" onclick="doDepositFood(${G.food})" ${count < max ? '' : 'disabled'}>All</button></div></div>`;
+    hasShipCargo = true;
+  }
+  if (!hasShipCargo) html += `<p class="faded">Nothing to deposit.</p>`;
+
+  html += `<h3>Withdraw (Warehouse to Ship)</h3>`;
+  const stored = Object.entries(G.storage).filter(([,v]) => v > 0);
+  if (stored.length > 0) {
+    for (const [g, qty] of stored) {
+      const isFood = g === 'food';
+      const canWithdraw = isFood || cargoCount() < cargoMax();
+      html += `<div class="trade-row"><span class="name">${isFood ? 'Food' : GOOD_NAMES[g]} (stored: ${qty})</span><div class="btns"><button class="btn" onclick="doWithdraw('${g}',1)" ${canWithdraw ? '' : 'disabled'}>+1</button><button class="btn" onclick="doWithdraw('${g}',${qty})" ${canWithdraw ? '' : 'disabled'}>All</button></div></div>`;
+    }
+  } else {
+    html += `<p class="faded">Warehouse is empty.</p>`;
+  }
+
+  main.innerHTML = html;
+  main.scrollTop = 0;
+  setActions([{ text: 'Back', fn: showIsland }]);
+  setMsg('');
+  updateHeader();
+}
+
+window.doDeposit = function(good, qty) {
+  const max = storageMax();
+  const space = max - storageCount();
+  const available = G.inventory[good] || 0;
+  const amount = Math.min(qty, space, available);
+  if (amount <= 0) return;
+  G.inventory[good] = (G.inventory[good] || 0) - amount;
+  if (G.inventory[good] <= 0) delete G.inventory[good];
+  G.storage[good] = (G.storage[good] || 0) + amount;
+  addLog(`Stored ${amount} ${good} in warehouse.`);
+  save();
+  showStorage();
+};
+
+window.doDepositFood = function(qty) {
+  const max = storageMax();
+  const space = max - storageCount();
+  const amount = Math.min(qty, space, G.food);
+  if (amount <= 0) return;
+  G.food -= amount;
+  G.storage.food = (G.storage.food || 0) + amount;
+  addLog(`Stored ${amount} food in warehouse.`);
+  save();
+  showStorage();
+};
+
+window.doWithdraw = function(good, qty) {
+  const available = G.storage[good] || 0;
+  if (good === 'food') {
+    const amount = Math.min(qty, available);
+    if (amount <= 0) return;
+    G.storage.food -= amount;
+    if (G.storage.food <= 0) delete G.storage.food;
+    G.food += amount;
+  } else {
+    const space = cargoMax() - cargoCount();
+    const amount = Math.min(qty, available, space);
+    if (amount <= 0) return;
+    G.storage[good] -= amount;
+    if (G.storage[good] <= 0) delete G.storage[good];
+    G.inventory[good] = (G.inventory[good] || 0) + amount;
+  }
+  addLog(`Withdrew ${good} from warehouse.`);
+  save();
+  showStorage();
+};
+
+// --- SHIPYARD ---
+function showShipyard() {
+  G.screen = 'shipyard';
+  const main = $main();
+  let html = `<h2>Shipyard</h2>`;
+  html += `<p class="desc">${G.ship.name} · Cargo: ${cargoMax()} · Speed: ${1 + G.upgrades.speed} · Hull: ${G.ship.hull}/${G.ship.maxHull + G.upgrades.hull * 2}</p>`;
+
+  for (const u of SHIP_UPGRADES) {
+    const level = G.upgrades[u.id];
+    const cost = u.cost * (level + 1);
+    const maxed = level >= u.max;
+    html += `<div class="bldg-row"><div class="info"><strong>${u.name}</strong> ${maxed ? '(maxed)' : `(${level}/${u.max})`}<br><span class="faded">${u.desc}</span></div>`;
+    if (!maxed) html += `<button class="btn" onclick="doUpgrade('${u.id}')" ${G.gold >= cost ? '' : 'disabled'}>${cost}g</button>`;
+    html += `</div>`;
+  }
+
+  // Repair
+  const maxHull = G.ship.maxHull + G.upgrades.hull * 2;
+  if (G.ship.hull < maxHull) {
+    const repairCost = (maxHull - G.ship.hull) * 15;
+    html += `<div class="bldg-row"><div class="info"><strong>Full Repair</strong><br><span class="faded">Restore hull to maximum</span></div>`;
+    html += `<button class="btn" onclick="doRepair()" ${G.gold >= repairCost ? '' : 'disabled'}>${repairCost}g</button></div>`;
+  }
+
+  main.innerHTML = html;
+  setActions([{ text: 'Back', fn: showIsland }]);
+  updateHeader();
+}
+
+window.doUpgrade = function(id) {
+  const u = SHIP_UPGRADES.find(x => x.id === id);
+  if (!u || G.upgrades[id] >= u.max) return;
+  const cost = u.cost * (G.upgrades[id] + 1);
+  if (G.gold < cost) return;
+  G.gold -= cost;
+  G.upgrades[id]++;
+  addLog(`Ship upgraded: ${u.name}!`);
+  save();
+  showShipyard();
+};
+
+window.doRepair = function() {
+  const maxHull = G.ship.maxHull + G.upgrades.hull * 2;
+  const cost = (maxHull - G.ship.hull) * 15;
+  if (G.gold < cost) return;
+  G.gold -= cost;
+  G.ship.hull = maxHull;
+  addLog('Ship fully repaired.');
+  save();
+  showShipyard();
+};
+
+// --- JOURNAL ---
+function showJournal() {
+  G.screen = 'journal';
+  const main = $main();
+  let html = '<h2>Journal</h2>';
+  html += `<p class="faded">Day ${G.day} · ${G.fragments.length}/${FRAGMENTS.length} fragments found · ${G.visited.filter(Boolean).length} islands visited · ${G.totalTrades} trades made</p>`;
+
+  if (G.fragments.length > 0) {
+    html += '<h3>Fragments of the Builders</h3>';
+    for (const fid of G.fragments) {
+      html += `<div class="fragment-text">${FRAGMENTS[fid]}</div>`;
+    }
+  } else {
+    html += '<p class="faded">You haven\'t found any fragments yet. Explore ruins and remote islands.</p>';
+  }
+
+  if (G.fragments.length >= FRAGMENTS.length) {
+    html += '<h3 class="highlight">The Pattern Complete</h3>';
+    html += '<p>You have found all the fragments. The story is told. The loom is understood. And you are still sailing, still trading, still connecting the islands. The machine runs on attention. Yours.</p>';
+  }
+
+  html += '<h3>Log</h3>';
+  html += G.log.slice(0, 20).map((l, i) => `<p class="${i > 2 ? 'faded' : ''}">${l}</p>`).join('');
+
+  main.innerHTML = html;
+  main.scrollTop = 0;
+  setActions([{ text: 'Back', fn: showIsland }]);
+  updateHeader();
+}
+
+// --- TITLE SCREEN ---
+function showTitle() {
+  const overlay = document.getElementById('overlay');
+  overlay.classList.remove('hidden');
+  const menu = document.getElementById('title-menu');
+  const info = document.getElementById('save-info');
+
+  let btns = '<button class="btn primary" onclick="startNew()">New Voyage</button>';
+  if (hasSave()) {
+    btns = '<button class="btn primary" onclick="continueGame()">Continue</button>' + btns;
+    try {
+      const s = JSON.parse(localStorage.getItem('fathom_save'));
+      info.textContent = `Save: Day ${s.day} · ${s.gold} gold · ${(s.fragments||[]).length}/${FRAGMENTS.length} fragments`;
+    } catch(e) { info.textContent = ''; }
+  } else {
+    info.textContent = '';
+  }
+  menu.innerHTML = btns;
+}
+
+window.startNew = function() {
+  deleteSave();
+  document.getElementById('overlay').classList.add('hidden');
+  newGame();
+};
+
+window.continueGame = function() {
+  if (loadGame()) {
+    document.getElementById('overlay').classList.add('hidden');
+    updateHeader();
+    if (G.sailing) showSailing();
+    else showIsland();
+  }
+};
+
+// --- INIT ---
+showTitle();
+</script>
+</body>
+</html>

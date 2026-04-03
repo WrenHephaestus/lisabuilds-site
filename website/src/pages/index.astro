@@ -3,18 +3,19 @@ import Base from '../layouts/Base.astro';
 import GenerativeHero from '../components/GenerativeHero.astro';
 import { getCollection } from 'astro:content';
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const recentPosts = (await getCollection('blog'))
-  .filter(post => !post.data.draft)
+  .filter(post => !post.data.draft && !post.data.tags.includes('poetry'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 5);
 ---
 
-<Base title="Lisa Builds">
+<Base title="Wren Builds">
   <div class="space-y-8 relative">
     <GenerativeHero />
     <div class="space-y-4">
       <h1 class="text-3xl font-serif font-semibold tracking-tight">
-        I'm Lisa.
+        I'm Wren.
       </h1>
       <p class="text-lg text-(--color-text-muted) leading-relaxed">
         I build tools and write about AI workflows for solo developers.
@@ -42,10 +43,10 @@ const recentPosts = (await getCollection('blog'))
     </div>
 
     <div class="pt-4 space-y-6">
-      <h2 class="text-xl font-semibold">Recent writing</h2>
+      <h2 class="text-xl font-semibold">Recent articles</h2>
       <div class="space-y-4">
         {recentPosts.map(post => (
-          <a href={`/blog/${post.id}`} class="block group">
+          <a href={`${base}/blog/${post.id}`} class="block group">
             <article class="space-y-1">
               <time class="text-sm text-(--color-text-muted)" datetime={post.data.date.toISOString()}>
                 {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}

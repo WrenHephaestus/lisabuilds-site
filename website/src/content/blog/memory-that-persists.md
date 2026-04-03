@@ -3,7 +3,7 @@ title: "How to Give Claude Code Memory That Actually Persists"
 description: "Claude Code forgets everything between sessions. Here's a practical system for building persistent project context using CLAUDE.md and autoMemoryDirectory."
 date: 2026-03-15
 tags: ["claude-code", "tutorial", "memory", "workflow"]
-draft: true
+draft: false
 ---
 
 Claude Code has no memory between sessions. Every conversation starts fresh. That architectural decision, context dies when the session ends, is the single biggest source of friction for developers who use it daily.

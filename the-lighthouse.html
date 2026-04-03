@@ -1,0 +1,4296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Lighthouse</title>
+<style>
+/* ============================================
+   THE LIGHTHOUSE
+   A game about staying.
+   by Wren Hephaestus
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  /* Ocean palette */
+  --deep-ocean: #0a1628;
+  --ocean-mid: #132744;
+  --ocean-surface: #1a3a5c;
+  --storm-gray: #3d4f5f;
+  --storm-light: #6b818f;
+  --cloud: #8fa4b2;
+
+  /* Warm palette */
+  --amber-glow: #f5a623;
+  --amber-soft: #e8943a;
+  --amber-deep: #c67a1c;
+  --warm-white: #fef3e0;
+  --hearth: #d4722a;
+
+  /* UI */
+  --text-primary: #e8e0d4;
+  --text-secondary: #a8b4be;
+  --text-dim: #6a7a88;
+  --panel-bg: rgba(10, 22, 40, 0.92);
+  --panel-border: rgba(245, 166, 35, 0.15);
+  --danger: #c0392b;
+  --hope-green: #27ae60;
+  --fuel-amber: #f39c12;
+  --food-blue: #3498db;
+  --material-gray: #95a5a6;
+
+  /* Phase colors */
+  --dawn-sky: #2c1810;
+  --dawn-horizon: #8b4513;
+  --day-sky: #1a3a5c;
+  --dusk-sky: #1a1025;
+  --dusk-horizon: #6b2d5b;
+  --night-sky: #050a15;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Crimson Text', Georgia, serif;
+  background: var(--deep-ocean);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 1.5s ease;
+}
+
+body.phase-dawn { background: linear-gradient(180deg, var(--dawn-sky) 0%, var(--dawn-horizon) 60%, var(--ocean-mid) 100%); }
+body.phase-day { background: linear-gradient(180deg, var(--day-sky) 0%, var(--ocean-surface) 60%, var(--ocean-mid) 100%); }
+body.phase-dusk { background: linear-gradient(180deg, var(--dusk-sky) 0%, var(--dusk-horizon) 60%, var(--ocean-mid) 100%); }
+body.phase-night { background: linear-gradient(180deg, var(--night-sky) 0%, #0a0f1a 60%, var(--deep-ocean) 100%); }
+
+/* ====== TITLE SCREEN ====== */
+#title-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+  background: linear-gradient(180deg, #050a15 0%, #0a1628 40%, #132744 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+#title-screen::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 50% 30%, rgba(245, 166, 35, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.title-lighthouse {
+  width: 120px;
+  height: 300px;
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.title-lighthouse .tower {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 200px;
+  background: linear-gradient(180deg, #2c2c2c 0%, #1a1a1a 100%);
+  border-radius: 4px 4px 0 0;
+  clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+}
+
+.title-lighthouse .tower::before {
+  content: '';
+  position: absolute;
+  top: 15px; left: 50%; transform: translateX(-50%);
+  width: 8px; height: 8px;
+  background: rgba(245, 166, 35, 0.3);
+  border-radius: 50%;
+}
+
+.title-lighthouse .lantern {
+  position: absolute;
+  bottom: 200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 35px;
+  background: linear-gradient(180deg, #333 0%, #222 100%);
+  border-radius: 4px 4px 2px 2px;
+  border: 1px solid #444;
+}
+
+.title-lighthouse .lantern::before {
+  content: '';
+  position: absolute;
+  top: 5px; left: 50%; transform: translateX(-50%);
+  width: 16px; height: 16px;
+  background: var(--amber-glow);
+  border-radius: 50%;
+  box-shadow: 0 0 30px var(--amber-glow), 0 0 60px rgba(245, 166, 35, 0.5), 0 0 120px rgba(245, 166, 35, 0.2);
+  animation: titleGlow 3s ease-in-out infinite;
+}
+
+.title-lighthouse .gallery {
+  position: absolute;
+  bottom: 235px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 8px;
+  background: #333;
+  border-radius: 2px;
+}
+
+.title-lighthouse .cap {
+  position: absolute;
+  bottom: 243px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 35px;
+  height: 15px;
+  background: #2a2a2a;
+  border-radius: 50% 50% 0 0;
+}
+
+.title-lighthouse .base {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 20px;
+  background: #1a1a1a;
+  border-radius: 0 0 8px 8px;
+}
+
+.title-beam {
+  position: absolute;
+  bottom: 218px;
+  left: 50%;
+  width: 400px;
+  height: 4px;
+  transform-origin: left center;
+  background: linear-gradient(90deg, rgba(245, 166, 35, 0.8) 0%, rgba(245, 166, 35, 0) 100%);
+  animation: titleBeamSweep 8s ease-in-out infinite;
+  filter: blur(2px);
+}
+
+.title-beam::after {
+  content: '';
+  position: absolute;
+  top: -8px; left: 0;
+  width: 100%; height: 20px;
+  background: linear-gradient(90deg, rgba(245, 166, 35, 0.15) 0%, rgba(245, 166, 35, 0) 100%);
+  filter: blur(6px);
+}
+
+@keyframes titleGlow {
+  0%, 100% { box-shadow: 0 0 30px var(--amber-glow), 0 0 60px rgba(245, 166, 35, 0.5), 0 0 120px rgba(245, 166, 35, 0.2); }
+  50% { box-shadow: 0 0 40px var(--amber-glow), 0 0 80px rgba(245, 166, 35, 0.6), 0 0 160px rgba(245, 166, 35, 0.3); }
+}
+
+@keyframes titleBeamSweep {
+  0% { transform: rotate(-30deg); opacity: 0.6; }
+  25% { opacity: 1; }
+  50% { transform: rotate(30deg); opacity: 0.6; }
+  75% { opacity: 1; }
+  100% { transform: rotate(-30deg); opacity: 0.6; }
+}
+
+.title-text h1 {
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--warm-white);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 40px rgba(245, 166, 35, 0.3);
+}
+
+.title-text .subtitle {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  letter-spacing: 0.05em;
+}
+
+.title-text .epigraph {
+  max-width: 500px;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 3rem;
+  padding: 0 1rem;
+}
+
+.btn-start {
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 1.2rem;
+  padding: 0.8rem 3rem;
+  background: transparent;
+  border: 1px solid var(--amber-glow);
+  color: var(--amber-glow);
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.btn-start:hover {
+  background: rgba(245, 166, 35, 0.1);
+  box-shadow: 0 0 30px rgba(245, 166, 35, 0.2);
+}
+
+.title-credit {
+  position: absolute;
+  bottom: 2rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+/* ====== GAME SCREEN ====== */
+#game-screen {
+  display: none;
+  min-height: 100vh;
+}
+
+/* Top bar */
+.top-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--panel-border);
+  backdrop-filter: blur(10px);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.week-phase {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 200px;
+}
+
+.week-num {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--amber-glow);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.phase-name {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.resources {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.resource {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+}
+
+.resource-icon {
+  font-size: 0.9rem;
+}
+
+.resource-bar-container {
+  width: 60px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.resource-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.resource-bar.fuel { background: var(--fuel-amber); }
+.resource-bar.food { background: var(--food-blue); }
+.resource-bar.materials { background: var(--material-gray); }
+.resource-bar.hope { background: var(--hope-green); }
+
+.resource-val {
+  min-width: 24px;
+  text-align: right;
+  color: var(--text-secondary);
+}
+
+.top-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-icon {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  padding: 0.3rem 0.6rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+/* Main content area */
+.game-layout {
+  display: flex;
+  padding-top: 52px;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* Side panel */
+.side-panel {
+  width: 320px;
+  background: var(--panel-bg);
+  border-left: 1px solid var(--panel-border);
+  padding: 1rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 52px);
+  position: fixed;
+  top: 52px;
+  right: 0;
+  bottom: 0;
+  transform: translateX(0);
+  transition: transform 0.3s ease;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+}
+
+.side-panel.hidden {
+  transform: translateX(100%);
+}
+
+.side-panel h3 {
+  font-size: 0.75rem;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--amber-glow);
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.side-panel h3:not(:first-child) {
+  margin-top: 1.5rem;
+}
+
+.panel-section {
+  margin-bottom: 1rem;
+}
+
+.islander-card {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+}
+
+.islander-card .name {
+  color: var(--warm-white);
+  font-weight: 600;
+}
+
+.islander-card .role {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.islander-card .mood {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.building-item {
+  font-size: 0.85rem;
+  padding: 0.3rem 0;
+  color: var(--text-secondary);
+}
+
+.building-item .b-name {
+  color: var(--warm-white);
+}
+
+.log-entry {
+  font-size: 0.85rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.log-entry .log-week {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Narrative content */
+.narrative {
+  margin-bottom: 2rem;
+  animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.narrative h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--warm-white);
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.narrative p {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.narrative .scene-text {
+  font-style: italic;
+  color: var(--text-secondary);
+  border-left: 2px solid var(--panel-border);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+}
+
+.narrative .dialogue {
+  color: var(--warm-white);
+  margin: 1rem 0;
+  padding-left: 1rem;
+}
+
+.narrative .speaker {
+  font-weight: 600;
+  color: var(--amber-soft);
+}
+
+/* Choice buttons */
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+}
+
+.choice-btn {
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 1rem;
+  padding: 1rem 1.2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+  line-height: 1.5;
+}
+
+.choice-btn:hover {
+  background: rgba(245, 166, 35, 0.08);
+  border-color: var(--amber-glow);
+  color: var(--warm-white);
+}
+
+.choice-btn .choice-cost {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  display: block;
+  margin-top: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.choice-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.choice-btn:disabled:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+/* Ship display */
+.ship-arrival {
+  background: rgba(245, 166, 35, 0.05);
+  border: 1px solid var(--panel-border);
+  padding: 1.2rem;
+  margin: 1rem 0;
+  border-radius: 2px;
+}
+
+.ship-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--amber-glow);
+  margin-bottom: 0.3rem;
+}
+
+.ship-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: 0.8rem;
+}
+
+.ship-details {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ship-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* Assignment UI */
+.assignment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+
+.assign-slot {
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  font-size: 0.9rem;
+}
+
+.assign-slot .slot-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 0.3rem;
+}
+
+.assign-slot select {
+  width: 100%;
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 0.9rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  padding: 0.3rem;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.assign-slot select option {
+  background: var(--deep-ocean);
+  color: var(--text-primary);
+}
+
+/* Lighthouse visual */
+.lighthouse-scene {
+  position: relative;
+  height: 280px;
+  margin: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.lh-ocean {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(180deg, rgba(19, 39, 68, 0.6) 0%, rgba(10, 22, 40, 0.8) 100%);
+}
+
+.lh-ocean::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.1) 70%, transparent 100%);
+  animation: waveShimmer 4s ease-in-out infinite;
+}
+
+@keyframes waveShimmer {
+  0%, 100% { transform: translateX(-20px); }
+  50% { transform: translateX(20px); }
+}
+
+.lh-cliff {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 40px;
+  background: #1a1a1a;
+  border-radius: 50% 50% 0 0;
+}
+
+.lh-tower {
+  position: relative;
+  z-index: 2;
+  width: 28px;
+  height: 150px;
+  background: linear-gradient(90deg, #3a3a3a 0%, #4a4a4a 40%, #3a3a3a 100%);
+  clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+  bottom: 85px;
+}
+
+.lh-tower .stripe {
+  position: absolute;
+  left: 0; right: 0;
+  height: 20px;
+  background: rgba(200, 50, 50, 0.7);
+}
+
+.lh-tower .stripe:nth-child(1) { top: 20px; }
+.lh-tower .stripe:nth-child(2) { top: 60px; }
+.lh-tower .stripe:nth-child(3) { top: 100px; }
+
+.lh-lantern-room {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 25px;
+  background: rgba(245, 166, 35, 0.2);
+  border: 2px solid #555;
+  border-radius: 3px;
+  z-index: 3;
+}
+
+.lh-light {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: var(--amber-glow);
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--amber-glow), 0 0 30px rgba(245, 166, 35, 0.5), 0 0 60px rgba(245, 166, 35, 0.2);
+  animation: lightPulse 2s ease-in-out infinite;
+}
+
+.lh-light.off {
+  background: #333;
+  box-shadow: none;
+  animation: none;
+}
+
+@keyframes lightPulse {
+  0%, 100% { box-shadow: 0 0 15px var(--amber-glow), 0 0 30px rgba(245, 166, 35, 0.5), 0 0 60px rgba(245, 166, 35, 0.2); }
+  50% { box-shadow: 0 0 20px var(--amber-glow), 0 0 40px rgba(245, 166, 35, 0.6), 0 0 80px rgba(245, 166, 35, 0.3); }
+}
+
+.lh-cap {
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 15px;
+  background: #333;
+  border-radius: 50% 50% 0 0;
+  z-index: 4;
+}
+
+.lh-gallery {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 5px;
+  background: #444;
+  border-radius: 2px;
+  z-index: 3;
+}
+
+.lh-beam {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  width: 500px;
+  height: 3px;
+  transform-origin: 0 50%;
+  z-index: 1;
+  animation: beamSweep 6s linear infinite;
+}
+
+.lh-beam::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, rgba(245, 166, 35, 0.7) 0%, rgba(245, 166, 35, 0) 100%);
+  filter: blur(1px);
+}
+
+.lh-beam::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 100%;
+  height: 23px;
+  background: linear-gradient(90deg, rgba(245, 166, 35, 0.12) 0%, rgba(245, 166, 35, 0) 100%);
+  filter: blur(4px);
+}
+
+.lh-beam.off { display: none; }
+
+@keyframes beamSweep {
+  0% { transform: rotate(-50deg); }
+  100% { transform: rotate(310deg); }
+}
+
+/* Weather effects */
+.weather-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.rain {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.rain.active { opacity: 1; }
+
+.raindrop {
+  position: absolute;
+  width: 1px;
+  height: 15px;
+  background: linear-gradient(180deg, transparent 0%, rgba(174, 194, 224, 0.3) 100%);
+  animation: rainFall linear infinite;
+}
+
+@keyframes rainFall {
+  0% { transform: translateY(-20px); }
+  100% { transform: translateY(100vh); }
+}
+
+.lightning-flash {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255, 255, 255, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 11;
+}
+
+.lightning-flash.flash {
+  animation: lightningFlash 0.3s ease;
+}
+
+@keyframes lightningFlash {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  20% { opacity: 0; }
+  30% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+
+.fog-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(100, 120, 140, 0.15);
+  opacity: 0;
+  transition: opacity 2s;
+  pointer-events: none;
+  z-index: 9;
+}
+
+.fog-overlay.active { opacity: 1; }
+
+/* Continue button */
+.btn-continue {
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 1rem;
+  padding: 0.7rem 2rem;
+  background: transparent;
+  border: 1px solid rgba(245, 166, 35, 0.4);
+  color: var(--amber-soft);
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: all 0.3s;
+  letter-spacing: 0.05em;
+}
+
+.btn-continue:hover {
+  background: rgba(245, 166, 35, 0.08);
+  border-color: var(--amber-glow);
+}
+
+/* Journal modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 2rem;
+  border-radius: 4px;
+}
+
+.modal h2 {
+  font-size: 1.4rem;
+  color: var(--amber-glow);
+  margin-bottom: 1rem;
+}
+
+.modal p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 0.8rem;
+}
+
+.modal .journal-entry {
+  border-left: 2px solid var(--amber-deep);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+}
+
+.modal .btn-close {
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 0.9rem;
+  padding: 0.5rem 1.5rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.2s;
+}
+
+.modal .btn-close:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+/* Ending screen */
+#ending-screen {
+  display: none;
+  min-height: 100vh;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: linear-gradient(180deg, #050a15 0%, #0a1628 50%, #132744 100%);
+}
+
+#ending-screen .ending-content {
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+#ending-screen h1 {
+  font-size: 2.5rem;
+  color: var(--warm-white);
+  margin-bottom: 0.5rem;
+}
+
+#ending-screen .ending-subtitle {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--amber-soft);
+  margin-bottom: 2rem;
+}
+
+#ending-screen .ending-text {
+  text-align: left;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+}
+
+#ending-screen .ending-stats {
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin: 2rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+#ending-screen .ending-stats div {
+  padding: 0.3rem 0;
+}
+
+.btn-restart {
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 1.1rem;
+  padding: 0.8rem 2.5rem;
+  background: transparent;
+  border: 1px solid var(--amber-glow);
+  color: var(--amber-glow);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: all 0.3s;
+  margin-top: 1rem;
+}
+
+.btn-restart:hover {
+  background: rgba(245, 166, 35, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .side-panel {
+    width: 280px;
+  }
+  .main-content {
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .top-bar {
+    flex-wrap: wrap;
+    padding: 0.5rem 0.8rem;
+    gap: 0.5rem;
+  }
+  .resources {
+    gap: 0.6rem;
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .resource-bar-container {
+    width: 40px;
+  }
+  .main-content {
+    padding: 1.5rem 1rem 3rem;
+  }
+  .side-panel {
+    width: 100%;
+    max-width: 360px;
+  }
+  .title-text h1 {
+    font-size: 2.2rem;
+  }
+  .assignment-grid {
+    grid-template-columns: 1fr;
+  }
+  .lighthouse-scene {
+    height: 200px;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(245, 166, 35, 0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(245, 166, 35, 0.35); }
+
+/* Sound descriptions */
+.sound-text {
+  font-style: italic;
+  color: var(--storm-light);
+  font-size: 0.9rem;
+  margin: 0.8rem 0;
+  padding: 0.4rem 0 0.4rem 1.2rem;
+  border-left: 2px solid rgba(107, 129, 143, 0.3);
+  opacity: 0.85;
+  letter-spacing: 0.02em;
+}
+
+.sound-text::before {
+  content: '♪ ';
+  color: var(--storm-light);
+  opacity: 0.5;
+}
+
+/* Trust bar */
+.trust-bar-container {
+  width: 50px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.4rem;
+}
+
+.trust-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  background: linear-gradient(90deg, var(--storm-light) 0%, var(--hope-green) 50%, var(--amber-glow) 100%);
+}
+
+.trust-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 0.3rem;
+}
+
+/* Weather indicator */
+.weather-indicator {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.weather-icon {
+  font-size: 0.85rem;
+}
+
+/* Forecast panel */
+.forecast-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.5rem 0.7rem;
+  margin-top: 0.5rem;
+  border-radius: 2px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.forecast-box .forecast-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--amber-deep);
+  margin-bottom: 0.3rem;
+}
+
+/* Epilogue cards */
+.epilogue-card {
+  background: rgba(245, 166, 35, 0.04);
+  border: 1px solid var(--panel-border);
+  padding: 1.2rem 1.5rem;
+  margin: 1rem 0;
+  border-radius: 3px;
+  text-align: left;
+  animation: fadeIn 1s ease;
+}
+
+.epilogue-card h3 {
+  font-size: 1rem;
+  color: var(--amber-soft);
+  margin-bottom: 0.5rem;
+  font-family: 'Crimson Text', Georgia, serif;
+}
+
+.epilogue-card p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* Legacy score */
+.legacy-score {
+  text-align: center;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: rgba(245, 166, 35, 0.06);
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+}
+
+.legacy-score h3 {
+  font-size: 0.8rem;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--amber-glow);
+  margin-bottom: 1rem;
+}
+
+.legacy-score .score-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--warm-white);
+  margin-bottom: 0.5rem;
+}
+
+.legacy-score .score-title {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--amber-soft);
+}
+
+/* Special event flash */
+.event-alert {
+  background: rgba(192, 57, 43, 0.08);
+  border: 1px solid rgba(192, 57, 43, 0.3);
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+  border-radius: 2px;
+}
+
+.event-alert-positive {
+  background: rgba(39, 174, 96, 0.08);
+  border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+/* Weather-specific body modifiers */
+body.weather-clear {
+  background: linear-gradient(180deg, #162844 0%, #1a3a5c 40%, #132744 100%) !important;
+}
+
+body.weather-hurricane .lh-beam {
+  animation-duration: 3s !important;
+}
+
+/* Wind effect on lighthouse beam */
+body.weather-gale .lh-beam::before,
+body.weather-tempest .lh-beam::before,
+body.weather-hurricane .lh-beam::before {
+  filter: blur(3px);
+  opacity: 0.7;
+}
+
+/* Rain intensity modifiers */
+.rain.intensity-light .raindrop {
+  opacity: 0.4;
+}
+
+.rain.intensity-gale .raindrop {
+  transform: rotate(15deg);
+}
+
+.rain.intensity-tempest .raindrop,
+.rain.intensity-hurricane .raindrop {
+  transform: rotate(25deg);
+  height: 20px !important;
+}
+
+/* Talk button special */
+.talk-btn {
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(245, 166, 35, 0.06);
+  border: 1px solid rgba(245, 166, 35, 0.2);
+  color: var(--amber-soft);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s;
+  margin-left: 0.5rem;
+}
+
+.talk-btn:hover {
+  background: rgba(245, 166, 35, 0.12);
+  border-color: var(--amber-glow);
+}
+
+.talk-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Pirate event special styling */
+.pirate-flag {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(192, 57, 43, 0.4);
+  color: var(--danger);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: 2px;
+}
+
+/* Utility */
+.hidden { display: none !important; }
+.fade-in { animation: fadeIn 0.8s ease; }
+.text-amber { color: var(--amber-glow); }
+.text-dim { color: var(--text-dim); }
+.text-danger { color: var(--danger); }
+.text-hope { color: var(--hope-green); }
+.mt-1 { margin-top: 1rem; }
+.mt-2 { margin-top: 2rem; }
+.mb-1 { margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+
+<!-- ====== TITLE SCREEN ====== -->
+<div id="title-screen">
+  <div class="title-lighthouse">
+    <div class="cap"></div>
+    <div class="gallery" style="position:absolute;bottom:235px;left:50%;transform:translateX(-50%);width:50px;height:8px;background:#333;border-radius:2px;"></div>
+    <div class="lantern">
+      <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);width:14px;height:14px;background:var(--amber-glow);border-radius:50%;box-shadow:0 0 30px var(--amber-glow),0 0 60px rgba(245,166,35,0.5),0 0 120px rgba(245,166,35,0.2);animation:titleGlow 3s ease-in-out infinite;"></div>
+    </div>
+    <div class="tower"></div>
+    <div class="base"></div>
+    <div class="title-beam"></div>
+  </div>
+
+  <div class="title-text">
+    <h1>The Lighthouse</h1>
+    <div class="subtitle">A game about staying</div>
+    <div class="epigraph">
+      "The light was on. That was enough."
+    </div>
+    <button class="btn-start" onclick="startGame()">Begin</button>
+  </div>
+
+  <div class="title-credit">by Wren Hephaestus</div>
+</div>
+
+<!-- ====== GAME SCREEN ====== -->
+<div id="game-screen">
+  <div class="top-bar">
+    <div class="week-phase">
+      <span class="week-num" id="week-display">Week 1</span>
+      <span class="phase-name" id="phase-display">Dawn</span>
+    </div>
+    <div class="resources">
+      <div class="resource">
+        <span class="resource-icon">🛢️</span>
+        <div class="resource-bar-container"><div class="resource-bar fuel" id="fuel-bar"></div></div>
+        <span class="resource-val" id="fuel-val">50</span>
+      </div>
+      <div class="resource">
+        <span class="resource-icon">🍞</span>
+        <div class="resource-bar-container"><div class="resource-bar food" id="food-bar"></div></div>
+        <span class="resource-val" id="food-val">40</span>
+      </div>
+      <div class="resource">
+        <span class="resource-icon">🪵</span>
+        <div class="resource-bar-container"><div class="resource-bar materials" id="mat-bar"></div></div>
+        <span class="resource-val" id="mat-val">30</span>
+      </div>
+      <div class="resource">
+        <span class="resource-icon">✨</span>
+        <div class="resource-bar-container"><div class="resource-bar hope" id="hope-bar"></div></div>
+        <span class="resource-val" id="hope-val">60</span>
+      </div>
+    </div>
+    <div class="top-buttons">
+      <span class="weather-indicator" id="weather-display"></span>
+      <button class="btn-icon" onclick="togglePanel()">Island</button>
+      <button class="btn-icon" onclick="showJournal()">Journal</button>
+    </div>
+  </div>
+
+  <div class="game-layout">
+    <div class="main-content" id="main-content">
+      <!-- Game content rendered here -->
+    </div>
+    <div class="side-panel hidden" id="side-panel">
+      <h3>Islanders</h3>
+      <div id="islander-list"></div>
+      <h3>Buildings</h3>
+      <div id="building-list"></div>
+      <h3>Keeper's Log</h3>
+      <div id="keeper-log"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== ENDING SCREEN ====== -->
+<div id="ending-screen">
+  <div class="ending-content" id="ending-content"></div>
+</div>
+
+<!-- Weather overlays -->
+<div class="weather-overlay">
+  <div class="rain" id="rain-overlay"></div>
+  <div class="fog-overlay" id="fog-overlay"></div>
+</div>
+<div class="lightning-flash" id="lightning-flash"></div>
+
+<!-- Journal modal -->
+<div class="modal-overlay" id="journal-modal">
+  <div class="modal">
+    <h2>The Previous Keeper's Journal</h2>
+    <div id="journal-entries"></div>
+    <button class="btn-close" onclick="closeJournal()">Close</button>
+  </div>
+</div>
+
+<script>
+// ============================================
+// THE LIGHTHOUSE - Game Engine
+// ============================================
+
+// ====== GAME STATE ======
+const state = {
+  week: 1,
+  phase: 'dawn', // dawn, day, dusk, night
+  fuel: 50,
+  food: 40,
+  materials: 30,
+  hope: 60,
+  population: [],
+  buildings: [],
+  log: [],
+  journalFound: [],
+  shipsArrived: [],
+  shipsSeen: [],
+  specialEvents: {
+    mapFound: false,
+    signalReceived: false,
+    pirateOffered: false,
+    pirateAccepted: false,
+    blackTideTriggered: false,
+    blackTideAccepted: false,
+    blackTideRefused: false,
+    illnessStruck: false,
+    illnessCured: false,
+    stormOfStorms: false,
+    healingLight: false,
+    navigatorVoyage: false,
+    builderReinforce: false,
+    crashedMerchant: false
+  },
+  assignments: {},
+  trust: {}, // name -> trust level (0-100)
+  wrecks: 0,
+  deaths: 0,
+  shipsSaved: 0,
+  shipsWarned: 0,
+  shipsIgnored: 0,
+  livesSaved: 0,
+  structuresBuilt: 0,
+  lighthouseUpgraded: false,
+  gardenBuilt: false,
+  infirmaryBuilt: false,
+  wallBuilt: false,
+  dockBuilt: false,
+  workshopBuilt: false,
+  watchtowerBuilt: false,
+  chapelBuilt: false,
+  stormShelterBuilt: false,
+  currentShip: null,
+  conversationTarget: null,
+  gameOver: false,
+  ending: null,
+  mapPieces: 0,
+  fuelReserve: 0,
+  // Weather system
+  weather: 'heavy_rain', // clear, light_rain, heavy_rain, gale, tempest, hurricane
+  nextWeekWeather: null,
+  weatherHistory: [],
+  // Choice tracking for endings
+  choicesMade: [],
+  talkedTo: [],
+  // Black Tide tracking
+  blackTideSurvivors: []
+};
+
+// ====== WEATHER SYSTEM ======
+const WEATHER_TYPES = {
+  clear: {
+    name: 'Clear Skies',
+    icon: '☀️',
+    desc: 'A rare break in the storms. The sky is impossibly wide.',
+    fuelMod: 0.7,    // less fuel consumed
+    fishMod: 1.5,     // better fishing
+    shipChance: 1.3,  // more ships
+    stormDamage: 0,
+    rainIntensity: null,
+    bodyClass: 'weather-clear'
+  },
+  light_rain: {
+    name: 'Light Rain',
+    icon: '🌦️',
+    desc: 'A gentle rain, almost companionable. The kind that whispers rather than shouts.',
+    fuelMod: 0.9,
+    fishMod: 1.1,
+    shipChance: 1.1,
+    stormDamage: 0,
+    rainIntensity: 'light',
+    bodyClass: ''
+  },
+  heavy_rain: {
+    name: 'Heavy Rain',
+    icon: '🌧️',
+    desc: 'The rain comes down in sheets, turning the world to water and noise.',
+    fuelMod: 1.0,
+    fishMod: 0.9,
+    shipChance: 1.0,
+    stormDamage: 0.05,
+    rainIntensity: 'medium',
+    bodyClass: ''
+  },
+  gale: {
+    name: 'Gale',
+    icon: '💨',
+    desc: 'The wind tears at everything, finding every crack and seam. The lighthouse groans.',
+    fuelMod: 1.3,
+    fishMod: 0.5,
+    shipChance: 0.8,
+    stormDamage: 0.15,
+    rainIntensity: 'heavy',
+    bodyClass: 'weather-gale'
+  },
+  tempest: {
+    name: 'Tempest',
+    icon: '⛈️',
+    desc: 'Thunder and lightning split the sky. The ocean rises to meet the storm halfway.',
+    fuelMod: 1.5,
+    fishMod: 0.3,
+    shipChance: 0.6,
+    stormDamage: 0.25,
+    rainIntensity: 'heavy',
+    bodyClass: 'weather-tempest'
+  },
+  hurricane: {
+    name: 'Hurricane',
+    icon: '🌀',
+    desc: 'The world unmakes itself. Wind and water become the same thing. The lighthouse is the only thing that remembers which way is up.',
+    fuelMod: 2.0,
+    fishMod: 0.0,
+    shipChance: 0.3,
+    stormDamage: 0.4,
+    rainIntensity: 'heavy',
+    bodyClass: 'weather-hurricane'
+  }
+};
+
+function generateWeather() {
+  const weights = {
+    clear: 5,
+    light_rain: 15,
+    heavy_rain: 30,
+    gale: 25,
+    tempest: 18,
+    hurricane: 7
+  };
+  // Storms get worse over time
+  if (state.week > 12) {
+    weights.clear = 3;
+    weights.hurricane = 12;
+    weights.tempest = 22;
+  }
+  if (state.week > 16) {
+    weights.clear = 1;
+    weights.hurricane = 18;
+  }
+  const total = Object.values(weights).reduce((a, b) => a + b, 0);
+  let roll = Math.random() * total;
+  for (const [type, weight] of Object.entries(weights)) {
+    roll -= weight;
+    if (roll <= 0) return type;
+  }
+  return 'heavy_rain';
+}
+
+function applyWeatherVisuals(weatherType) {
+  const w = WEATHER_TYPES[weatherType];
+  // Remove old weather classes
+  document.body.classList.remove('weather-clear', 'weather-gale', 'weather-tempest', 'weather-hurricane');
+  if (w.bodyClass) document.body.classList.add(w.bodyClass);
+
+  if (w.rainIntensity) {
+    startRain(w.rainIntensity, weatherType);
+  } else {
+    stopRain();
+  }
+
+  if (weatherType === 'tempest' || weatherType === 'hurricane') {
+    setTimeout(flashLightning, 1500);
+    setTimeout(flashLightning, 3500);
+    if (weatherType === 'hurricane') {
+      setTimeout(flashLightning, 5500);
+      setTimeout(flashLightning, 7000);
+    }
+  }
+
+  setFog(weatherType === 'clear' ? false : Math.random() < 0.2);
+}
+
+function getWeatherDisplay() {
+  const w = WEATHER_TYPES[state.weather];
+  return `<span class="weather-icon">${w.icon}</span> ${w.name}`;
+}
+
+// ====== TRUST/RELATIONSHIP SYSTEM ======
+function getTrust(name) {
+  if (!name) return 0;
+  return state.trust[name] || 0;
+}
+
+function addTrust(name, amount) {
+  if (!name) return;
+  if (!state.trust[name]) state.trust[name] = 0;
+  state.trust[name] = clamp(state.trust[name] + amount, 0, 100);
+}
+
+function getConversation(person) {
+  if (!person.dialogueIndex) person.dialogueIndex = 0;
+  const trust = getTrust(person.name);
+  // First dialogue always available
+  // Second dialogue requires trust >= 30
+  // Third dialogue requires trust >= 60
+  if (person.dialogueIndex === 0) {
+    person.dialogueIndex++;
+    return { text: person.dialogues[0], trustGated: false };
+  }
+  if (person.dialogueIndex === 1) {
+    if (trust < 30) return { text: null, trustGated: true, required: 30, current: trust };
+    person.dialogueIndex++;
+    return { text: person.dialogues[1], trustGated: false };
+  }
+  if (person.dialogueIndex === 2) {
+    if (trust < 60) return { text: null, trustGated: true, required: 60, current: trust };
+    person.dialogueIndex++;
+    return { text: person.dialogues[2], trustGated: false };
+  }
+  return { text: null, trustGated: false };
+}
+
+// Check for trust-based special unlocks
+function checkTrustUnlocks() {
+  const unlocks = [];
+  state.population.forEach(p => {
+    const trust = getTrust(p.name);
+    if (trust >= 80) {
+      if (p.skill === 'navigator' && !state.specialEvents.navigatorVoyage) {
+        unlocks.push({
+          type: 'navigator_voyage',
+          person: p,
+          text: `${p.name} approaches you quietly after the others have gone to sleep. "I have been watching the storms. There is a pattern. A window. I think I can sail through to the other lighthouse." Their eyes are steady. "I need your permission, keeper. And maybe a little of your faith."`,
+          choices: [
+            {
+              text: `"Go. Find the other lighthouse. Tell them we are here."`,
+              effect: () => {
+                state.specialEvents.navigatorVoyage = true;
+                state.hope += 15;
+                state.population = state.population.filter(pp => pp !== p);
+                delete state.assignments[p.name];
+                addLog(`${p.name} sailed into the storm to find the other lighthouse. An act of extraordinary courage.`);
+                state.choicesMade.push({ week: state.week, choice: 'navigator_voyage_yes', person: p.name });
+              }
+            },
+            {
+              text: `"I cannot lose you to the storm. Stay. We need you here."`,
+              effect: () => {
+                state.specialEvents.navigatorVoyage = true;
+                state.hope += 3;
+                addTrust(p.name, 10);
+                addLog(`${p.name} offered to sail to the other lighthouse. You asked them to stay.`);
+                state.choicesMade.push({ week: state.week, choice: 'navigator_voyage_no', person: p.name });
+              }
+            }
+          ]
+        });
+      }
+      if (p.skill === 'healer' && !state.specialEvents.healingLight) {
+        unlocks.push({
+          type: 'healing_light',
+          person: p,
+          text: `${p.name} has been conducting experiments. Vials of seawater arranged around the lantern room, samples taken at different distances from the beam. Tonight, they call you up to see the results.\n\n"Look," they say, holding a glass slide to the light. "The pathogens. The ones from the storm spray. The lighthouse beam destroys them on contact. But it is not just ultraviolet. The light has... properties I cannot explain with any science I know."\n\nThey pause. "I think I can rig a secondary reflector. Focus the beam downward into the living quarters. It would not just treat illness. It would prevent it. The light itself is medicine."`,
+          choices: [
+            {
+              text: `Help them build the healing reflector.`,
+              effect: () => {
+                state.specialEvents.healingLight = true;
+                state.materials -= 5;
+                state.hope += 10;
+                addLog(`${p.name} discovered the lighthouse beam has healing properties. A reflector now protects the community.`);
+                state.choicesMade.push({ week: state.week, choice: 'healing_light', person: p.name });
+              }
+            }
+          ]
+        });
+      }
+      if (p.skill === 'builder' && !state.specialEvents.builderReinforce) {
+        unlocks.push({
+          type: 'builder_reinforce',
+          person: p,
+          text: `${p.name} has been studying the lighthouse mechanism for weeks now, running their hands over the gears, listening to the rhythm of the rotation. Tonight they come to you with sketches.\n\n"The mechanism is overbuilt," they say. "Whoever designed it built in redundancies we are not using. I can reconfigure the gear train to reduce friction by forty percent. Less friction means less fuel. Less fuel means more nights with the light on."\n\nThey spread the drawings across the table. The math is clean, the engineering sound. "It will take a full day. The light will have to go dark while I work. But when it comes back, it will burn twice as long on the same fuel."`,
+          choices: [
+            {
+              text: `"Do it. One dark day for many bright nights."`,
+              effect: () => {
+                state.specialEvents.builderReinforce = true;
+                state.lighthouseUpgraded = true;
+                state.hope += 8;
+                addLog(`${p.name} reconfigured the lighthouse mechanism. Fuel consumption reduced permanently.`);
+                state.choicesMade.push({ week: state.week, choice: 'builder_reinforce', person: p.name });
+              }
+            },
+            {
+              text: `"I cannot risk a dark night. Not even one."`,
+              effect: () => {
+                state.specialEvents.builderReinforce = true;
+                state.hope -= 3;
+                addLog(`${p.name} proposed upgrading the lighthouse. You chose to keep the light burning.`);
+                state.choicesMade.push({ week: state.week, choice: 'builder_reinforce_no', person: p.name });
+              }
+            }
+          ]
+        });
+      }
+    }
+  });
+  return unlocks;
+}
+
+// ====== SHIP DATABASE (15+ ships) ======
+const SHIPS = [
+  {
+    id: 'merchant_anna',
+    name: 'The Anna Maren',
+    desc: 'A sturdy merchant vessel riding low in the water. Her sails are patched but clean. She flies the flag of the northern trade route.',
+    flag: 'Merchant (Northern)',
+    size: 'Medium',
+    condition: 'Fair',
+    fuelCost: 8,
+    risk: 0.1,
+    cargo: { food: 15, materials: 10, fuel: 5 },
+    passengers: [
+      { name: 'Torsten Halvorsen', skill: 'navigator', story: 'A veteran navigator who lost his own ship to the reefs two years ago. He still charts courses in his sleep, tracing constellations on his blankets with one calloused finger.', mood: 'stoic', dialogues: [
+        'The stars here are wrong. Not wrong exactly, but... different. Like someone rearranged the constellations just slightly.',
+        'I had a ship once. The Marguerite. She was nothing special to look at, but she knew the water the way a horse knows its pasture. I still miss her.',
+        'These storms are not natural. I have sailed for thirty years. Weather has patterns. This has... intention.'
+      ]},
+    ],
+    arrivalText: 'The Anna Maren limps toward the rocks, her hull groaning. Her captain signals desperately with a lantern.'
+  },
+  {
+    id: 'refugee_hope',
+    name: 'The Hopeful Passage',
+    desc: 'A converted fishing boat packed beyond capacity. You can see figures on deck, pressed together against the spray. Children among them.',
+    flag: 'None',
+    size: 'Small',
+    condition: 'Poor',
+    fuelCost: 4,
+    risk: 0.05,
+    cargo: { food: 2, materials: 0, fuel: 0 },
+    passengers: [
+      { name: 'Miriam Osei', skill: 'healer', story: 'A doctor who packed her surgical kit before her clothes. She has not slept in four days. The dark circles under her eyes look permanent, but her hands are steady.', mood: 'exhausted', dialogues: [
+        'I was a surgeon in Accra. Then the hospital flooded and did not stop flooding. We treated patients on the roof for three weeks before the boats came.',
+        'Show me where I can work. I do not need rest. I need to be useful. Rest is when the nightmares come.',
+        'There is a sickness that lives in standing water. I have seen it before. We must be careful with the cisterns.'
+      ]},
+      { name: 'Kofi Osei', skill: 'cook', story: 'Miriam\'s twelve-year-old son. Quiet and watchful. He learned to cook from his grandmother and can make something edible from almost nothing. He collects shells.', mood: 'quiet', dialogues: [
+        'My grandmother said food is a language. When you cannot find words, you cook.',
+        'I found these shells on the beach. This one looks like a tiny lighthouse. See?',
+        'Is the light always on? Every night? Who turns it on when you are tired?'
+      ]},
+    ],
+    arrivalText: 'A small boat appears, sitting dangerously low in the water. Even from the lighthouse you can hear a child crying over the wind.'
+  },
+  {
+    id: 'warship_iron',
+    name: 'The Iron Testament',
+    desc: 'A decommissioned warship, stripped of its guns but still imposing. The crew looks disciplined. Too disciplined, maybe.',
+    flag: 'Military (Decommissioned)',
+    size: 'Large',
+    condition: 'Good',
+    fuelCost: 14,
+    risk: 0.3,
+    cargo: { food: 8, materials: 25, fuel: 0 },
+    passengers: [
+      { name: 'Captain Elara Voss', skill: 'builder', story: 'She commanded a naval vessel for fifteen years. When they decommissioned the fleet, she bought her ship rather than let it be scrapped. "You do not throw away something that still works," she said.', mood: 'determined', dialogues: [
+        'A lighthouse is just a ship that chose to stop moving. The principles are the same. Keep the hull sound, keep the light burning, keep the crew alive.',
+        'I have built walls before. But the walls I built were to keep people out. I would like to try building something that brings them in.',
+        'The military taught me that sacrifice is noble. Then they sacrificed my ship and called it efficiency. I no longer believe in noble sacrifice. I believe in maintenance.'
+      ]},
+    ],
+    arrivalText: 'A massive silhouette materializes through the rain. Even without guns, the Iron Testament commands the horizon.'
+  },
+  {
+    id: 'fisher_two',
+    name: 'The Two Brothers',
+    desc: 'A well-loved fishing vessel. Nets hang from every surface. She smells of salt and honest work even from a distance.',
+    flag: 'Fishing',
+    size: 'Small',
+    condition: 'Good',
+    fuelCost: 3,
+    risk: 0.05,
+    cargo: { food: 20, materials: 3, fuel: 0 },
+    passengers: [
+      { name: 'Yuki Tanaka', skill: 'fisher', story: 'A fisherwoman from a long line of fishers. She named her boat after her two sons, who stayed behind. She came looking for new waters and found storms instead.', mood: 'hopeful', dialogues: [
+        'The fish here are strange. They swim in spirals near the lighthouse beam, like moths to a candle. I have never seen that before.',
+        'My boys, Kenji and Hiro, they will come looking for me when the storms clear. Boys always come looking for their mother.',
+        'Cast your net at dawn when the water is still confused from the night. That is when the fish forget to be afraid.'
+      ]},
+    ],
+    arrivalText: 'A small fishing boat bobs through the swells, riding the waves with the confidence of a vessel that knows water.'
+  },
+  {
+    id: 'plague_ship',
+    name: 'The Silent Meridian',
+    desc: 'Something is wrong with this ship. She drifts more than she sails. The deck appears empty, but lanterns burn below. A yellow flag hangs from the mast.',
+    flag: 'Quarantine (Yellow)',
+    size: 'Medium',
+    condition: 'Deteriorating',
+    fuelCost: 8,
+    risk: 0.7,
+    cargo: { food: 5, materials: 8, fuel: 12 },
+    passengers: [
+      { name: 'Dr. Alistair Webb', skill: 'scholar', story: 'The ship\'s doctor and last healthy crew member. He has been studying the illness, filling notebooks with observations. The disease is new. He thinks the storms carry it.', mood: 'feverish', dialogues: [
+        'The illness presents as a deep cold that will not warm. The body turns inward, conserving heat that is not there. Fascinating, if it were not killing people.',
+        'I believe the pathogen is carried in the storm spray. The lighthouse... the light seems to neutralize it somehow. Ultraviolet, perhaps. I need more data.',
+        'My crew. Fourteen souls. I watched eleven of them stop speaking, then stop moving, then stop. I charted every symptom. Someone has to understand this.'
+      ]},
+    ],
+    arrivalText: 'A ship drifts toward shore with yellow quarantine flags snapping in the wind. One figure stands at the helm, surrounded by stillness.',
+    diseaseRisk: true
+  },
+  {
+    id: 'pirate_shadow',
+    name: 'The Sable Fortune',
+    desc: 'She runs dark, no lanterns. Fast and lean. The kind of ship that does not want to be seen. But the storm has pushed her close enough that you can make out armed figures on deck.',
+    flag: 'None (Dark Running)',
+    size: 'Medium',
+    condition: 'Excellent',
+    fuelCost: 10,
+    risk: 0.8,
+    cargo: { food: 5, materials: 5, fuel: 30 },
+    passengers: [
+      { name: 'Renna Blackwood', skill: 'navigator', story: 'Pirate captain. But not the romantic kind. She is pragmatic, calculating, and honest about what she does. She steals from those who have, because those who do not have nothing worth taking.', mood: 'calculating', dialogues: [
+        'I will not pretend to be something I am not. I take things. But I have never killed anyone who was not trying to kill me first. That is more than most navies can say.',
+        'Your lighthouse interests me. A fixed point in chaos. Do you know how valuable that is to someone who navigates by shadows?',
+        'I have a proposition. You turn off the light for one night. One night. My fleet passes through safely, and I leave you enough fuel to burn for three months. Everyone wins. Mostly.'
+      ]},
+    ],
+    arrivalText: 'A dark shape cuts through the storm, running without lights. She is fast, she is close, and she has seen your beacon.',
+    pirateShip: true
+  },
+  {
+    id: 'scholars_ark',
+    name: 'The Peripatetic',
+    desc: 'An unusual vessel, more floating library than ship. The deck is covered in canvas-protected crates. The crew moves with the careful deliberation of academics.',
+    flag: 'Academic (University)',
+    size: 'Medium',
+    condition: 'Fair',
+    fuelCost: 9,
+    risk: 0.1,
+    cargo: { food: 6, materials: 8, fuel: 3 },
+    passengers: [
+      { name: 'Professor Lena Kasturi', skill: 'scholar', story: 'Marine archaeologist who has spent her career studying anomalous coastal formations. She was investigating the lighthouse\'s foundations when the storms trapped her at sea.', mood: 'curious', dialogues: [
+        'Your lighthouse sits on a foundation that predates any known construction technique in this region by roughly two thousand years. The stone is volcanic, but the nearest volcano is three hundred miles away.',
+        'I found markings on the submerged base. They are not any script I recognize, but they repeat in a pattern. Fibonacci-like. As if something is counting.',
+        'The storms. The lighthouse. They are connected. I have core samples that show this island should not exist. It was brought here, or it grew. I am not sure which is stranger.'
+      ]},
+    ],
+    arrivalText: 'A peculiar ship approaches, her deck stacked with crates and equipment. Someone on the bow is pointing excitedly at the lighthouse foundations.',
+    hasMapPiece: true
+  },
+  {
+    id: 'family_vessel',
+    name: 'The Patience',
+    desc: 'A family sailboat, well-maintained but not built for storms this severe. You can see a couple working the sails together, moving in practiced synchronization.',
+    flag: 'Private',
+    size: 'Small',
+    condition: 'Good',
+    fuelCost: 3,
+    risk: 0.05,
+    cargo: { food: 8, materials: 5, fuel: 2 },
+    passengers: [
+      { name: 'Oren Matsuda', skill: 'builder', story: 'A carpenter who was sailing his family to a new home when the storms hit. He builds the way he breathes: constantly, carefully, without thinking about it too hard.', mood: 'protective', dialogues: [
+        'My hands know wood the way a reader knows words. I can feel the grain, know where it wants to bend and where it will break. Your lighthouse needs attention. I can feel it leaning.',
+        'We were going south. A place my wife read about in a letter. Warm water, good soil. The storms had other ideas, I suppose.',
+        'Show me what needs fixing. I cannot sit still. My daughter says I pace like a caged animal when I have no project.'
+      ]},
+      { name: 'Suki Matsuda', skill: 'fisher', story: 'Oren\'s wife. Grew up on boats. Can read weather by the taste of the air. She is worried but hides it behind practical competence.', mood: 'watchful', dialogues: [
+        'The air here tastes like copper before a storm. And it always tastes like copper here. That is not normal.',
+        'I taught myself to fish from a book when I was nine. My parents were academics. They thought it was a phase. Thirty years later, here I am.',
+        'Your light is beautiful from the water. Like a promise that something solid exists. Do not ever let it go out.'
+      ]},
+    ],
+    arrivalText: 'A small sailboat fights the current, two figures working in perfect coordination at the rigging. They know what they are doing. They just need help.'
+  },
+  {
+    id: 'ghost_ship',
+    name: 'The Unnamed',
+    desc: 'No name painted on her hull, no flag, no visible crew. She moves against the current, which should be impossible. Her sails are full despite being torn to ribbons.',
+    flag: 'Unknown',
+    size: 'Medium',
+    condition: 'Impossible',
+    fuelCost: 12,
+    risk: 0.5,
+    cargo: { food: 0, materials: 15, fuel: 20 },
+    passengers: [
+      { name: 'The Navigator', skill: 'navigator', story: 'Found below decks, the only living soul aboard. Cannot remember their name. Speaks in fragments. Knows things about the lighthouse they should not know.', mood: 'otherworldly', dialogues: [
+        'The light remembers. Every ship it has guided. Every ship it has failed. The rocks remember too, but they remember differently.',
+        'I was... I was the keeper. Before you. Or after you. Time does not move correctly near the foundation stone. You will notice eventually.',
+        'Do not turn off the light. Not for fuel, not for pirates, not for mercy. The dark is not empty here. It is full.'
+      ]},
+    ],
+    arrivalText: 'A ship with no name moves against the current, her torn sails somehow full. She should not be able to move like that. Nothing about her is right.',
+    hasMapPiece: true
+  },
+  {
+    id: 'supply_runner',
+    name: 'The Harbormaster\'s Daughter',
+    desc: 'A supply runner, fast and practical. She carries the markings of a coastal authority. Someone has been looking for this lighthouse.',
+    flag: 'Coastal Authority',
+    size: 'Small',
+    condition: 'Good',
+    fuelCost: 4,
+    risk: 0.0,
+    cargo: { food: 12, materials: 8, fuel: 15 },
+    passengers: [],
+    arrivalText: 'A trim supply vessel approaches with authority markings. She rides the swells like she was born to them. No passengers, just cargo, and a note tacked to the helm.'
+  },
+  {
+    id: 'wreck_survivors',
+    name: 'The Wreckage Raft',
+    desc: 'Not a ship. Debris lashed together. Three, maybe four figures clinging to it. Survivors of something terrible.',
+    flag: 'None',
+    size: 'Tiny',
+    condition: 'Destroyed',
+    fuelCost: 2,
+    risk: 0.15,
+    cargo: { food: 0, materials: 2, fuel: 0 },
+    passengers: [
+      { name: 'Isla Corrigan', skill: 'healer', story: 'Ship\'s medic from a vessel that went down three days ago. She kept two others alive on the raft with seawater compresses and sheer refusal to let them die.', mood: 'fierce', dialogues: [
+        'Do not tell me to rest. I have been awake for three days keeping those two alive and I will not stop until I know they are safe. Then I will sleep. Then you can talk to me about rest.',
+        'The ship went down fast. One wave, broadside, and she folded like paper. The ocean does not care about the quality of your hull.',
+        'I became a healer because I could not stand watching people hurt and doing nothing. That is not compassion. It is compulsion. But it works.'
+      ]},
+    ],
+    arrivalText: 'Through the rain, you spot something wrong: wreckage, lashed together, with figures clinging to it. They are waving. Barely.'
+  },
+  {
+    id: 'musician_ship',
+    name: 'The Carousel',
+    desc: 'An old pleasure yacht, converted for long voyages. Someone has painted murals on every surface. Even in the storm, you can hear music.',
+    flag: 'Private',
+    size: 'Medium',
+    condition: 'Weathered',
+    fuelCost: 7,
+    risk: 0.1,
+    cargo: { food: 10, materials: 4, fuel: 3 },
+    passengers: [
+      { name: 'Marcus Bell', skill: 'cook', story: 'A musician and cook who believes the two arts are inseparable. He feeds people songs as readily as soup. His laugh fills rooms that felt empty.', mood: 'joyful', dialogues: [
+        'A community without music is just a group of people standing in the same place. Music is what makes strangers into neighbors.',
+        'I will cook tonight. Real food, not survival rations. People need to remember what it tastes like when someone cooks for them with love.',
+        'Listen. Even the storm has rhythm. Four-four time, if you count the waves against the rocks. The island is singing.'
+      ]},
+    ],
+    arrivalText: 'Music carries over the waves. An old yacht, painted in wild colors fading in the salt air, surfs the swells toward your light.'
+  },
+  {
+    id: 'oil_tanker',
+    name: 'The Leviathan\'s Share',
+    desc: 'A small oil transport vessel, heavy with cargo. She sits deep and moves slow. Her captain is signaling for guidance through the rocks.',
+    flag: 'Commercial (Fuel)',
+    size: 'Large',
+    condition: 'Fair',
+    fuelCost: 12,
+    risk: 0.2,
+    cargo: { food: 3, materials: 5, fuel: 40 },
+    passengers: [
+      { name: 'Henrik Brandt', skill: 'builder', story: 'Chief engineer. Built his career maintaining machines that everyone else had given up on. He talks to engines the way some people talk to pets.', mood: 'practical', dialogues: [
+        'Your lighthouse mechanism is beautiful. Old, but beautiful. The gear ratio is hand-calculated. Whoever built this was a craftsman.',
+        'Fuel is life out here. I have transported it for twenty years. You never stop respecting it. One spark, one mistake, and all that potential becomes destruction.',
+        'I can improve your fuel efficiency by thirty percent if you give me two days and some copper tubing. The current system wastes heat.'
+      ]},
+    ],
+    arrivalText: 'A fuel transport vessel wallows through the waves, dangerously heavy. She needs guidance through the rocks. Without it, she will not just sink. She will burn.'
+  },
+  {
+    id: 'mapmaker',
+    name: 'The Cartographer\'s Folly',
+    desc: 'A small research vessel covered in instruments. Every surface bristles with measuring equipment. The lone occupant is frantically taking readings.',
+    flag: 'Research',
+    size: 'Small',
+    condition: 'Good',
+    fuelCost: 5,
+    risk: 0.05,
+    cargo: { food: 4, materials: 6, fuel: 3 },
+    passengers: [
+      { name: 'Zara Okonkwo', skill: 'scholar', story: 'A cartographer obsessed with mapping the unmappable. She has been trying to chart the storm patterns around the lighthouse for two years, approaching from every angle. The math keeps breaking.', mood: 'fascinated', dialogues: [
+        'The storms form a perfect spiral with the lighthouse at the center. Not approximately. Perfectly. Natural weather systems do not do that.',
+        'I have charts going back two hundred years. The lighthouse has been here the entire time, and the storms have been here the entire time. No one has mapped the correlation because no one stays long enough to see the pattern.',
+        'There is a second structure, underwater, directly beneath the lighthouse. My sonar readings are clear. It mirrors the lighthouse exactly. A lighthouse pointing down.'
+      ]},
+    ],
+    arrivalText: 'A small vessel approaches, bristling with instruments and antennas. Someone on deck is not watching the rocks. They are watching the lighthouse.',
+    hasMapPiece: true
+  },
+  {
+    id: 'prison_ship',
+    name: 'The Reformation',
+    desc: 'A transport vessel with barred windows. The guards on deck look as frightened as whoever is inside. A storm is no place for a prison ship.',
+    flag: 'Judicial Transport',
+    size: 'Large',
+    condition: 'Strained',
+    fuelCost: 13,
+    risk: 0.6,
+    cargo: { food: 10, materials: 15, fuel: 5 },
+    passengers: [
+      { name: 'Dayo Abiodun', skill: 'cook', story: 'Imprisoned for stealing food during the famine. She ran a soup kitchen for two hundred people and took supplies from a military depot to do it. The military called it theft.', mood: 'defiant', dialogues: [
+        'They called it stealing. I call it feeding two hundred people who the government forgot existed. The judge agreed with the government.',
+        'I can feed your people. That is what I do. You put food in front of me and I turn it into enough for everyone. It is not magic. It is just attention.',
+        'This island is small, but small is not bad. Small means everyone gets a plate. Small means no one is invisible.'
+      ]},
+      { name: 'Felix Strand', skill: 'builder', story: 'A forger. Documents, art, identities. He was caught faking residency papers for refugees. In prison, he discovered he was better at building real things than fake ones.', mood: 'wry', dialogues: [
+        'I made beautiful fake things for people who needed real help. The irony is not lost on me.',
+        'These hands can make anything look like anything else. But out here, what is the point of faking? There is no one to fool. That is refreshing.',
+        'Let me build. I am tired of making things that do not exist. I want to make a wall you can lean against.'
+      ]},
+    ],
+    arrivalText: 'A prison transport ship battles the swells, her barred windows glinting in the lightning. The guards have lost control of the helm. Inside, people are pounding on the walls.'
+  },
+  {
+    id: 'lighthouse_tender',
+    name: 'The Faro\'s Ghost',
+    desc: 'A lighthouse tender vessel, identical to the ones that used to service this station. She has been missing for eight years. The paint matches. The registration matches. But she has been missing for eight years.',
+    flag: 'Lighthouse Service',
+    size: 'Medium',
+    condition: 'Pristine',
+    fuelCost: 7,
+    risk: 0.3,
+    cargo: { food: 10, materials: 15, fuel: 25 },
+    passengers: [
+      { name: 'Ada Whitmore', skill: 'navigator', story: 'Claims to be the previous keeper\'s assistant. The log says she left eight years ago on this vessel. She looks exactly the same age as her photograph in the keeper\'s quarters.', mood: 'serene', dialogues: [
+        'The lighthouse chose you. It does that. It finds people who understand what it means to stay.',
+        'I left to find help. The storms were getting worse. I sailed for what I thought was three days. When I saw your light, I knew it had been longer. How long?',
+        'The foundation stone. You have felt it, haven\'t you? The hum. It is not mechanical. It is not geological. It is something else. Something that has been waiting.'
+      ]},
+    ],
+    arrivalText: 'A lighthouse service vessel emerges from the storm, pristine and impossible. You check the registration. It matches the tender that vanished eight years ago.',
+    hasMapPiece: true
+  },
+];
+
+// ====== PREVIOUS KEEPER'S JOURNAL ======
+const JOURNAL_ENTRIES = [
+  {
+    id: 1,
+    title: 'Entry the First',
+    week: 1,
+    text: 'I have taken the post at Faro Light. The previous keeper left no forwarding address, only a note that read: "Tend the light. Do not ask why." A strange instruction for a government posting. The mechanism is old but well-maintained. Someone loved this machine.'
+  },
+  {
+    id: 2,
+    title: 'On the Nature of Storms',
+    week: 3,
+    text: 'Three weeks and not one clear day. The storms come from every direction, which should be meteorologically impossible. I have charted the wind patterns and they describe a spiral. The lighthouse is at the center. Coincidence, surely. What else could it be?'
+  },
+  {
+    id: 3,
+    title: 'The Foundation',
+    week: 5,
+    text: 'During a low tide, I climbed down to inspect the foundation. The stone is not local. It is not any stone I can identify. Smooth, black, warm to the touch even in winter. I pressed my ear against it and heard... something. Not a sound exactly. A vibration. Like a heartbeat that has been slowing down for a very long time.'
+  },
+  {
+    id: 4,
+    title: 'The First Ship',
+    week: 7,
+    text: 'I guided a merchant vessel through the rocks today. The captain told me no chart shows this lighthouse. He only found it because of the light. "Your beacon is not on any map," he said. "But there it is." I checked the maritime registry. He is right. Faro Light does not officially exist.'
+  },
+  {
+    id: 5,
+    title: 'Patterns',
+    week: 9,
+    text: 'The storms intensify when the light burns brightest. I tested this. Dimmed the lamp to half-power for three days. The seas calmed. Restored full brightness. Within hours, the swells returned. The light does not protect against the storms. The light causes them. But without the light, the ships would have no guide. I am beginning to understand the cruelty of this place.'
+  },
+  {
+    id: 6,
+    title: 'The Underwater Structure',
+    week: 12,
+    text: 'Using a weighted mirror at low tide, I have confirmed it. There is a structure beneath the lighthouse, submerged, that mirrors the tower above. A lighthouse pointing down. Into what? The ocean floor here is not floor. My plumb line never touches bottom. It just keeps going. The light above attracts ships. What does the light below attract?'
+  },
+  {
+    id: 7,
+    title: 'The Pharmakon',
+    week: 16,
+    text: 'I have read the Greek. The pharmakon: the cure that is also the poison. The lighthouse is a pharmakon. It creates the danger that it then protects against. Remove it, and the storms end, but so does the light, and ships crash in ordinary darkness on ordinary rocks. Keep it, and the storms rage, but the light endures, and those who need it find their way. There is no solution. There is only the choice to stay and tend the light, or to leave and let the dark have its way.'
+  },
+  {
+    id: 8,
+    title: 'The Last Entry',
+    week: 20,
+    text: 'I understand now. The lighthouse is not a building. It is a relationship. Between the light and the dark, between the storm and the calm, between the keeper and the kept. It does not work without someone to tend it. The mechanism is irrelevant. The fuel is irrelevant. What matters is that someone chose to stay. That is the light. The staying is the light. I am passing this duty to whoever comes next. Not as a burden, but as an invitation. The light was on. That was enough.'
+  }
+];
+
+// ====== SPECIAL EVENT POOL ======
+const SPECIAL_EVENTS = {
+  theMap: {
+    minWeek: 5,
+    condition: () => state.mapPieces >= 2 && !state.specialEvents.mapFound && state.population.some(p => p.skill === 'scholar'),
+    trigger: function() {
+      state.specialEvents.mapFound = true;
+      return {
+        title: 'The Map',
+        text: `<p>Professor Kasturi spreads her charts across the table, anchoring corners with stones. Zara's sonar readings are layered on top. The Navigator stands behind them, tracing patterns with a finger that barely trembles.</p>
+<p>"Look," Kasturi says. "The storm spiral. The underwater structure. The foundation stone. They form a circuit. The lighthouse is not just a building sitting on a strange rock. It is the visible part of something much larger."</p>
+<p>"Something that was built," Zara adds quietly. "Or something that grew. My readings suggest the underwater structure extends deeper than any instrument can measure."</p>
+<p>The Navigator speaks without turning from the window: "It has always been here. Before the ocean. Before the stone. The light was first. Everything else arranged itself around it."</p>
+<p class="scene-text">A map emerges from their combined work. Not a map of geography, but a map of the lighthouse's true nature: an anchor point, older than the rocks it stands on, drawing storms and ships and keepers and stories to itself. Not maliciously. The way a fire draws cold hands. The way a harbor draws tired sails.</p>`,
+        choices: [
+          { text: 'Study the map further. There must be a way to end the storms without losing the light.', effect: () => { state.hope += 5; addLog('The map reveals the lighthouse\'s true nature. Research continues.'); }},
+          { text: 'Share the findings with everyone. They deserve to know what this place is.', effect: () => { state.hope += 8; addLog('The truth about the lighthouse is shared. Knowledge is better than mystery.'); }},
+        ]
+      };
+    }
+  },
+  theSignal: {
+    minWeek: 7,
+    condition: () => state.week >= 7 && !state.specialEvents.signalReceived && Math.random() < 0.4,
+    trigger: function() {
+      state.specialEvents.signalReceived = true;
+      return {
+        title: 'The Signal',
+        text: `<p>It happens at the darkest hour of the night, when the beam sweeps east across open water.</p>
+<p>A light answers.</p>
+<p>Not a ship's lantern. Not a star breaking through clouds. A beam, sweeping in counterpoint to yours, from somewhere beyond the storm wall. Another lighthouse. Another keeper.</p>
+<p>Torsten is the first to see it. He comes running from the watch post, breathless. "There," he points. "Bearing zero-nine-zero. Steady rotation, six-second interval. That is a lighthouse beacon."</p>
+<p class="scene-text">You watch together as the distant beam sweeps and sweeps. Someone else is out there. Someone else chose to stay.</p>
+<p>The beam flickers in a pattern. Long, short, short. Long, long. Short, long. Even without knowing the code, you understand the message. It is the oldest message there is: <em>I am here. Are you there?</em></p>`,
+        choices: [
+          { text: 'Signal back. Match their pattern. Let them know they are not alone.', effect: () => { state.hope += 12; state.fuel -= 3; addLog('Another lighthouse answered your signal. You are not the only keeper.'); }},
+          { text: 'Watch in silence. Their light is enough. Knowing they exist changes everything.', effect: () => { state.hope += 8; addLog('Another lighthouse burns in the distance. You are not alone.'); }},
+        ]
+      };
+    }
+  },
+  theIllness: {
+    minWeek: 6,
+    condition: () => state.week >= 6 && !state.specialEvents.illnessStruck && state.population.length >= 4 && Math.random() < 0.3,
+    trigger: function() {
+      state.specialEvents.illnessStruck = true;
+      const hasHealer = state.population.some(p => p.skill === 'healer');
+      return {
+        title: 'The Illness',
+        text: `<p>It starts with a chill that will not leave. Kofi is the first to show symptoms, then two others within a day. A cold that settles in the bones and will not warm, no matter how close they sit to the fire.</p>
+<p class="scene-text">The illness moves through the community like fog, touching some and passing others without pattern. By the third day, half your people are affected. They can still function, but slowly, carefully, as if moving through water.</p>
+${hasHealer ? `<p>Miriam works without stopping. She identifies the pathogen in the cistern water, traces it to storm runoff collecting in the cracks of the foundation stone. "It is not natural," she says, her hands steady even as her voice shakes. "This is something the storms carry. The light... I think the light kills it on contact. We need to boil every drop of water and keep the sick near the lighthouse."</p>` : `<p>Without a healer, you do what you can. Boiled water. Warm blankets. Keeping the sick close to the lighthouse, where the amber glow seems to ease the worst of the symptoms. You do not understand why. You do it anyway.</p>`}`,
+        choices: hasHealer ? [
+          { text: 'Follow Miriam\'s treatment plan. Quarantine the sick near the lighthouse. Boil all water.', effect: () => {
+            state.specialEvents.illnessCured = true;
+            state.food -= 5;
+            state.hope -= 3;
+            addLog('Illness struck the community. Miriam\'s treatment worked. Everyone recovered.');
+          }},
+          { text: 'Ration the medicine. Some will recover on their own. Save resources for the worst cases.', effect: () => {
+            state.specialEvents.illnessCured = true;
+            state.food -= 2;
+            state.hope -= 8;
+            const sick = state.population.filter(p => Math.random() < 0.2);
+            if (sick.length > 0) {
+              state.population = state.population.filter(p => p !== sick[0]);
+              state.deaths++;
+              addLog(`Illness struck. ${sick[0].name} did not survive. The rest recovered slowly.`);
+            } else {
+              addLog('Illness struck. Everyone recovered, but morale suffered from the rationing.');
+            }
+          }},
+        ] : [
+          { text: 'Do everything you can. Keep them warm, keep them near the light, keep watch.', effect: () => {
+            state.specialEvents.illnessCured = true;
+            state.food -= 4;
+            state.hope -= 10;
+            const unlucky = state.population.filter(p => Math.random() < 0.3);
+            if (unlucky.length > 0) {
+              state.population = state.population.filter(p => p !== unlucky[0]);
+              state.deaths++;
+              addLog(`Illness swept through without a healer. ${unlucky[0].name} was lost. The others recovered.`);
+            } else {
+              addLog('Illness struck hard, but everyone pulled through. Barely.');
+            }
+          }},
+          { text: 'Isolate the sick. Protect the healthy. It is the only rational choice.', effect: () => {
+            state.specialEvents.illnessCured = true;
+            state.hope -= 15;
+            const lost = state.population.filter(p => Math.random() < 0.4);
+            if (lost.length > 0) {
+              state.population = state.population.filter(p => p !== lost[0]);
+              state.deaths++;
+              addLog(`The isolation was cruel but effective for the healthy. ${lost[0].name} died alone.`);
+            } else {
+              addLog('The isolation worked, but the cruelty of it left scars on everyone.');
+            }
+          }},
+        ]
+      };
+    }
+  },
+  theBlackTide: {
+    minWeek: 8,
+    condition: () => state.week >= 8 && state.week <= 12 && !state.specialEvents.blackTideTriggered && state.population.length >= 3 && state.fuel <= 30,
+    trigger: function() {
+      state.specialEvents.blackTideTriggered = true;
+      return {
+        title: 'The Black Tide',
+        text: `<p class="sound-text">The low, rhythmic thud of oars in dark water. A chain clanking somewhere in the fog.</p>
+
+<p>She comes out of the storm wall at dusk, moving against the wind in a way that should be impossible. A ship painted black from waterline to mast, running dark, moving with the controlled precision of a predator.</p>
+
+<p>The Black Tide. You have heard the name in whispers from other ships. A fleet that moves through the storm corridors, trading in fuel and fear and the gray spaces between piracy and commerce.</p>
+
+<p class="sound-text">A ship's horn, deep and resonant, sounds three times. The universal signal: we want to talk.</p>
+
+<p>A lantern ignites on the Black Tide's bow. A single figure stands beneath it, and when they speak, their voice carries across the water with unnatural clarity.</p>
+
+<div class="dialogue">
+  <span class="speaker">Captain Mordecai Salt:</span> "Keeper of the light. I have a proposition. My fleet needs passage through your rocks. One night. You turn off the light, we pass through in the dark, and I leave you thirty-five units of fuel on the dock. Five weeks of light, keeper. Five weeks of not worrying about the dark."
+</div>
+
+<p>A pause. Then:</p>
+
+<div class="dialogue">
+  <span class="speaker">Captain Salt:</span> "One night of darkness for five weeks of light. That is better math than most people get in this world."
+</div>
+
+<p class="scene-text">You know what happens in the dark. Ships rely on your beam to navigate the rocks. Any vessel approaching tonight, without the light, will find the reef the hard way. Salt knows this. He is counting on it. A dark lighthouse clears the channel of traffic. His fleet passes through safely. Anyone else...</p>
+
+<p>${state.population.length > 0 ? state.population[0].name + ' stands beside you, reading the situation in your silence. "Whatever you decide," they say quietly, "we live with it."' : 'You stand alone with the decision.'}</p>
+
+<div class="event-alert">
+  <strong>THE BLACK TIDE DEAL:</strong> Turn off the light for one night in exchange for 35 units of fuel. But any ships approaching tonight will have no beacon to guide them.
+</div>`,
+        choices: [
+          {
+            text: 'Accept the deal. Turn off the light. Take the fuel. Five weeks of light is worth one dark night.',
+            effect: () => {
+              state.specialEvents.blackTideAccepted = true;
+              state.fuel += 35;
+              state.hope -= 20;
+              state.choicesMade.push({ week: state.week, choice: 'black_tide_accepted' });
+
+              // A merchant ship crashes
+              state.specialEvents.crashedMerchant = true;
+              state.wrecks++;
+              state.deaths += 3;
+
+              // Two survivors wash ashore next dawn
+              const survivor1 = { name: 'Elise Marchetti', skill: 'cook', mood: 'traumatized', story: 'A merchant sailor who survived the wreck. She does not speak for the first three days. When she finally does, she asks one question: "Was the light off?" She already knows the answer.', dialogues: [
+                'I heard the rocks before I felt them. In the dark. Where was the light? There is always a light.',
+                'Three of my crew are dead. Nikos. Fatima. Young Samuel, who was seventeen and had never been to sea before this voyage. Where was the light?',
+                'I do not blame you. That is the worst part. I understand why you did it. I understand the math. But math does not bury the dead, keeper. People bury the dead.'
+              ]};
+              const survivor2 = { name: 'Rui Delgado', skill: 'fisher', mood: 'broken', story: 'The merchant vessel\'s navigator. He guided the ship toward where the lighthouse should have been. There was only dark. He cannot stop shaking.', dialogues: [
+                'I charted a course to your light. I told the captain we were safe. I told them. I told them the light would be there.',
+                'The sound. I will hear it forever. Wood on rock. And then the water coming in, and the screaming, and I could not find Samuel in the dark. I could not find him.',
+                'I used to believe in lighthouses. Fixed points. Things you could trust. I am still deciding what I believe in now.'
+              ]};
+
+              state.blackTideSurvivors = [survivor1, survivor2];
+              // They arrive next dawn, not immediately
+              addLog('You turned off the light. The Black Tide passed through in darkness. Fuel stores replenished.');
+            }
+          },
+          {
+            text: 'Refuse. The light stays on. Whatever the cost.',
+            effect: () => {
+              state.specialEvents.blackTideRefused = true;
+              state.hope += 15;
+              state.choicesMade.push({ week: state.week, choice: 'black_tide_refused' });
+
+              // Pirates retaliate
+              const materialLoss = Math.min(state.materials, 10);
+              state.materials -= materialLoss;
+
+              // Chance of losing someone
+              if (state.population.length > 2 && Math.random() < 0.25) {
+                const hurt = state.population[Math.floor(Math.random() * state.population.length)];
+                state.population = state.population.filter(p => p !== hurt);
+                state.deaths++;
+                addLog(`You refused the Black Tide. They attacked. ${hurt.name} was killed defending the lighthouse. But the light burned on, and the community stood together.`);
+              } else {
+                addLog('You refused the Black Tide. They attacked, damaging the outer buildings, but the light held. The community stood together. Hope rose from the defiance.');
+              }
+            }
+          }
+        ]
+      };
+    }
+  },
+  stormOfStorms: {
+    minWeek: 18,
+    condition: () => state.week >= 18 && !state.specialEvents.stormOfStorms,
+    trigger: function() {
+      state.specialEvents.stormOfStorms = true;
+      const hasWall = state.wallBuilt;
+      const hasUpgrade = state.lighthouseUpgraded;
+      const popCount = state.population.length;
+      return {
+        title: 'The Storm of Storms',
+        text: `<p>You feel it before you see it. A pressure drop so sudden your ears pop. The barometer needle swings past any reading you have seen before and keeps going. The ocean pulls back from the shore like a held breath.</p>
+<p>Then the horizon turns black. Not storm-dark. Black. As if the sky itself has been erased.</p>
+<p class="scene-text">The Storm of Storms arrives like a wall of sound and water. The wind does not build. It simply begins, at full force, as if someone has opened a door between your world and something else. Every window rattles. Every timber groans. The lighthouse shudders in a way it has never shuddered before.</p>
+${hasWall ? '<p>The sea wall takes the first impact, stone absorbing what wood could not. It cracks but holds.</p>' : '<p>Without a sea wall, the waves crash directly against the cliff base. You hear stone breaking below.</p>'}
+${hasUpgrade ? '<p>The upgraded lighthouse mechanism burns steady and true, its reinforced housing keeping the light alive even as the tower sways.</p>' : '<p>The lighthouse mechanism screams with every gust, the old gears straining against forces they were never designed to endure.</p>'}
+<p>Everyone gathers in the lighthouse base. ${popCount} faces in amber light, listening to the world try to unmake itself around them. This is the test. Not of the building. Of the staying.</p>`,
+        choices: [
+          { text: 'Keep the light burning at full power. Whatever this storm is, the light is the answer.', effect: () => {
+            state.fuel -= 15;
+            const materialLoss = hasWall ? 5 : 15;
+            const hopeLoss = hasUpgrade ? 2 : 8;
+            state.materials -= materialLoss;
+            state.hope -= hopeLoss;
+            if (!hasWall && Math.random() < 0.3 && state.population.length > 2) {
+              const lost = state.population[Math.floor(Math.random() * state.population.length)];
+              state.population = state.population.filter(p => p !== lost);
+              state.deaths++;
+              addLog(`The Storm of Storms. The light held. But the sea took ${lost.name}. Everything has a cost.`);
+            } else {
+              state.hope += 15;
+              addLog('The Storm of Storms came, and the light held, and everyone survived. The staying was the light.');
+            }
+          }},
+          { text: 'Dim the light. If the storms respond to brightness, maybe reducing it will calm this one.', effect: () => {
+            state.fuel -= 5;
+            state.hope -= 12;
+            state.materials -= 10;
+            addLog('You dimmed the light during the Storm of Storms. The storm weakened, but in the dark moment, you heard something from below the foundation. Something that noticed.');
+          }},
+        ]
+      };
+    }
+  }
+};
+
+// ====== DAWN MESSAGES ======
+const DAWN_MESSAGES = [
+  'The sky lightens in thin bands of copper and gray. Seabirds circle the tower, calling to each other in a language older than lighthouses.',
+  'Morning arrives like an apology after the night\'s fury. The ocean is sheepish, almost gentle, as if embarrassed by its violence.',
+  'Dawn. The beam fades into daylight and for a moment both exist together, natural and artificial light sharing the same sky.',
+  'You climb to the lantern room at first light. The glass is salt-crusted from the night\'s spray. You clean it the way you clean it every morning: carefully, because it matters.',
+  'The sunrise is the color of old brass. Clouds stack on the horizon like books on a shelf, each one a different shade of warning.',
+  'Another dawn. The mechanism clicks as the automatic dimmer engages. Even the machine knows the difference between night and day.',
+  'Morning fog sits on the water like a blanket someone forgot to fold. The world is reduced to sounds: the bell buoy, the gulls, the lighthouse humming.',
+  'The dawn is clear for once. You can see all the way to the horizon. Nothing there but water and possibility.',
+  'Salt crystals have formed on the windows overnight, fractal patterns that catch the dawn light and throw tiny rainbows across the walls.',
+  'You wake to silence. No wind, no waves, no storm. Just the steady tick of the lighthouse mechanism and your own breathing. It will not last.',
+  'The morning light reveals storm damage: a section of railing torn loose, seaweed draped across the rocks like garlands left by an indifferent ocean.',
+  'Dawn brings the smell of rain and iron. The barometer says more weather is coming. The barometer has not been wrong yet.',
+  'You find a bottle on the shore during your morning walk. Inside, a note in faded ink: "Still burning?" You put it on the shelf with the others.',
+  'The first light catches the lighthouse beam at an angle that makes the whole tower glow amber. For ten minutes, the building looks like it is made of honey and fire.',
+  'Another morning. Another chance to keep the light burning. Some would call it monotony. You have learned to call it purpose.',
+  'The tide has brought gifts: driftwood, a length of rope, three glass floats from some distant fishery. The ocean provides, after its fashion.',
+  'Fog so thick you cannot see the water from the lantern room. You are a lighthouse keeper who cannot see. The irony is not lost on you. You keep the light on anyway.',
+  'Dawn, and the birds are different today. Species you have not seen before, blown here by the storms. Even the wildlife is becoming a refugee population.',
+  'You make coffee with the last of the good beans. Kofi shows you how to stretch them with roasted chicory root. It tastes like morning should taste.',
+  'The sunrise is violet and angry, stacking thunderheads like an argument building to a point. The beauty and the threat are the same thing.'
+];
+
+// ====== NIGHT EVENTS ======
+const NIGHT_EVENTS = [
+  {
+    text: 'The wind carries voices tonight. Not words, exactly, but the shape of language. It could be the storm. It could be the foundation stone. You listen anyway.',
+    effect: () => { state.hope += 2; }
+  },
+  {
+    text: 'A wave larger than any you have seen crashes against the rocks, sending spray up to the lantern room. When it recedes, you find a piece of carved stone on the gallery rail. It matches the foundation.',
+    effect: () => { state.hope += 3; state.materials += 2; }
+  },
+  {
+    text: 'The stars are visible for a brief hour between storms. You count them. There are more than there should be.',
+    effect: () => { state.hope += 4; }
+  },
+  {
+    text: 'Something large moves in the water beyond the reef. You see it in the beam sweep: a shadow, massive, slow. It circles the lighthouse twice and then is gone.',
+    effect: () => { state.hope -= 2; }
+  },
+  {
+    text: 'The lighthouse mechanism makes a sound you have not heard before. A low chord, almost musical. It lasts for three seconds and then the normal ticking resumes. No one else seems to have heard it.',
+    effect: () => { state.hope += 1; }
+  },
+  {
+    text: 'Lightning strikes the tower. The mechanism shudders but holds. In the flash, you see the entire island from above, as if you were the lightning itself. Rocks, buildings, people, light.',
+    effect: () => { state.materials -= 3; state.hope += 2; }
+  },
+  {
+    text: 'The rain stops for exactly one hour. In that hour, the sky is so clear you can see the arm of the galaxy stretching overhead. Everyone comes outside to look. No one speaks. Speaking would be wrong.',
+    effect: () => { state.hope += 8; }
+  },
+  {
+    text: 'A night with no events. No ships, no storms, no strange sounds from the deep. Just the beam sweeping, the waves rolling, and the steady knowledge that you are exactly where you should be.',
+    effect: () => { state.hope += 3; }
+  },
+  {
+    text: 'You find footprints on the beach that are not from anyone on the island. They emerge from the surf and walk in a straight line to the lighthouse base, then stop. They do not return to the water.',
+    effect: () => { state.hope -= 3; }
+  },
+  {
+    text: 'The fuel gauge drops faster than it should tonight. You check for leaks and find none. The mechanism is burning hotter, brighter, as if the lighthouse itself is straining to reach further into the dark.',
+    effect: () => { state.fuel -= 5; state.hope += 2; }
+  },
+  {
+    text: 'Driftwood washes ashore in unusual quantities. Enough to build with. Enough to burn. The ocean is providing, as if in apology for the storms.',
+    effect: () => { state.materials += 8; }
+  },
+  {
+    text: 'Fish gather in the beam\'s path on the water, silver bodies leaping and spinning in the light. Yuki says she has never seen anything like it. She fills three nets without trying.',
+    effect: () => { state.food += 10; }
+  },
+  {
+    text: 'The foundation stone hums louder tonight. You can feel it through the floor of the lighthouse, a vibration that is almost a voice. It is not threatening. It is patient.',
+    effect: () => { state.hope += 1; }
+  },
+  {
+    text: 'A clear night. From the gallery, you count seventeen stars that are not on any chart. The Navigator says they are not stars. They are other lighthouses, too far away to see their beams. Just their hearts.',
+    effect: () => { state.hope += 6; }
+  },
+  {
+    text: 'Rain hammers the windows all night. In the morning, the cisterns are full and the gardens are flooded. Water: too much and not enough, depending on where you stand.',
+    effect: () => { state.food += 3; state.materials -= 1; }
+  },
+  {
+    text: 'Bioluminescence blooms in the water tonight. The ocean glows green-blue around the rocks, as if the sea has swallowed a sky full of stars. Every wave breaks in light. Every ripple carries its own constellation. It is the most beautiful thing you have ever seen from the lantern room.',
+    effect: () => { state.hope += 7; }
+  },
+  {
+    text: 'A message in a bottle washes ashore, different from the others. This one is newer. The handwriting is precise and careful: "Week 14. The storms have not stopped. But neither have I. If you are reading this, you understand. Keep the light on. I am keeping mine on too. — J.R., Keeper of the Northern Faro."',
+    effect: () => { state.hope += 5; }
+  },
+  {
+    text: 'The foundation stone hums louder tonight than you have ever heard it. Not threatening. Expectant. Like a church organ playing a single note, waiting for the congregation to arrive. You press your hand against the floor and feel it in your bones. Whatever is down there, it knows you are here.',
+    effect: () => { state.hope += 2; }
+  },
+  {
+    text: 'A pod of whales passes through the beam\'s sweep. Massive shadows breaching and diving, their spouts catching the amber light. They are moving south, following some ancient migration route that passes directly through the lighthouse\'s water.',
+    effect: () => {
+      const hasFisher = state.population.some(p => p.skill === 'fisher');
+      if (hasFisher) {
+        state.food += 8;
+      }
+      state.hope += 4;
+    }
+  },
+  {
+    text: 'Strange lights appear beneath the water, deep down where the underwater structure mirrors the lighthouse above. Pale blue pulses, rhythmic, matching the rotation of the beam. As if something is answering. As if something has always been answering, and you are only now learning to look.',
+    effect: () => { state.hope += 3; }
+  },
+  {
+    text: state.population.length > 0 ?
+      `${state.population[Math.floor(Math.random() * state.population.length)]?.name || 'Someone'} wakes screaming from a nightmare. They are shaking, drenched in sweat. "The light went out," they whisper. "In the dream, the light went out and the water came in and we were all underneath it." You sit with them until their breathing steadies. Sometimes the most important thing a keeper does is not mechanical.` :
+      'You dream of a lighthouse beneath the water, pointing down into an endless dark. In the dream, you are both keepers: the one above and the one below. You wake unsure which one is real.',
+    effect: () => {
+      if (state.population.length > 0) {
+        state.hope -= 2;
+        const person = state.population[Math.floor(Math.random() * state.population.length)];
+        if (person) addTrust(person.name, 8);
+      }
+    }
+  },
+  {
+    text: 'The beam flickers tonight in a pattern you do not recognize. Three short, two long, one short, pause. It repeats for an hour before returning to its steady sweep. You write the pattern down. You will study it later. You suspect, without evidence, that it was not a malfunction.',
+    effect: () => { state.hope += 1; }
+  },
+  {
+    text: 'Stars. Through a gap in the clouds so brief you would have missed it if you had blinked. But there they are: the Pleiades, or something that looks like them, shining with a clarity that the constant storms have made you forget was possible. You call the others to look, but by the time they arrive, the gap has closed. "I saw them," you say. "I promise." They believe you. That matters more than the stars.',
+    effect: () => { state.hope += 6; }
+  },
+  {
+    text: 'Wreckage from an old ship washes up on the eastern beach. Not a recent wreck. This wood is decades old, maybe older. Among the debris: a brass compass that still works, a sealed glass jar containing a map fragment, and the ship\'s bell, engraved with a name that has been worn to illegibility by salt and time.',
+    effect: () => { state.materials += 6; state.hope += 2; }
+  },
+  {
+    text: state.population.length >= 2 ?
+      `Two islanders have a heated argument by the fire. ${state.population[0]?.name || 'One'} and ${state.population[Math.min(1, state.population.length - 1)]?.name || 'another'} disagree about rationing. Voices rise. Someone mentions leaving. Someone else says something they will regret. You step in, not to take sides, but to remind them that the storm outside is bigger than any storm between them. They fall silent. Then they apologize. The fire crackles on.` :
+      'The silence tonight is so complete you can hear the oil burning in the lantern. A soft hiss, steady and warm, like the breathing of something very old and very patient.',
+    effect: () => {
+      if (state.population.length >= 2) {
+        state.hope -= 3;
+        addTrust(state.population[0]?.name, 5);
+        addTrust(state.population[1]?.name, 5);
+      } else {
+        state.hope += 2;
+      }
+    }
+  },
+  {
+    text: 'A school of flying fish erupts from the water in the beam\'s sweep, their silver bodies arcing through the light like thrown coins. For ten seconds, the air between the lighthouse and the ocean is full of life, a cascade of scales and desperate wingbeats. Then they are gone, and the beam sweeps on, as if nothing happened.',
+    effect: () => { state.food += 3; state.hope += 3; }
+  },
+  {
+    text: 'The tide retreats further than you have ever seen it. The rocks are exposed, glistening, revealing the true foundation of the lighthouse. In the moonlight, you can see markings carved into the stone: spirals within spirals, each one leading to a center that is not there. Like a map of something that exists in more dimensions than you have words for.',
+    effect: () => { state.hope += 4; state.materials += 3; }
+  },
+  {
+    text: 'An aurora appears in the sky, impossible at this latitude. Green curtains of light ripple overhead, dancing with the lighthouse beam as if the two are old friends meeting after a long separation. The aurora lasts for twenty minutes. Everyone stands outside, looking up, saying nothing. Some things are too beautiful for language.',
+    effect: () => { state.hope += 10; }
+  },
+  {
+    text: 'A seal hauls itself onto the dock and watches the lighthouse with dark, intelligent eyes. It stays for three hours, perfectly still, as if memorizing the rhythm of the beam. Then it slides back into the water and is gone. You are not sure why, but you feel like you have been evaluated. You hope you passed.',
+    effect: () => { state.hope += 2; }
+  },
+  {
+    text: 'The mechanism develops a new sound tonight: a harmonic overtone that turns the grinding of gears into something almost like music. A chord, sustained and warm, that vibrates through the tower\'s stone. The building is singing. Or the thing beneath it is. The difference may not matter.',
+    effect: () => { state.hope += 3; state.fuel -= 2; }
+  },
+  {
+    text: state.population.length > 0 ?
+      `You find ${state.population[Math.floor(Math.random() * state.population.length)]?.name || 'someone'} sitting alone on the rocks after midnight, watching the beam sweep the water. They do not hear you approach. Or maybe they do, and they are grateful for the company without the obligation of conversation. You sit beside them. The beam sweeps. The waves roll. After a while, they say, "Thank you for the light." Nothing else. It is enough.` :
+      'You sit on the gallery walk in the small hours, your legs hanging over the edge, watching the beam sweep the empty ocean. No ships. No storms. Just the light, doing what it does. And you, doing what you do.',
+    effect: () => {
+      if (state.population.length > 0) {
+        state.hope += 4;
+        const person = state.population[Math.floor(Math.random() * state.population.length)];
+        if (person) addTrust(person.name, 5);
+      } else {
+        state.hope += 2;
+      }
+    }
+  }
+];
+
+// ====== CONVERSATION POOL ======
+// (getConversation moved to Trust/Relationship System above)
+
+// ====== BUILDING OPTIONS ======
+const BUILDINGS = {
+  garden: { name: 'Garden', cost: { materials: 15 }, desc: 'A sheltered garden for growing food. Reduces weekly food drain.', stateKey: 'gardenBuilt' },
+  infirmary: { name: 'Infirmary', cost: { materials: 12 }, desc: 'A proper medical space. Healers work more effectively.', stateKey: 'infirmaryBuilt' },
+  seawall: { name: 'Sea Wall', cost: { materials: 25 }, desc: 'Stone wall to protect the cliff base from erosion. Reduces storm damage.', stateKey: 'wallBuilt' },
+  dock: { name: 'Dock', cost: { materials: 20 }, desc: 'A proper landing dock. Reduces fuel cost to guide ships in.', stateKey: 'dockBuilt' },
+  upgrade: { name: 'Lighthouse Upgrade', cost: { materials: 30 }, desc: 'Reinforce the mechanism and housing. Reduces fuel consumption and storm damage.', stateKey: 'lighthouseUpgraded' },
+  workshop: { name: 'Workshop', cost: { materials: 20 }, desc: 'A proper workshop with tools. Unlocks tower upgrades and doubles repair speed. Builders produce 50% more materials.', stateKey: 'workshopBuilt' },
+  watchtower: { name: 'Watchtower', cost: { materials: 25 }, desc: 'A lookout point on the island\'s highest rock. Reveals ship risk level before arrival and enables weather forecasting.', stateKey: 'watchtowerBuilt' },
+  chapel: { name: 'Chapel', cost: { materials: 15 }, desc: 'A small stone chapel, open to the sky. Not for any particular god, but for the act of sitting quietly together. Generates +3 Hope each week.', stateKey: 'chapelBuilt' },
+  stormShelter: { name: 'Storm Shelter', cost: { materials: 30 }, desc: 'A reinforced underground shelter carved into the cliff. Reduces storm damage by 50%. A place to weather the worst.', stateKey: 'stormShelterBuilt' },
+};
+
+// ====== HELPER FUNCTIONS ======
+
+function clamp(val, min, max) { return Math.max(min, Math.min(max, val)); }
+
+function addLog(text) {
+  state.log.unshift({ week: state.week, text: text });
+  if (state.log.length > 50) state.log.pop();
+}
+
+function updateResources() {
+  state.fuel = clamp(state.fuel, 0, 100);
+  state.food = clamp(state.food, 0, 100);
+  state.materials = clamp(state.materials, 0, 100);
+  state.hope = clamp(state.hope, 0, 100);
+
+  document.getElementById('fuel-val').textContent = state.fuel;
+  document.getElementById('food-val').textContent = state.food;
+  document.getElementById('mat-val').textContent = state.materials;
+  document.getElementById('hope-val').textContent = state.hope;
+
+  document.getElementById('fuel-bar').style.width = state.fuel + '%';
+  document.getElementById('food-bar').style.width = state.food + '%';
+  document.getElementById('mat-bar').style.width = state.materials + '%';
+  document.getElementById('hope-bar').style.width = state.hope + '%';
+
+  document.getElementById('week-display').textContent = 'Week ' + state.week;
+
+  // Update weather display
+  const weatherEl = document.getElementById('weather-display');
+  if (weatherEl && state.weather) {
+    const w = WEATHER_TYPES[state.weather];
+    if (w) weatherEl.innerHTML = `<span class="weather-icon">${w.icon}</span> ${w.name}`;
+  }
+}
+
+function setPhase(phase) {
+  state.phase = phase;
+  document.body.className = 'phase-' + phase;
+  const phaseNames = { dawn: 'Dawn', day: 'Day', dusk: 'Dusk', night: 'Night' };
+  document.getElementById('phase-display').textContent = phaseNames[phase];
+}
+
+function updateSidePanel() {
+  // Islanders
+  let islanderHTML = '';
+  if (state.population.length === 0) {
+    islanderHTML = '<div class="islander-card"><span class="text-dim">You are alone.</span></div>';
+  }
+  state.population.forEach(p => {
+    const assignment = state.assignments[p.name] || 'unassigned';
+    const trust = getTrust(p.name);
+    const trustWidth = trust + '%';
+    islanderHTML += `<div class="islander-card">
+      <span class="name">${p.name}</span>
+      <span class="role"> / ${p.skill}</span>
+      <div class="trust-bar-container"><div class="trust-bar" style="width:${trustWidth}"></div></div>
+      <span class="trust-label">${trust >= 80 ? 'Devoted' : trust >= 60 ? 'Deep Trust' : trust >= 30 ? 'Trusted' : 'Acquainted'}</span>
+      <div class="mood">${p.mood} | Task: ${assignment}</div>
+    </div>`;
+  });
+  document.getElementById('islander-list').innerHTML = islanderHTML;
+
+  // Buildings
+  let buildingHTML = '';
+  if (state.gardenBuilt) buildingHTML += '<div class="building-item"><span class="b-name">Garden</span> - Growing food</div>';
+  if (state.infirmaryBuilt) buildingHTML += '<div class="building-item"><span class="b-name">Infirmary</span> - Medical care</div>';
+  if (state.wallBuilt) buildingHTML += '<div class="building-item"><span class="b-name">Sea Wall</span> - Storm protection</div>';
+  if (state.dockBuilt) buildingHTML += '<div class="building-item"><span class="b-name">Dock</span> - Ship landing</div>';
+  if (state.lighthouseUpgraded) buildingHTML += '<div class="building-item"><span class="b-name">Lighthouse (Upgraded)</span> - Efficient operation</div>';
+  if (state.workshopBuilt) buildingHTML += '<div class="building-item"><span class="b-name">Workshop</span> - Crafting & repairs</div>';
+  if (state.watchtowerBuilt) buildingHTML += '<div class="building-item"><span class="b-name">Watchtower</span> - Lookout & forecasting</div>';
+  if (state.chapelBuilt) buildingHTML += '<div class="building-item"><span class="b-name">Chapel</span> - Quiet hope</div>';
+  if (state.stormShelterBuilt) buildingHTML += '<div class="building-item"><span class="b-name">Storm Shelter</span> - 50% storm protection</div>';
+  if (!buildingHTML) buildingHTML = '<div class="building-item text-dim">No structures built yet.</div>';
+  document.getElementById('building-list').innerHTML = buildingHTML;
+
+  // Log
+  let logHTML = '';
+  state.log.slice(0, 15).forEach(entry => {
+    logHTML += `<div class="log-entry"><span class="log-week">Week ${entry.week}</span><br>${entry.text}</div>`;
+  });
+  if (!logHTML) logHTML = '<div class="log-entry text-dim">The log is empty.</div>';
+  document.getElementById('keeper-log').innerHTML = logHTML;
+}
+
+function renderContent(html) {
+  const main = document.getElementById('main-content');
+  main.innerHTML = html;
+  main.scrollTop = 0;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function togglePanel() {
+  const panel = document.getElementById('side-panel');
+  panel.classList.toggle('hidden');
+  updateSidePanel();
+}
+
+function showJournal() {
+  const modal = document.getElementById('journal-modal');
+  let html = '';
+  if (state.journalFound.length === 0) {
+    html = '<p>You have not yet found any entries from the previous keeper\'s journal. They may be hidden around the lighthouse, washed ashore, or discovered during repairs.</p>';
+  } else {
+    state.journalFound.sort((a, b) => a - b).forEach(id => {
+      const entry = JOURNAL_ENTRIES.find(e => e.id === id);
+      if (entry) {
+        html += `<div class="journal-entry"><strong>${entry.title}</strong><br><br>${entry.text}</div>`;
+      }
+    });
+  }
+  document.getElementById('journal-entries').innerHTML = html;
+  modal.classList.add('active');
+}
+
+function closeJournal() {
+  document.getElementById('journal-modal').classList.remove('active');
+}
+
+// Weather effects
+function startRain(intensity, weatherType) {
+  const rain = document.getElementById('rain-overlay');
+  rain.innerHTML = '';
+  rain.className = 'rain';
+  const count = intensity === 'heavy' ? 120 : intensity === 'medium' ? 60 : 30;
+  const adjustedCount = weatherType === 'hurricane' ? count * 2 : weatherType === 'tempest' ? Math.floor(count * 1.5) : count;
+  for (let i = 0; i < adjustedCount; i++) {
+    const drop = document.createElement('div');
+    drop.className = 'raindrop';
+    drop.style.left = Math.random() * 100 + '%';
+    const speed = weatherType === 'hurricane' ? (0.2 + Math.random() * 0.2) :
+                  weatherType === 'tempest' ? (0.3 + Math.random() * 0.3) :
+                  (0.4 + Math.random() * 0.4);
+    drop.style.animationDuration = speed + 's';
+    drop.style.animationDelay = Math.random() * 2 + 's';
+    const height = weatherType === 'hurricane' ? (18 + Math.random() * 20) :
+                   weatherType === 'gale' ? (14 + Math.random() * 18) :
+                   (10 + Math.random() * 15);
+    drop.style.height = height + 'px';
+    rain.appendChild(drop);
+  }
+  if (weatherType) {
+    rain.classList.add('intensity-' + weatherType);
+  }
+  rain.classList.add('active');
+}
+
+function stopRain() {
+  document.getElementById('rain-overlay').classList.remove('active');
+}
+
+function flashLightning() {
+  const flash = document.getElementById('lightning-flash');
+  flash.classList.remove('flash');
+  void flash.offsetWidth;
+  flash.classList.add('flash');
+}
+
+function setFog(active) {
+  document.getElementById('fog-overlay').classList.toggle('active', active);
+}
+
+// ====== GAME FLOW ======
+
+function startGame() {
+  document.getElementById('title-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+
+  state.week = 1;
+  state.fuel = 50;
+  state.food = 40;
+  state.materials = 30;
+  state.hope = 60;
+  state.population = [];
+  state.buildings = [];
+  state.log = [];
+  state.journalFound = [];
+  state.shipsArrived = [];
+  state.shipsSeen = [];
+  state.specialEvents = { mapFound: false, signalReceived: false, pirateOffered: false, pirateAccepted: false, blackTideTriggered: false, blackTideAccepted: false, blackTideRefused: false, illnessStruck: false, illnessCured: false, stormOfStorms: false, healingLight: false, navigatorVoyage: false, builderReinforce: false, crashedMerchant: false };
+  state.assignments = {};
+  state.trust = {};
+  state.wrecks = 0;
+  state.deaths = 0;
+  state.shipsSaved = 0;
+  state.shipsWarned = 0;
+  state.shipsIgnored = 0;
+  state.livesSaved = 0;
+  state.structuresBuilt = 0;
+  state.lighthouseUpgraded = false;
+  state.gardenBuilt = false;
+  state.infirmaryBuilt = false;
+  state.wallBuilt = false;
+  state.dockBuilt = false;
+  state.workshopBuilt = false;
+  state.watchtowerBuilt = false;
+  state.chapelBuilt = false;
+  state.stormShelterBuilt = false;
+  state.currentShip = null;
+  state.conversationTarget = null;
+  state.gameOver = false;
+  state.ending = null;
+  state.mapPieces = 0;
+  state.fuelReserve = 0;
+  state.weather = 'heavy_rain';
+  state.nextWeekWeather = generateWeather();
+  state.weatherHistory = [];
+  state.choicesMade = [];
+  state.talkedTo = [];
+  state.blackTideSurvivors = [];
+
+  addLog('You arrived at Faro Light. The previous keeper is gone. The light is still burning.');
+
+  // Find first journal entry
+  state.journalFound.push(1);
+
+  updateResources();
+  updateSidePanel();
+  showIntro();
+}
+
+function showIntro() {
+  setPhase('dawn');
+  stopRain();
+  setFog(false);
+
+  renderContent(`
+    <div class="narrative fade-in">
+      <div class="lighthouse-scene">
+        <div class="lh-ocean"></div>
+        <div class="lh-cliff"></div>
+        <div class="lh-tower" style="position:relative;z-index:2;bottom:85px;">
+          <div class="stripe"></div>
+          <div class="stripe"></div>
+          <div class="stripe"></div>
+          <div class="lh-gallery"></div>
+          <div class="lh-lantern-room">
+            <div class="lh-light"></div>
+          </div>
+          <div class="lh-cap"></div>
+          <div class="lh-beam"></div>
+        </div>
+      </div>
+
+      <h2>Faro Light</h2>
+
+      <p class="sound-text">The creak of rope against timber. The slap of waves against the boat's hull. And behind it all, the low, steady groan of wind against stone.</p>
+
+      <p>You arrive by boat on a Tuesday. The previous keeper has gone. Nobody can tell you where.</p>
+
+      <p>The lighthouse is old, built from stone that does not match any quarry on the coast. The mechanism works, gears turning with a patience that borders on stubbornness. The lantern burns whale oil, and the supply room holds enough for a few weeks. After that, you will need to find more. Or the light goes out.</p>
+
+      <p>The boat that brought you is already leaving, its captain watching the sky with the expression of a man who does not plan to return.</p>
+
+      <p class="scene-text">You climb the spiral stairs to the lantern room and look out at the sea. Storms on every horizon. Rocks below, sharp as arguments. And the light, turning, turning, turning. Looking for ships. Looking for a reason to keep burning.</p>
+
+      <p>On the desk in the keeper's quarters, you find a journal. The first entry reads: "Tend the light. Do not ask why."</p>
+
+      <p>You tend the light.</p>
+
+      <div class="choices">
+        <button class="choice-btn" onclick="runDawn()">
+          Begin your first week at Faro Light
+          <span class="choice-cost">Week 1 begins</span>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+// ====== DAWN PHASE ======
+function runDawn() {
+  setPhase('dawn');
+  stopRain();
+  setFog(Math.random() < 0.3);
+
+  // Generate this week's weather
+  if (state.nextWeekWeather) {
+    state.weather = state.nextWeekWeather;
+  } else {
+    state.weather = generateWeather();
+  }
+  state.nextWeekWeather = generateWeather();
+  state.weatherHistory.push(state.weather);
+
+  // Chapel hope bonus
+  if (state.chapelBuilt) {
+    state.hope += 3;
+  }
+
+  updateResources();
+
+  if (state.week > 20 && !state.gameOver) {
+    return triggerEnding();
+  }
+
+  if (state.fuel <= 0) {
+    return triggerEnding('dark');
+  }
+
+  if (state.hope <= 0) {
+    return triggerEnding('alone');
+  }
+
+  const dawnMsg = DAWN_MESSAGES[Math.floor(Math.random() * DAWN_MESSAGES.length)];
+
+  // Resource report
+  const fuelStatus = state.fuel <= 15 ? '<span class="text-danger">critically low</span>' : state.fuel <= 30 ? '<span class="text-amber">running low</span>' : 'stable';
+  const foodStatus = state.food <= 10 ? '<span class="text-danger">nearly gone</span>' : state.food <= 25 ? '<span class="text-amber">getting scarce</span>' : 'adequate';
+
+  // Weather display
+  const w = WEATHER_TYPES[state.weather];
+  let weatherHTML = `<p class="weather-indicator" style="margin:0.5rem 0;">${w.icon} <strong>${w.name}</strong> — ${w.desc}</p>`;
+
+  // Forecast if watchtower built
+  let forecastHTML = '';
+  if (state.watchtowerBuilt) {
+    const nextW = WEATHER_TYPES[state.nextWeekWeather];
+    forecastHTML = `<div class="forecast-box"><div class="forecast-label">Watchtower Forecast — Next Week</div>${nextW.icon} ${nextW.name}: ${nextW.desc}</div>`;
+  }
+
+  // Sound description for dawn
+  const dawnSounds = [
+    'The creak of the lighthouse mechanism winding down as morning light makes the beam unnecessary.',
+    'Seabirds calling from the rocks below, their cries sharp against the murmur of retreating waves.',
+    'The distant crash of waves against the far side of the reef, a sound so constant it becomes silence.',
+    'Wind sighing through the gallery railing, a low, hollow note like someone blowing across the mouth of a bottle.',
+    'The fire crackling in the keeper\'s quarters, embers popping and settling as the night\'s fuel burns low.'
+  ];
+  const soundHTML = `<p class="sound-text">${dawnSounds[Math.floor(Math.random() * dawnSounds.length)]}</p>`;
+
+  // Check for journal discovery
+  let journalDiscovery = '';
+  const possibleJournals = JOURNAL_ENTRIES.filter(j => !state.journalFound.includes(j.id) && state.week >= j.week);
+  if (possibleJournals.length > 0 && Math.random() < 0.35) {
+    const found = possibleJournals[0];
+    state.journalFound.push(found.id);
+    journalDiscovery = `<p class="scene-text">While cleaning the lantern room, you find another page from the previous keeper's journal, pressed between the glass and the frame. "${found.title}" is written across the top in careful handwriting.</p>
+    <p><em>(Check the Journal to read it.)</em></p>`;
+  }
+
+  // Messages washed ashore
+  let shoreMessage = '';
+  if (Math.random() < 0.25) {
+    const messages = [
+      'A bottle washes ashore. The note inside reads: "To whoever finds this: the light is visible from further than you think."',
+      'Wreckage on the shore. A ship\'s nameplate reads "The Constancy." You do not recognize it from any vessel you have seen.',
+      'A waterproof pouch on the rocks contains a handful of coins and a letter that has been read so many times the creases have worn through.',
+      'You find a child\'s drawing sealed in wax. It shows a lighthouse with a yellow beam, and stick figures standing at its base. Everyone is smiling.',
+      'A sealed jar of preserved fruit, still good. Someone packed this with love, and the sea delivered it to you.',
+      'A piece of driftwood with words carved into it: "WE SAW YOUR LIGHT." Nothing else.',
+    ];
+    shoreMessage = `<p>${messages[Math.floor(Math.random() * messages.length)]}</p>`;
+    if (Math.random() < 0.5) {
+      state.food += 2;
+      state.materials += 1;
+    }
+  }
+
+  // Black Tide aftermath: survivors wash ashore
+  let blackTideAftermath = '';
+  if (state.specialEvents.blackTideAccepted && state.blackTideSurvivors.length > 0) {
+    const survivors = state.blackTideSurvivors;
+    survivors.forEach(s => {
+      s.dialogueIndex = 0;
+      state.population.push(s);
+      state.assignments[s.name] = 'rest';
+      state.trust[s.name] = 0;
+    });
+    state.blackTideSurvivors = [];
+
+    blackTideAftermath = `
+      <div class="event-alert">
+        <p><strong>The morning brings what the darkness took.</strong></p>
+        <p>Two figures wash ashore with the wreckage. A merchant vessel struck the rocks in the night, right where the beacon should have been. Where you turned it off.</p>
+        <p><strong>Elise Marchetti</strong> and <strong>Rui Delgado</strong> cling to a broken mast. They are alive. Three of their crewmates are not.</p>
+        <p>Elise looks at the lighthouse. The light is back on now. She says nothing. She does not need to.</p>
+      </div>
+      <p class="sound-text">The sound of wreckage grinding against rock. The sound of survivors coughing seawater. The sound of silence where three voices used to be.</p>`;
+  }
+
+  // Trust unlock check
+  let trustUnlockHTML = '';
+  const unlocks = checkTrustUnlocks();
+  if (unlocks.length > 0) {
+    const unlock = unlocks[0]; // Show one per dawn
+    trustUnlockHTML = `
+      <div class="event-alert event-alert-positive">
+        <p><strong>A bond deepens.</strong> Your trust with ${unlock.person.name} has unlocked something new.</p>
+      </div>`;
+    // Store for use in day phase
+    state._pendingTrustUnlock = unlock;
+  }
+
+  renderContent(`
+    <div class="narrative fade-in">
+      <h2>Dawn, Week ${state.week}</h2>
+
+      ${soundHTML}
+
+      <p>${dawnMsg}</p>
+
+      ${weatherHTML}
+      ${forecastHTML}
+
+      <p>You check the stores. Fuel is ${fuelStatus}. Food is ${foodStatus}. ${state.population.length > 0 ? `${state.population.length} ${state.population.length === 1 ? 'soul' : 'souls'} depend on the island and its keeper.` : 'You are alone on the island.'}</p>
+
+      ${blackTideAftermath}
+      ${trustUnlockHTML}
+      ${journalDiscovery}
+      ${shoreMessage}
+
+      <div class="choices">
+        <button class="choice-btn" onclick="runDay()">
+          The day awaits. Tend the island.
+          <span class="choice-cost">Proceed to Day phase</span>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+// ====== DAY PHASE ======
+function runDay() {
+  setPhase('day');
+  setFog(false);
+  stopRain();
+
+  // Build assignment UI
+  let assignmentHTML = '';
+  if (state.population.length > 0) {
+    assignmentHTML = '<h3 style="font-size:1rem;color:var(--amber-soft);margin:1.5rem 0 0.5rem;">Assign Your People</h3>';
+    assignmentHTML += '<div class="assignment-grid">';
+
+    const tasks = ['fishing', 'building', 'tending lighthouse', 'scouting shore', 'farming', 'rest'];
+    state.population.forEach(person => {
+      const currentTask = state.assignments[person.name] || 'rest';
+      let options = '';
+      tasks.forEach(t => {
+        const selected = t === currentTask ? ' selected' : '';
+        options += `<option value="${t}"${selected}>${t}</option>`;
+      });
+      assignmentHTML += `<div class="assign-slot">
+        <div class="slot-title">${person.name} (${person.skill})</div>
+        <select onchange="assignTask('${person.name}', this.value)">${options}</select>
+      </div>`;
+    });
+    assignmentHTML += '</div>';
+  }
+
+  // Build options
+  let buildHTML = '';
+  const availableBuildings = Object.entries(BUILDINGS).filter(([key, b]) => !state[b.stateKey]);
+  if (availableBuildings.length > 0 && state.population.length > 0) {
+    buildHTML = '<h3 style="font-size:1rem;color:var(--amber-soft);margin:1.5rem 0 0.5rem;">Build</h3>';
+    buildHTML += '<div class="choices">';
+    availableBuildings.forEach(([key, b]) => {
+      const canAfford = state.materials >= b.cost.materials;
+      const hasBuilder = state.population.some(p => p.skill === 'builder') || state.population.length >= 3;
+      const disabled = (!canAfford || !hasBuilder) ? ' disabled' : '';
+      const reason = !canAfford ? `Need ${b.cost.materials} materials (have ${state.materials})` : !hasBuilder ? 'Need a builder or 3+ people' : `Costs ${b.cost.materials} materials`;
+      buildHTML += `<button class="choice-btn"${disabled} onclick="buildStructure('${key}')">
+        Build ${b.name}: ${b.desc}
+        <span class="choice-cost">${reason}</span>
+      </button>`;
+    });
+    buildHTML += '</div>';
+  }
+
+  // Trust unlock event
+  let trustUnlockHTML = '';
+  if (state._pendingTrustUnlock) {
+    const unlock = state._pendingTrustUnlock;
+    trustUnlockHTML = `<h3 style="font-size:1rem;color:var(--amber-soft);margin:1.5rem 0 0.5rem;">A Bond Deepens — ${unlock.person.name}</h3>`;
+    trustUnlockHTML += `<div class="narrative"><p>${unlock.text.replace(/\n\n/g, '</p><p>')}</p></div>`;
+    trustUnlockHTML += '<div class="choices">';
+    unlock.choices.forEach((choice, i) => {
+      trustUnlockHTML += `<button class="choice-btn" onclick="resolveTrustUnlock(${i})">
+        ${choice.text}
+      </button>`;
+    });
+    trustUnlockHTML += '</div>';
+    state._currentTrustChoices = unlock.choices;
+  }
+
+  // Conversation option
+  let convoHTML = '';
+  const talkable = state.population.filter(p => {
+    if (!p.dialogueIndex) p.dialogueIndex = 0;
+    return p.dialogueIndex < p.dialogues.length;
+  });
+  if (talkable.length > 0 || state.population.length > 0) {
+    convoHTML = '<h3 style="font-size:1rem;color:var(--amber-soft);margin:1.5rem 0 0.5rem;">Talk to Someone</h3>';
+    convoHTML += '<div class="choices">';
+    state.population.forEach(p => {
+      if (!p.dialogueIndex) p.dialogueIndex = 0;
+      const trust = getTrust(p.name);
+      const hasDialogue = p.dialogueIndex < p.dialogues.length;
+      let trustNeeded = 0;
+      if (p.dialogueIndex === 1) trustNeeded = 30;
+      if (p.dialogueIndex === 2) trustNeeded = 60;
+      const locked = trustNeeded > 0 && trust < trustNeeded;
+
+      if (hasDialogue) {
+        if (locked) {
+          convoHTML += `<button class="choice-btn" disabled>
+            Speak with ${p.name}
+            <span class="choice-cost">${p.skill} / Trust: ${trust}/100 — Needs ${trustNeeded} trust for deeper conversation</span>
+          </button>`;
+        } else {
+          convoHTML += `<button class="choice-btn" onclick="talkTo('${p.name}')">
+            Speak with ${p.name}
+            <span class="choice-cost">${p.skill} / ${p.mood} / Trust: ${trust}</span>
+          </button>`;
+        }
+      } else if (trust < 100) {
+        convoHTML += `<button class="choice-btn" onclick="spendTimeWith('${p.name}')">
+            Spend time with ${p.name} (build trust)
+            <span class="choice-cost">${p.skill} / Trust: ${trust}/100</span>
+          </button>`;
+      }
+    });
+    convoHTML += '</div>';
+  }
+
+  renderContent(`
+    <div class="narrative fade-in">
+      <h2>Day, Week ${state.week}</h2>
+
+      <p>The day stretches before you like the ocean itself. There is always work on the island, if you know where to look. And you have learned to look.</p>
+
+      ${state.population.length === 0 ? '<p class="scene-text">You are alone. The lighthouse and the sea and the work. There is a simplicity to it, but also an ache. The light is meant to bring people home. Without anyone to come home to, it is just a machine turning.</p>' : `<p>${state.population.length} ${state.population.length === 1 ? 'person moves' : 'people move'} about the island, each finding their rhythm. ${state.population.length >= 4 ? 'It is beginning to feel less like survival and more like a community.' : 'A small group, but growing.'}</p>`}
+
+      ${trustUnlockHTML}
+      ${assignmentHTML}
+      ${buildHTML}
+      ${convoHTML}
+
+      <div class="choices" style="margin-top:2rem;">
+        <button class="choice-btn" onclick="runDusk()">
+          The work is done. Evening approaches.
+          <span class="choice-cost">Proceed to Dusk phase</span>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function assignTask(name, task) {
+  state.assignments[name] = task;
+}
+
+function buildStructure(key) {
+  const b = BUILDINGS[key];
+  if (state.materials < b.cost.materials) return;
+
+  state.materials -= b.cost.materials;
+  state[b.stateKey] = true;
+  state.hope += 5;
+  state.structuresBuilt++;
+  addLog(`Built the ${b.name}. The island grows.`);
+  state.choicesMade.push({ week: state.week, choice: 'built_' + key });
+
+  // Builders gain trust from building
+  state.population.filter(p => p.skill === 'builder').forEach(p => addTrust(p.name, 5));
+
+  updateResources();
+
+  // Building-specific flavor text
+  const buildingFlavor = {
+    garden: 'Rows of soil, sheltered by stone walls from the wind. Small green shoots pushing through dark earth, defiant against the salt air. Life, insisting on itself.',
+    infirmary: 'Clean surfaces. Organized supplies. A place where the hurt can be tended with care instead of desperation. Not a hospital. Something better: a place that says we will take care of you.',
+    seawall: 'Stone against water. A line drawn in rock that says: this far, no further. The ocean will test it. The ocean tests everything. But the wall will hold because it was built by people who need it to hold.',
+    dock: 'Timber and rope and the careful engineering of welcome. A place where ships can rest, where passengers can step onto solid ground. The first thing the rescued touch when they arrive.',
+    upgrade: 'The mechanism hums differently now. Smoother, stronger, as if the lighthouse itself is grateful for the attention. The gears mesh with precision, the light burns cleaner, the fuel lasts longer.',
+    workshop: 'Tools hung on walls. A workbench scarred with use. The smell of sawdust and oil and possibility. Every great thing that gets built here will start in this room, with a person standing at this bench, thinking.',
+    watchtower: 'From the highest point on the island, you can see further than you could before. The horizon expands. Ships appear sooner. Weather announces itself from a distance. Knowledge is protection.',
+    chapel: 'No altar. No icons. Just a circle of stone benches, open to the sky, where the lighthouse beam sweeps overhead like a slow, warm hand. People come here when they need to sit with their thoughts. It is enough.',
+    stormShelter: 'Deep in the cliff, reinforced with timber and stone, a space that says: the worst can come, and we will endure it. Not comfortable. Not pretty. But safe. Sometimes safe is beautiful.'
+  };
+
+  const flavor = buildingFlavor[key] || b.desc;
+
+  renderContent(`
+    <div class="narrative fade-in">
+      <h2>Building: ${b.name}</h2>
+
+      <p class="sound-text">The sound of hammer on stone. The creak of timber being fitted into place. The quiet satisfaction of work that matters.</p>
+
+      <p>The work takes most of the day. ${state.population.some(p => p.skill === 'builder') ? `${state.population.find(p => p.skill === 'builder').name} takes the lead, directing the work with quiet expertise. ${state.workshopBuilt && key !== 'workshop' ? 'The workshop provides the tools they need.' : ''}` : 'Everyone contributes what they can, learning as they go.'}</p>
+
+      <p class="scene-text">${flavor}</p>
+
+      <p>There is something about building that changes a place from a location into a home. Each structure is a vote of confidence. A declaration that says: we are staying. This matters.</p>
+
+      <div class="choices">
+        <button class="choice-btn" onclick="runDusk()">
+          The work is done. Evening approaches.
+          <span class="choice-cost">Proceed to Dusk phase</span>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function talkTo(name) {
+  const person = state.population.find(p => p.name === name);
+  if (!person) return;
+
+  const result = getConversation(person);
+  if (!result || result.trustGated) {
+    if (result && result.trustGated) {
+      renderContent(`
+        <div class="narrative fade-in">
+          <h2>${person.name}</h2>
+          <p>${person.name} seems like they want to say something more, but they hold back. You sense there is a deeper conversation waiting, but the trust is not there yet.</p>
+          <p class="text-dim">Trust: ${result.current}/${result.required} needed for deeper conversation. Spend time together, assign them meaningful work, or comfort them during difficult nights.</p>
+          <div class="choices">
+            <button class="choice-btn" onclick="runDay()">Return to the day's work</button>
+          </div>
+        </div>
+      `);
+    }
+    return;
+  }
+
+  state.hope += 3;
+  addTrust(person.name, 15);
+  if (!state.talkedTo.includes(person.name)) state.talkedTo.push(person.name);
+  updateResources();
+
+  // Sound for conversations
+  const convoSounds = [
+    'The fire pops in the hearth. Someone shifts their weight on the stone bench.',
+    'Wind rattles the windows of the keeper\'s quarters. Outside, the beam sweeps on.',
+    'A mug of something warm is set down on the table between you. The ceramic clicks against stone.',
+    'The lighthouse mechanism ticks overhead, a metronome for the conversation below.'
+  ];
+  const soundHTML = `<p class="sound-text">${convoSounds[Math.floor(Math.random() * convoSounds.length)]}</p>`;
+
+  renderContent(`
+    <div class="narrative fade-in">
+      <h2>A Conversation with ${person.name}</h2>
+
+      ${soundHTML}
+
+      <p class="scene-text">${person.story}</p>
+
+      <div class="dialogue">
+        <span class="speaker">${person.name}:</span> "${result.text}"
+      </div>
+
+      <p class="text-dim" style="margin-top:0.5rem;font-family:'Inter',sans-serif;font-size:0.7rem;">Trust increased. (${getTrust(person.name)}/100)</p>
+
+      <div class="choices">
+        <button class="choice-btn" onclick="runDay()">
+          Return to the day's work
+          <span class="choice-cost">Back to Day phase</span>
+        </button>
+        <button class="choice-btn" onclick="runDusk()">
+          Evening approaches
+          <span class="choice-cost">Proceed to Dusk phase</span>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function spendTimeWith(name) {
+  const person = state.population.find(p => p.name === name);
+  if (!person) return;
+
+  addTrust(person.name, 10);
+  state.hope += 1;
+  updateResources();
+
+  const activities = [
+    `You and ${person.name} walk the perimeter of the island in silence. Not the silence of strangers, but the silence of people who have learned that not everything needs to be said. The waves keep time.`,
+    `${person.name} helps you clean the lantern glass. You work together without speaking, hands finding a rhythm. When the glass is clear, you both stand back and watch the beam strengthen. "Better," ${person.name} says. Just that.`,
+    `You share a meal with ${person.name}. Nothing fancy. Bread, dried fish, water that tastes of iron. But the sharing is the thing. The willingness to sit across from someone and eat together. That is how trust is built: one meal at a time.`,
+    `${person.name} shows you something they have been working on. A small thing: a repaired tool, a sketch of the island, a collection of unusual stones. You listen. You look. You care. That is enough.`,
+    `You find ${person.name} watching the storm from the gallery. You stand beside them. After a while, they begin talking about home. Not the home they came from, but the home they are building here. You listen until the storm passes.`,
+    `You and ${person.name} work side by side repairing storm damage. The work is hard and honest and by the end of it your hands are raw and your backs are sore and you trust each other slightly more than you did before. That is how it works.`
+  ];
+
+  renderContent(`
+    <div class="narrative fade-in">
+      <h2>Time with ${person.name}</h2>
+
+      <p class="sound-text">The steady rhythm of the lighthouse mechanism above. The comfortable silence of shared purpose below.</p>
+
+      <p>${activities[Math.floor(Math.random() * activities.length)]}</p>
+
+      <p class="text-dim" style="margin-top:0.5rem;font-family:'Inter',sans-serif;font-size:0.7rem;">Trust with ${person.name}: ${getTrust(person.name)}/100</p>
+
+      <div class="choices">
+        <button class="choice-btn" onclick="runDay()">
+          Return to the day's work
+          <span class="choice-cost">Back to Day phase</span>
+        </button>
+        <button class="choice-btn" onclick="runDusk()">
+          Evening approaches
+          <span class="choice-cost">Proceed to Dusk phase</span>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function resolveTrustUnlock(choiceIndex) {
+  const choice = state._currentTrustChoices[choiceIndex];
+  if (choice.effect) choice.effect();
+  state._pendingTrustUnlock = null;
+  state._currentTrustChoices = null;
+  updateResources();
+  updateSidePanel();
+  runDay();
+}
+
+// ====== DUSK PHASE ======
+function runDusk() {
+  setPhase('dusk');
+  setFog(false);
+
+  // Check for special events first
+  for (const [key, event] of Object.entries(SPECIAL_EVENTS)) {
+    if (event.condition()) {
+      const result = event.trigger();
+      showSpecialEvent(result);
+      return;
+    }
+  }
+
+  // Determine ship arrival
+  const availableShips = SHIPS.filter(s => !state.shipsSeen.includes(s.id));
+
+  // Weather affects ship arrival chances
+  const shipChanceMod = WEATHER_TYPES[state.weather] ? WEATHER_TYPES[state.weather].shipChance : 1.0;
+  const noShipChance = 0.2 / shipChanceMod;
+
+  if (availableShips.length === 0 || (Math.random() < noShipChance && state.week > 3)) {
+    // No ship this week
+    renderContent(`
+      <div class="narrative fade-in">
+        <h2>Dusk, Week ${state.week}</h2>
+
+        <p>The horizon is empty tonight. No sails, no lights, no shapes moving through the rain. Just the ocean, doing what the ocean does. Existing without apology.</p>
+
+        <p class="scene-text">You climb to the lantern room and watch the beam sweep the water. It finds nothing, but it keeps sweeping. That is the point. The light does not search. It waits.</p>
+
+        <div class="choices">
+          <button class="choice-btn" onclick="runNight()">
+            Night falls. Tend the light.
+            <span class="choice-cost">Proceed to Night phase</span>
+          </button>
+        </div>
+      </div>
+    `);
+    return;
+  }
+
+  // Pick a ship
+  let ship;
+  // Weighted selection: prioritize story-relevant ships at the right times
+  if (state.week >= 4 && state.week <= 8 && !state.shipsSeen.includes('pirate_shadow') && Math.random() < 0.3) {
+    ship = SHIPS.find(s => s.id === 'pirate_shadow');
+  } else if (state.week >= 5 && !state.shipsSeen.includes('plague_ship') && Math.random() < 0.25) {
+    ship = SHIPS.find(s => s.id === 'plague_ship');
+  } else if (state.week >= 10 && !state.shipsSeen.includes('ghost_ship') && Math.random() < 0.3) {
+    ship = SHIPS.find(s => s.id === 'ghost_ship');
+  } else if (state.week >= 14 && !state.shipsSeen.includes('lighthouse_tender') && Math.random() < 0.4) {
+    ship = SHIPS.find(s => s.id === 'lighthouse_tender');
+  } else {
+    ship = availableShips[Math.floor(Math.random() * availableShips.length)];
+  }
+
+  if (!ship) ship = availableShips[0];
+
+  state.currentShip = ship;
+  state.shipsSeen.push(ship.id);
+
+  const fuelCost = state.dockBuilt ? Math.ceil(ship.fuelCost * 0.6) : ship.fuelCost;
+  const canAfford = state.fuel >= fuelCost;
+
+  // Pirate special handling
+  if (ship.pirateShip && !state.specialEvents.pirateOffered) {
+    state.specialEvents.pirateOffered = true;
+  }
+
+  let cargoPreview = [];
+  if (ship.cargo.food > 0) cargoPreview.push(`~${ship.cargo.food} food`);
+  if (ship.cargo.materials > 0) cargoPreview.push(`~${ship.cargo.materials} materials`);
+  if (ship.cargo.fuel > 0) cargoPreview.push(`~${ship.cargo.fuel} fuel`);
+
+  renderContent(`
+    <div class="narrative fade-in">
+      <h2>Dusk, Week ${state.week}</h2>
+
+      <p class="sound-text">The distant sound of a ship's horn, low and mournful, cutting through the wind.</p>
+
+      <p>The sun bleeds into the horizon, staining the clouds in shades of copper and bruise. And then you see it.</p>
+
+      <div class="ship-arrival">
+        <div class="ship-name">${ship.name}</div>
+        <div class="ship-desc">${ship.desc}</div>
+        <div class="ship-details">
+          <div class="ship-detail-item">Flag: ${ship.flag}</div>
+          <div class="ship-detail-item">Size: ${ship.size}</div>
+          <div class="ship-detail-item">Condition: ${ship.condition}</div>
+          ${ship.passengers.length > 0 ? `<div class="ship-detail-item">Souls aboard: ~${ship.passengers.length}</div>` : '<div class="ship-detail-item">No visible crew</div>'}
+          ${cargoPreview.length > 0 ? `<div class="ship-detail-item">Cargo estimate: ${cargoPreview.join(', ')}</div>` : ''}
+          ${state.watchtowerBuilt ? `<div class="ship-detail-item" style="color:${ship.risk > 0.5 ? 'var(--danger)' : ship.risk > 0.2 ? 'var(--amber-glow)' : 'var(--hope-green)'}">Risk Assessment: ${ship.risk > 0.5 ? 'HIGH' : ship.risk > 0.2 ? 'MODERATE' : 'LOW'} (${Math.round(ship.risk * 100)}%)</div>` : ''}
+        </div>
+      </div>
+
+      <p>${ship.arrivalText}</p>
+
+      ${ship.diseaseRisk ? '<p class="scene-text" style="border-color:var(--danger);">The yellow flag. Quarantine. Whatever is aboard that ship, it is not just cargo and passengers.</p>' : ''}
+      ${ship.pirateShip ? '<p class="scene-text" style="border-color:var(--danger);">No honest ship runs dark. Whatever they want, it is not rescue.</p>' : ''}
+
+      <div class="choices">
+        <button class="choice-btn" ${!canAfford ? 'disabled' : ''} onclick="guideShipIn()">
+          Guide them in. Light the way through the rocks.
+          <span class="choice-cost">Costs ${fuelCost} fuel${!canAfford ? ' (NOT ENOUGH)' : ''}</span>
+        </button>
+        <button class="choice-btn" onclick="warnShipOff()">
+          Signal a warning. Tell them the rocks are too dangerous, the harbor too small.
+          <span class="choice-cost">They may find another route. They may not.</span>
+        </button>
+        <button class="choice-btn" onclick="doNothing()">
+          Do nothing. The light sweeps. The choice is theirs.
+          <span class="choice-cost">The beam continues its rotation. What happens, happens.</span>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function showSpecialEvent(event) {
+  let choicesHTML = '<div class="choices">';
+  event.choices.forEach((choice, i) => {
+    choicesHTML += `<button class="choice-btn" onclick="resolveSpecialEvent(${i})">
+      ${choice.text}
+    </button>`;
+  });
+  choicesHTML += '</div>';
+
+  // Store choices for resolution
+  state._currentEventChoices = event.choices;
+
+  renderContent(`
+    <div class="narrative fade-in">
+      <h2>${event.title}</h2>
+      ${event.text}
+      ${choicesHTML}
+    </div>
+  `);
+}
+
+function resolveSpecialEvent(choiceIndex) {
+  const choice = state._currentEventChoices[choiceIndex];
+  if (choice.effect) choice.effect();
+  updateResources();
+
+  // Continue to either dusk ship phase or night
+  if (state.phase === 'dusk') {
+    // After special event at dusk, check for ships still
+    runDuskPostEvent();
+  } else {
+    runNight();
+  }
+}
+
+function runDuskPostEvent() {
+  // After a special event, go to night
+  renderContent(`
+    <div class="narrative fade-in">
+      <p class="scene-text">The evening settles around the island like a held breath. The event lingers in the air, in the way people look at each other, in the quality of the silence.</p>
+
+      <div class="choices">
+        <button class="choice-btn" onclick="runNight()">
+          Night falls. Tend the light.
+          <span class="choice-cost">Proceed to Night phase</span>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function guideShipIn() {
+  const ship = state.currentShip;
+  if (!ship) return;
+
+  const fuelCost = state.dockBuilt ? Math.ceil(ship.fuelCost * 0.6) : ship.fuelCost;
+  state.fuel -= fuelCost;
+  state.shipsSaved++;
+
+  // Add cargo
+  state.food += ship.cargo.food;
+  state.materials += ship.cargo.materials;
+  state.fuel += ship.cargo.fuel;
+
+  // Add passengers
+  ship.passengers.forEach(p => {
+    p.dialogueIndex = 0;
+    state.population.push(p);
+    state.assignments[p.name] = 'rest';
+    state.trust[p.name] = 10; // Start with some trust from being saved
+  });
+
+  state.shipsArrived.push(ship.id);
+  state.livesSaved += ship.passengers.length;
+  state.hope += 5;
+
+  // Map piece
+  if (ship.hasMapPiece) {
+    state.mapPieces++;
+  }
+
+  // Disease risk
+  let diseaseText = '';
+  if (ship.diseaseRisk) {
+    diseaseText = '<p class="scene-text" style="border-color:var(--danger);">The yellow flag was not a bluff. Whatever illness the ship carries, it is now on your island. The question is not whether it will spread, but how far.</p>';
+  }
+
+  // Pirate special dialogue
+  let pirateText = '';
+  if (ship.pirateShip) {
+    pirateText = `<p>Renna Blackwood steps onto the dock like she owns it. She does not. But she moves as if the concept of ownership is a suggestion she has chosen to decline.</p>
+    <p class="dialogue"><span class="speaker">Renna:</span> "Interesting choice, keeper. Most would have let us crash. You guided pirates to your harbor. Either you are brave, or you are playing a longer game than I expected."</p>`;
+  }
+
+  let passengerText = '';
+  if (ship.passengers.length > 0) {
+    const names = ship.passengers.map(p => `<strong>${p.name}</strong> (${p.skill})`).join(', ');
+    passengerText = `<p>The following souls step ashore: ${names}.</p>`;
+  } else {
+    passengerText = '<p>No passengers. Just cargo, stacked with care by hands now gone.</p>';
+  }
+
+  addLog(`Guided ${ship.name} safely through the rocks. ${ship.passengers.length} survivors joined the island.`);
+  updateResources();
+
+  renderContent(`
+    <div class="narrative fade-in">
+      <h2>Safe Harbor</h2>
+
+      <p class="sound-text">The groan of timber against current. Ropes snapping taut. A hull sliding between rocks with inches to spare.</p>
+
+      <p>You angle the beam, holding it steady on the channel between the rocks. The ship follows, her captain reading the light the way a musician reads a score. One wrong note and the rocks will have her.</p>
+
+      <p>She makes it. The hull clears the final outcrop by a margin that would embarrass a surgeon. Ropes are thrown, made fast. The ship settles against the rocks like a tired animal finding rest.</p>
+
+      ${pirateText}
+      ${passengerText}
+      ${diseaseText}
+
+      <p class="scene-text">The light brought them home. That is what it does. That is what you do.</p>
+
+      <div class="choices">
+        <button class="choice-btn" onclick="runNight()">
+          Night deepens. Tend the light.
+          <span class="choice-cost">Proceed to Night phase</span>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function warnShipOff() {
+  const ship = state.currentShip;
+  if (!ship) return;
+
+  state.shipsWarned++;
+  state.hope -= 3;
+
+  const warnTexts = [
+    `The ${ship.name} sees your warning signal and turns. She fights the current, heeling hard to starboard, and slowly, painfully, claws her way back to open water. You watch until she disappears into the storm. Whether she finds shelter elsewhere, you will never know.`,
+    `Your warning light flashes across the water. The ${ship.name} hesitates, her sails luffing, then comes about. She will have to find another harbor. You hope there is one.`,
+    `The ${ship.name} acknowledges your signal. A single lantern raised, then lowered. Understanding. Acceptance. She turns and the storm swallows her whole.`,
+  ];
+
+  addLog(`Warned off ${ship.name}. She turned back to open water.`);
+  updateResources();
+
+  renderContent(`
+    <div class="narrative fade-in">
+      <h2>Warning</h2>
+
+      <p>${warnTexts[Math.floor(Math.random() * warnTexts.length)]}</p>
+
+      <p class="scene-text">Not every ship can be saved. Not every harbor can hold every vessel. You tell yourself this. It helps. Mostly.</p>
+
+      <div class="choices">
+        <button class="choice-btn" onclick="runNight()">
+          Night falls. Tend the light.
+          <span class="choice-cost">Proceed to Night phase</span>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function doNothing() {
+  const ship = state.currentShip;
+  if (!ship) return;
+
+  state.shipsIgnored++;
+
+  // Chance of wreck
+  const wreckChance = 0.4 + (ship.risk * 0.3);
+  const wrecked = Math.random() < wreckChance;
+
+  if (wrecked) {
+    state.wrecks++;
+    state.hope -= 8;
+    state.materials += Math.floor(ship.cargo.materials * 0.3);
+
+    // Some passengers might survive
+    const survivors = ship.passengers.filter(() => Math.random() < 0.3);
+    survivors.forEach(p => {
+      p.dialogueIndex = 0;
+      p.mood = 'traumatized';
+      state.population.push(p);
+      state.assignments[p.name] = 'rest';
+    });
+
+    const deaths = ship.passengers.length - survivors.length;
+    state.deaths += deaths;
+
+    addLog(`${ship.name} struck the rocks. ${deaths > 0 ? `${deaths} souls lost.` : 'Miraculously, all survived.'} The wreckage washes ashore.`);
+
+    renderContent(`
+      <div class="narrative fade-in">
+        <h2>The Rocks</h2>
+
+        <p>You do nothing. The beam sweeps past the ${ship.name} without pausing, without guiding, without warning. And the rocks do what rocks do.</p>
+
+        <p class="sound-text">The shriek of wood against stone. The crack of a hull splitting open. Water pouring into a wound that will not close.</p>
+
+        <p>The sound is terrible. Wood against stone, the shriek of a hull being opened by something harder and older than itself. Then the sea, pouring into the wound. The ship lists, settles, breaks.</p>
+
+        ${deaths > 0 ? `<p class="scene-text" style="border-color:var(--danger);">${deaths} ${deaths === 1 ? 'soul' : 'souls'} lost to the rocks. The ocean does not keep score, but you do.</p>` : ''}
+
+        ${survivors.length > 0 ? `<p>${survivors.map(s => s.name).join(' and ')} ${survivors.length === 1 ? 'washes' : 'wash'} ashore on the wreckage. Alive, barely. They look at you and the lighthouse. They do not ask why.</p>` : ''}
+
+        <p>Wreckage and debris scatter across the rocks. Some of it is useful. None of it was worth this.</p>
+
+        <div class="choices">
+          <button class="choice-btn" onclick="runNight()">
+            Night falls. Tend the light.
+            <span class="choice-cost">Proceed to Night phase</span>
+          </button>
+        </div>
+      </div>
+    `);
+  } else {
+    state.hope -= 2;
+    addLog(`${ship.name} passed through without guidance. She made it, somehow.`);
+
+    renderContent(`
+      <div class="narrative fade-in">
+        <h2>Passing</h2>
+
+        <p>The ${ship.name} fights her own battle with the rocks. The beam sweeps past her like an indifferent eye. For a long moment, you think you hear the scrape of hull on stone, but it is just the wind. Just the wind.</p>
+
+        <p>She clears the reef. By luck, by skill, by whatever combination of both keeps ships from becoming wreckage. You watch her lights recede into the storm until they are gone.</p>
+
+        <p class="scene-text">She made it without you. That should be a relief. It is not, entirely.</p>
+
+        <div class="choices">
+          <button class="choice-btn" onclick="runNight()">
+            Night falls. Tend the light.
+            <span class="choice-cost">Proceed to Night phase</span>
+          </button>
+        </div>
+      </div>
+    `);
+  }
+
+  updateResources();
+}
+
+// ====== NIGHT PHASE ======
+function runNight() {
+  setPhase('night');
+
+  // Apply weather visuals
+  applyWeatherVisuals(state.weather);
+  const w = WEATHER_TYPES[state.weather];
+
+  // ---- RESOURCE CONSUMPTION ----
+
+  // Fuel consumption (modified by weather)
+  let baseFuel = state.lighthouseUpgraded ? 5 : 8;
+  if (state.specialEvents.builderReinforce) baseFuel = Math.max(3, baseFuel - 2);
+  let fuelDrain = Math.ceil(baseFuel * w.fuelMod);
+  state.fuel -= fuelDrain;
+
+  // Storm damage
+  if (w.stormDamage > 0) {
+    let damage = w.stormDamage;
+    if (state.stormShelterBuilt) damage *= 0.5;
+    if (state.wallBuilt) damage *= 0.7;
+    const materialDamage = Math.floor(state.materials * damage);
+    if (materialDamage > 0) {
+      state.materials -= materialDamage;
+    }
+  }
+
+  // Food consumption (1 per person + you)
+  let foodDrain = 1 + state.population.length;
+  // Garden reduces food drain
+  if (state.gardenBuilt) foodDrain = Math.max(1, foodDrain - 3);
+  state.food -= foodDrain;
+
+  // ---- TASK YIELDS ----
+  let taskReport = '';
+  const fishers = state.population.filter(p => state.assignments[p.name] === 'fishing');
+  const builders = state.population.filter(p => state.assignments[p.name] === 'building');
+  const tenders = state.population.filter(p => state.assignments[p.name] === 'tending lighthouse');
+  const scouts = state.population.filter(p => state.assignments[p.name] === 'scouting shore');
+  const farmers = state.population.filter(p => state.assignments[p.name] === 'farming');
+
+  if (fishers.length > 0) {
+    let fishYield = fishers.length * (fishers.some(p => p.skill === 'fisher') ? 5 : 3);
+    fishYield = Math.ceil(fishYield * w.fishMod);
+    if (fishYield > 0) {
+      state.food += fishYield;
+      taskReport += `<p>The fishing crew brings in ${fishYield} units of food. ${fishers[0].name} leads the effort.${w.fishMod < 0.5 ? ' The rough seas made the work dangerous.' : w.fishMod > 1.2 ? ' The calm water made for excellent fishing.' : ''}</p>`;
+    } else {
+      taskReport += `<p>The fishing crew returns empty-handed. ${w.name} conditions made the waters too dangerous to fish.</p>`;
+    }
+  }
+
+  if (builders.length > 0) {
+    let buildYield = builders.length * (builders.some(p => p.skill === 'builder') ? 4 : 2);
+    if (state.workshopBuilt) buildYield = Math.ceil(buildYield * 1.5);
+    state.materials += buildYield;
+    taskReport += `<p>The builders gather and process ${buildYield} materials from the island and shore.${state.workshopBuilt ? ' The workshop\'s tools make the work faster.' : ''}</p>`;
+  }
+
+  if (tenders.length > 0) {
+    const fuelSave = tenders.some(p => p.skill === 'navigator') ? 3 : 1;
+    state.fuel += fuelSave;
+    taskReport += `<p>${tenders[0].name} tends the lighthouse mechanism, conserving ${fuelSave} fuel through careful adjustments.</p>`;
+  }
+
+  if (scouts.length > 0) {
+    const scoutFind = Math.random();
+    if (scoutFind > 0.5) {
+      const found = Math.floor(Math.random() * 6) + 2;
+      state.materials += found;
+      taskReport += `<p>${scouts[0].name} finds useful salvage on the shore: ${found} materials worth keeping.</p>`;
+    } else if (scoutFind > 0.2) {
+      const foodFound = Math.floor(Math.random() * 4) + 1;
+      state.food += foodFound;
+      taskReport += `<p>${scouts[0].name} finds edible shellfish along the rocks. ${foodFound} food added to stores.</p>`;
+    } else {
+      taskReport += `<p>${scouts[0].name} patrols the shore but finds nothing of note. The sea is keeping its treasures today.</p>`;
+    }
+  }
+
+  if (farmers.length > 0 && state.gardenBuilt) {
+    const farmYield = farmers.length * (farmers.some(p => p.skill === 'cook') ? 4 : 3);
+    state.food += farmYield;
+    taskReport += `<p>The garden produces ${farmYield} food under ${farmers[0].name}'s care.</p>`;
+  } else if (farmers.length > 0 && !state.gardenBuilt) {
+    taskReport += `<p>The farmers work bare soil, trying to coax something from the rock. Without a proper garden, the yield is minimal.</p>`;
+    state.food += 1;
+  }
+
+  // Hope adjustments
+  if (state.food <= 5) { state.hope -= 5; }
+  if (state.fuel <= 10) { state.hope -= 3; }
+  if (state.population.length === 0 && state.week > 5) { state.hope -= 4; }
+
+  // People with the cook skill boost hope
+  const cooks = state.population.filter(p => p.skill === 'cook');
+  if (cooks.length > 0) { state.hope += 2; }
+
+  // Healing light prevents illness
+  if (state.specialEvents.healingLight) {
+    state.hope += 1; // subtle ongoing benefit
+  }
+
+  // Chapel passive hope
+  if (state.chapelBuilt) {
+    state.hope += 1;
+  }
+
+  // All assigned people gain a small amount of trust
+  state.population.forEach(p => {
+    const task = state.assignments[p.name];
+    if (task && task !== 'rest') {
+      addTrust(p.name, 2);
+    }
+  });
+
+  // Rest restores mood
+  state.population.forEach(p => {
+    if (state.assignments[p.name] === 'rest') {
+      p.mood = 'rested';
+    }
+  });
+
+  // Starvation check
+  if (state.food <= 0) {
+    state.food = 0;
+    state.hope -= 10;
+    // Someone might leave or die
+    if (state.population.length > 0 && Math.random() < 0.3) {
+      const leaver = state.population[state.population.length - 1];
+      state.population.pop();
+      delete state.assignments[leaver.name];
+      addLog(`${leaver.name} could bear the hunger no longer and left on a piece of driftwood. You watched them disappear into the storm.`);
+    }
+  }
+
+  // ---- NIGHT EVENT ----
+  const nightEvent = NIGHT_EVENTS[Math.floor(Math.random() * NIGHT_EVENTS.length)];
+  nightEvent.effect();
+
+  // ---- Clamp and update ----
+  updateResources();
+  updateSidePanel();
+
+  // Check for departure due to low hope
+  let departureText = '';
+  if (state.hope <= 20 && state.population.length > 2 && Math.random() < 0.3) {
+    const leaver = state.population.find(p => p.mood !== 'rested' && p.mood !== 'joyful') || state.population[state.population.length - 1];
+    state.population = state.population.filter(p => p !== leaver);
+    delete state.assignments[leaver.name];
+    departureText = `<p class="scene-text" style="border-color:var(--danger);">${leaver.name} is gone in the morning. No note, no goodbye. Just an empty bed and a missing piece of driftwood. Hope is fragile, and you let it drop too low.</p>`;
+    addLog(`${leaver.name} left the island. Hope had fallen too far.`);
+  }
+
+  // Night sound descriptions
+  const nightSounds = [
+    'The crash of waves against the rocks below, each one a small apocalypse of water and stone.',
+    'Wind howling through the beacon room, a sound that is part scream, part song, part warning.',
+    'The steady tick-tick-tick of the lighthouse mechanism, faithful as a heartbeat, turning the beam.',
+    'Rain on the windows, a thousand tiny fists knocking to be let in.',
+    'The creak of the lighthouse structure flexing in the wind, the tower swaying like a tree in a gale.',
+    'The distant sound of a ship\'s horn, low and mournful, carried on the wind from somewhere you cannot see.',
+    'The fire crackling in the keeper\'s quarters, each pop a small defiance against the cold outside.'
+  ];
+
+  // Weather-specific storm text
+  const weatherNight = {
+    clear: 'A rare clear night. The stars are out, brilliant and close enough to touch, and the beam sweeps through air that is, for once, clean and still.',
+    light_rain: 'A gentle rain falls, softening the world into whispers. The beam cuts through drizzle, casting long shadows on the mist.',
+    heavy_rain: 'Darkness comes, and with it, the rain. The lighthouse beam cuts through sheets of water, sweeping the black ocean in its endless circuit.',
+    gale: 'The wind arrives with authority, bending the rain sideways, shaking the lighthouse to its foundation. The beam fights through the gale, reaching.',
+    tempest: 'Thunder splits the sky as the tempest descends. Lightning reveals the ocean in strobe-light flashes: mountains of water, valleys of darkness. The beam competes with the storm for the right to illuminate.',
+    hurricane: 'The hurricane hits like a wall of water and sound. The lighthouse shakes. The beam flickers but holds, a thread of amber sanity in the howling dark. Everyone holds their breath and waits.'
+  };
+
+  // Storm damage report
+  let stormDamageText = '';
+  if (w.stormDamage > 0) {
+    const effectiveDamage = w.stormDamage * (state.stormShelterBuilt ? 0.5 : 1) * (state.wallBuilt ? 0.7 : 1);
+    if (effectiveDamage > 0.2) {
+      stormDamageText = `<p class="text-danger">The ${w.name.toLowerCase()} damages the island infrastructure. ${state.stormShelterBuilt ? 'The storm shelter reduces the impact. ' : ''}${state.wallBuilt ? 'The sea wall absorbs some of the force.' : 'Without a sea wall, the full force hits.'}</p>`;
+    } else if (effectiveDamage > 0.05) {
+      stormDamageText = `<p class="text-amber">Minor storm damage. ${state.stormShelterBuilt || state.wallBuilt ? 'Your defenses mitigate the worst of it.' : 'Better defenses would help.'}</p>`;
+    }
+  }
+
+  // Build the night narrative
+  renderContent(`
+    <div class="narrative fade-in">
+      <h2>Night, Week ${state.week}</h2>
+
+      <p class="sound-text">${nightSounds[Math.floor(Math.random() * nightSounds.length)]}</p>
+
+      <p>${weatherNight[state.weather] || weatherNight.heavy_rain} Above, the mechanism turns. Below, the foundation hums. Between them, you.</p>
+
+      ${taskReport}
+
+      <p class="scene-text">${nightEvent.text}</p>
+
+      ${stormDamageText}
+      ${departureText}
+
+      <p>Fuel consumed: <span class="text-amber">${fuelDrain}</span>. Food consumed: <span class="text-amber">${foodDrain}</span>. Weather: ${w.icon} ${w.name}. ${state.fuel <= 15 ? '<span class="text-danger">Fuel is dangerously low.</span>' : ''} ${state.food <= 10 ? '<span class="text-danger">Food is scarce.</span>' : ''}</p>
+
+      <div class="choices">
+        <button class="choice-btn" onclick="endWeek()">
+          Dawn breaks. A new week begins.
+          <span class="choice-cost">Week ${state.week + 1}</span>
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function endWeek() {
+  state.week++;
+  state.currentShip = null;
+
+  // Check end conditions
+  if (state.week > 20) {
+    triggerEnding();
+  } else if (state.fuel <= 0) {
+    triggerEnding('dark');
+  } else if (state.hope <= 0) {
+    if (state.population.length === 0) {
+      triggerEnding('alone');
+    } else {
+      // Everyone leaves
+      state.population.forEach(p => {
+        addLog(`${p.name} left the island. There was no hope left to hold them.`);
+      });
+      state.population = [];
+      state.assignments = {};
+      triggerEnding('alone');
+    }
+  } else {
+    runDawn();
+  }
+}
+
+// ====== ENDINGS ======
+function triggerEnding(forcedEnding) {
+  state.gameOver = true;
+  stopRain();
+  setFog(false);
+
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('ending-screen').style.display = 'block';
+  document.body.className = '';
+
+  let ending;
+
+  if (forcedEnding === 'dark') {
+    ending = getEndingDark();
+  } else if (forcedEnding === 'alone') {
+    ending = getEndingAlone();
+  } else if (state.specialEvents.mapFound && state.mapPieces >= 3) {
+    ending = getEndingExplorer();
+  } else if (state.hope > 50 && state.population.length >= 8) {
+    ending = getEndingKeeper();
+  } else if (state.hope > 50 && state.population.length >= 4) {
+    ending = getEndingKeeperSmall();
+  } else if (state.population.length === 0) {
+    ending = getEndingAlone();
+  } else {
+    ending = getEndingDeparture();
+  }
+
+  state.ending = ending.id;
+
+  // Calculate legacy score
+  const legacyScore = calculateLegacyScore();
+
+  // Generate epilogue cards
+  const epilogues = generateEpilogues();
+  let epilogueHTML = '';
+  if (epilogues.length > 0) {
+    epilogueHTML = '<h2 style="font-size:1.3rem;color:var(--amber-soft);margin:2rem 0 1rem;text-align:center;">Epilogues</h2>';
+    epilogues.forEach(ep => {
+      epilogueHTML += `<div class="epilogue-card"><h3>${ep.title}</h3><p>${ep.text}</p></div>`;
+    });
+  }
+
+  // Build all-buildings list
+  const allBuildings = [
+    state.gardenBuilt && 'Garden',
+    state.infirmaryBuilt && 'Infirmary',
+    state.wallBuilt && 'Sea Wall',
+    state.dockBuilt && 'Dock',
+    state.lighthouseUpgraded && 'Lighthouse Upgrade',
+    state.workshopBuilt && 'Workshop',
+    state.watchtowerBuilt && 'Watchtower',
+    state.chapelBuilt && 'Chapel',
+    state.stormShelterBuilt && 'Storm Shelter'
+  ].filter(Boolean);
+
+  document.getElementById('ending-content').innerHTML = `
+    <h1>${ending.title}</h1>
+    <div class="ending-subtitle">${ending.subtitle}</div>
+    <div class="ending-text">${ending.text}</div>
+
+    ${epilogueHTML}
+
+    <div class="legacy-score">
+      <h3>Legacy Score</h3>
+      <div class="score-value">${legacyScore.total}</div>
+      <div class="score-title">${legacyScore.title}</div>
+    </div>
+
+    <div class="ending-stats">
+      <div><strong>Weeks survived:</strong> ${Math.min(state.week, 20)}</div>
+      <div><strong>Ships guided safely:</strong> ${state.shipsSaved}</div>
+      <div><strong>Ships warned away:</strong> ${state.shipsWarned}</div>
+      <div><strong>Wrecks on the rocks:</strong> ${state.wrecks}</div>
+      <div><strong>Lives saved:</strong> ${state.livesSaved}</div>
+      <div><strong>Lives lost:</strong> ${state.deaths}</div>
+      <div><strong>Community size:</strong> ${state.population.length}</div>
+      <div><strong>Structures built:</strong> ${state.structuresBuilt} (${allBuildings.join(', ') || 'None'})</div>
+      <div><strong>Journal entries found:</strong> ${state.journalFound.length} of ${JOURNAL_ENTRIES.length}</div>
+      <div><strong>People spoken to:</strong> ${state.talkedTo.length}</div>
+      <div><strong>Final hope:</strong> ${state.hope}</div>
+      ${state.specialEvents.blackTideTriggered ? `<div><strong>The Black Tide:</strong> ${state.specialEvents.blackTideAccepted ? 'Accepted (light extinguished)' : 'Refused (light held)'}</div>` : ''}
+      ${state.specialEvents.navigatorVoyage ? '<div><strong>Navigator\'s Voyage:</strong> Sent to find the other lighthouse</div>' : ''}
+      ${state.specialEvents.healingLight ? '<div><strong>Healing Light:</strong> Discovered</div>' : ''}
+    </div>
+    <button class="btn-restart" onclick="restart()">Begin Again</button>
+    <div style="margin-top:2rem;font-size:0.85rem;color:var(--text-dim);font-style:italic;">
+      "The light was on. That was enough."<br><br>
+      A game by Wren Hephaestus
+    </div>
+  `;
+}
+
+function getEndingKeeper() {
+  const blackTideRef = state.specialEvents.blackTideAccepted ?
+    '<p>You carry the weight of one dark night. Three names carved into stone. The fuel you bought with silence. You do not pretend it was the right choice. You do not pretend it was wrong. You carry it the way the lighthouse carries the storms: as part of what it means to stand here.</p>' :
+    state.specialEvents.blackTideRefused ?
+    '<p>You remember the night the Black Tide came, and you said no. The cost was real. But the light held, and the people held, and the community that grew from that refusal became the foundation of everything that followed. Sometimes the most important thing you build is the word "no," spoken clearly, in a storm.</p>' : '';
+
+  const signalRef = state.specialEvents.signalReceived ?
+    '<p>And somewhere across the water, another light burns. Another keeper tends another mechanism, sweeps another beam across another stretch of troubled ocean. You are not alone. You never were. The light found the light, the way it always does.</p>' : '';
+
+  return {
+    id: 'keeper',
+    title: 'The Keeper',
+    subtitle: 'You stayed. That was the whole point.',
+    text: `<p>Twenty weeks. The storms never stopped. The light never went out.</p>
+
+    <p>You stand in the lantern room at dawn, the glass freshly cleaned, the mechanism turning with the patience of something that has outlived every keeper who ever tended it. Below you, the island is waking. Smoke from the cooking fire. Voices carrying on the wind. The sound of work being done, not because it was ordered, but because it matters.</p>
+
+    <p>You look around at what has grown here: ${state.population.length} people, each one brought by the light, each one choosing to stay. ${state.population.map(p => p.name).join('. ')}. Names you did not know twenty weeks ago. Names that now mean home.</p>
+
+    <p>The storms will continue. You understand that now, if you found the previous keeper's journal, if you spoke to the scholars and the navigators and the strange figure from the unnamed ship. The lighthouse draws the storms. The storms justify the lighthouse. A pharmakon, the old keeper wrote. The cure that is also the disease.</p>
+
+    ${blackTideRef}
+
+    <p>But here is what the old keeper did not write, because it took you to discover it: the lighthouse is not the light. The light is not the mechanism, or the fuel, or the beam sweeping the water. The light is the choice to stay. The light is ${state.population[0].name} ${state.population[0].skill === 'cook' ? 'cooking for everyone because food is a language' : state.population[0].skill === 'fisher' ? 'casting nets at dawn because the ocean provides if you show up' : state.population[0].skill === 'healer' ? 'making evening rounds because no one should suffer alone' : state.population[0].skill === 'builder' ? 'always finding something to fix because building is how they say I am here' : 'finding their purpose in the daily work of staying'}. The light is ${state.population.length > 1 ? state.population[1].name + ' ' + (state.population[1].skill === 'navigator' ? 'reading the stars because someone must remember the way' : 'tending the garden because growing things is an act of faith') : 'every small act of stubborn, daily care'}. The light is a community that chose each other in a storm and kept choosing.</p>
+
+    ${signalRef}
+
+    <p>You climb to the lantern room at dawn and clean the glass. The mechanism turns. The beam sweeps. Somewhere out there, a ship sees the light and turns toward shore. Someone is coming home. You will be ready.</p>
+
+    <p>The light is on. That is enough. It was always enough. The staying was the whole point.</p>`
+  };
+}
+
+function getEndingKeeperSmall() {
+  const person = state.population[0];
+  const trust = person ? getTrust(person.name) : 0;
+
+  return {
+    id: 'keeper_small',
+    title: 'The Keeper',
+    subtitle: 'Small lights burn the longest.',
+    text: `<p>Twenty weeks. A small community, but real. ${state.population.length} ${state.population.length === 1 ? 'person' : 'people'} who found this island and decided, against all evidence, that it was worth staying for.</p>
+
+    <p>There are lighthouses in stories that guide armadas, that split storms, that hold back the dark with beams as wide as rivers. Faro Light is not one of those lighthouses. It is a small light on a small rock in a large ocean, and its keeper is not a hero. Not a legend. Just a person who chose to stay.</p>
+
+    <p>The storms did not stop. The lighthouse did not solve them. You did not fix anything, really. You just kept the light on, night after night, checked the fuel, cleaned the glass, climbed the stairs in the dark when the mechanism needed attention at 3 AM, and somehow, impossibly, that was enough.</p>
+
+    <p>${person ? `${person.name} once said something you have not forgotten: ${person.dialogues ? '"' + person.dialogues[0] + '"' : '"This place feels like it matters."'}` : ''} ${trust >= 60 && person ? `Over the weeks, your trust with ${person.name} grew into something rare: the kind of bond that does not require words, only presence. The kind where silence is not empty but full.` : ''}</p>
+
+    ${state.specialEvents.blackTideRefused ? '<p>You remember the night you refused the Black Tide. The night you chose the light over fuel, the community over survival. That decision cost you. But it also built something. Every person on this island knows: the light is not for sale. That knowledge is worth more than oil.</p>' : ''}
+
+    <p>Small things. A clean lantern. A warm meal. A conversation at dusk when the beam starts to sweep and the world turns amber for a few minutes before the dark comes. The sound of the mechanism turning, reliable as a heartbeat. ${state.chapelBuilt ? 'The chapel, where people sit and are quiet and find whatever it is they need to find.' : ''} ${state.gardenBuilt ? 'The garden, where green things grow in defiance of salt and wind.' : ''} These are not dramatic things. They are not the stuff of legends. But they are the stuff of staying, and staying is its own kind of courage.</p>
+
+    <p>The world does not need grand gestures. It needs someone to tend the light. It needs someone to show up, every day, and do the work that keeps the dark at bay. Not the dramatic dark. The ordinary dark. The kind that comes when nobody bothers to keep the flame lit.</p>
+
+    <p>The light is on. The door is open. The harbor, small as it is, has room for one more. It always has room for one more.</p>`
+  };
+}
+
+function getEndingExplorer() {
+  const scholars = state.population.filter(p => p.skill === 'scholar');
+  const navigators = state.population.filter(p => p.skill === 'navigator');
+
+  return {
+    id: 'explorer',
+    title: 'The Explorer',
+    subtitle: 'You went deeper. Now you have to decide.',
+    text: `<p>The map, assembled from fragments brought by scholars and strange ships and the restless ocean itself, reveals what you suspected: the lighthouse sits on something ancient. Something that was here before the ocean, before the island, before the storms.</p>
+
+    <p>${scholars.length > 0 ? scholars[0].name + ' spreads the final chart across the table.' : 'The final chart takes shape.'} The data is undeniable. Core samples. Sonar readings. The Fibonacci patterns in the foundation stone. The underwater structure that mirrors the tower above. All of it points to a single, staggering conclusion: Faro Light is not a lighthouse that happens to sit on a strange rock. It is the visible fraction of something much, much larger. An anchor point in the fabric of whatever this place is. Older than the ocean. Older than the stone. Perhaps older than the concept of "old" itself.</p>
+
+    <p>The underwater structure mirrors the lighthouse above. A beacon pointing down into a darkness that is not empty. The storms are drawn to the light, and the light is drawn to whatever sleeps below. A circuit. A relationship. A conversation between above and below that has been happening since before anyone was listening.</p>
+
+    ${navigators.length > 0 ? `<p>${navigators[0].name} traces the storm spiral on the chart. "It is beautiful," they say quietly. "If you stop thinking of it as weather and start thinking of it as architecture, it is beautiful. The storms are not destruction. They are structure. The lighthouse is not fighting them. It is conducting them."</p>` : ''}
+
+    <p>You could end it. The scholars believe that destroying the foundation stone would collapse the circuit. The storms would stop. The seas would calm. Ships would no longer need the lighthouse, because there would be nothing to navigate around. No storms to shelter from. No rocks hidden by impossible weather. Just ordinary ocean, and ordinary sky, and the ordinary silence of a world that no longer hums.</p>
+
+    <p>But you would also end the light. And the community that gathered around it. And the harbor, and the garden, and the conversations at dusk when the beam starts to sweep. You would end the reason ${state.population[0].name} found this place, and ${state.population.length > 1 ? state.population[1].name : 'every soul who followed'}. You would end the thing that brought all of you together.</p>
+
+    <p>You stand in the lantern room, the map spread before you, the mechanism turning overhead like the heartbeat of something vast and patient. ${state.population.length} faces look up at you from the island below, each one a life the light drew home. And you make a choice that is not really a choice at all.</p>
+
+    <p>You fold the map. You put it in a drawer. You close the drawer.</p>
+
+    <p>The storms can stay. The light can stay. The people, the harbor, the garden, the chapel, the dock, the sea wall, the workshop, every structure built by hands that chose to stay. They can all stay. The mystery can stay too, because some things are not meant to be solved. Some things are meant to be lived with. Tended. Kept.</p>
+
+    <p>You are the keeper of Faro Light. You do not keep the mechanism, or the fuel, or the beam. You keep the choice. The choice to stay when leaving would be easier. The choice to tend when neglect would be simpler. The choice to light when darkness would be cheaper.</p>
+
+    <p>The light was on. That was enough.</p>
+
+    <p>The foundation stone hums beneath your feet, and for the first time, you hum back.</p>`
+  };
+}
+
+function getEndingAlone() {
+  const peopleWhoLeft = state.choicesMade.filter(c => c.choice === 'departure').map(c => c.person);
+  const lostNames = state.log.filter(l => l.text.includes('left the island') || l.text.includes('was lost') || l.text.includes('did not survive')).map(l => l.text);
+
+  return {
+    id: 'alone',
+    title: 'The Alone',
+    subtitle: 'You kept the light burning. Just you.',
+    text: `<p>In the end, it is just you and the lighthouse. The way it was in the beginning. The way, perhaps, it was always meant to be.</p>
+
+    <p>You sit in the keeper's quarters as the wind tests the windows for the ten thousandth time. The chair has shaped itself to you over twenty weeks, the way a riverbed shapes itself to water. You fit here now. Not because you chose to, not because you are happy, but because staying has worn a groove in the world that matches your shape exactly.</p>
+
+    ${state.deaths > 0 ? `<p>You remember the ones you lost. ${state.deaths} ${state.deaths === 1 ? 'life' : 'lives'}, each one a weight you carry up the spiral stairs every night. The light does not absolve you. It never did. But it does not condemn you either. It just burns, and you tend it, and the question of whether you did enough is one you will answer every night for as long as you are here.</p>` : ''}
+
+    <p>The storms howl. The beam sweeps. The mechanism turns with the patience of something that has been turning since before you were born and will continue turning after you are gone. You clean the glass. You check the fuel. You climb the stairs and look out at the empty ocean and you tend the light.</p>
+
+    <p>There is a word for this. Not loneliness, exactly. Not duty. Something between the two, in the place where stubbornness meets love. You tend the light because the light needs tending. Because somewhere out there, a ship you cannot see is navigating by a beam it does not understand, thrown by a keeper it will never meet.</p>
+
+    <p>The foundation stone hums beneath your feet. You have stopped being afraid of it. Whatever lives below the lighthouse, whatever ancient structure mirrors the tower in the deep, it has been your companion through every storm. It hums, and you listen, and the conversation between you requires no words.</p>
+
+    <p>That is enough. It has to be. Because the alternative is darkness, and you have chosen light, and you will keep choosing it until the fuel runs out or the storms stop or the ocean swallows the rocks themselves.</p>
+
+    <p>You are the keeper. You keep. That is the whole of it. That is the entire story: someone stood in the dark and held a light, and did not let go.</p>
+
+    <p>The light is on.</p>`
+  };
+}
+
+function getEndingDark() {
+  const hadPeople = state.population.length > 0;
+  const hadBlackTide = state.specialEvents.blackTideAccepted;
+
+  return {
+    id: 'dark',
+    title: 'The Dark',
+    subtitle: 'The fuel is gone. The light goes out.',
+    text: `<p>The moment arrives without ceremony. The flame gutters, dims, and dies. The mechanism continues to turn for a few seconds, gears spinning without purpose, before the counterweight runs down and it too falls silent. For the first time since anyone can remember, Faro Light is dark.</p>
+
+    <p>The silence is enormous. You did not realize how much sound the lighthouse made until it stopped. The hum of the mechanism, the whisper of the flame, the creak of the rotating assembly. Gone. All gone. What remains is wind and water and your own breathing${hadPeople ? `, and the quiet, stunned faces of ${state.population.length} people who have just watched their anchor point go dark` : ''}.</p>
+
+    ${hadPeople ? `<p>${state.population[0].name} is the first to speak. "What do we do?" The question hangs in the dark like a bell that has been struck. You do not have an answer. You have never not had the light. It was the one constant, the one thing you could point to and say: this is what we do. We tend the light. Without it, you are just people standing in a dark building on a rock in the ocean.</p>` : '<p>You sit alone in the dark lantern room, your hands on the cold mechanism, and feel the absence of purpose like a physical weight. Twenty weeks of tending, and this is how it ends. Not with a storm or a disaster, but with the simple arithmetic of consumption: you burned more than you gathered. The math caught up.</p>'}
+
+    ${hadBlackTide ? '<p>You think about the fuel the Black Tide left on the dock. Thirty-five units. How long ago was that? How quickly it went. The devil\'s bargain bought you time, but time runs out too.</p>' : ''}
+
+    <p>And then something strange: the storms begin to ease. The waves soften. The wind drops from a howl to a whisper to a breath. Without the light, without the beacon, the storms have nothing to spiral around. The pharmakon has been broken. The cure is gone, and so is the disease.</p>
+
+    <p>But so is the light. And in the darkness, you hear the sound you feared most: a ship, somewhere in the black water, her hull finding the rocks without a beacon to warn her away. The crunch of wood on stone. The terrible, familiar sound of a vessel dying.</p>
+
+    <p>You grip the gallery railing so hard your knuckles whiten. There is nothing you can do. No light to swing, no beam to guide, no flame to say here, come here, you are safe here. The dark does what the dark does when the light is gone. It fills the space. It takes what it wants.</p>
+
+    <p>The night passes. It is the longest night of your life, longer than any storm, longer than any grief, because it is the first night you have ever spent without purpose. A keeper without a light is just a person. A lighthouse without a flame is just a tower. A community without a beacon is just people standing in the same place.</p>
+
+    <p>But dawn comes. Dawn always comes. And in the pale gray light of morning, you see what the darkness left behind: wreckage on the rocks, yes. But also driftwood. And among the driftwood, sealed in a waterproof drum, a supply of fuel. Enough to relight the flame. Enough to begin again.</p>
+
+    <p>You carry it up the spiral stairs. Your arms shake. The drum is heavy with second chances. You pour the oil, you trim the wick, you strike the match.</p>
+
+    <p>The light comes back on.</p>
+
+    <p>It always comes back on. Because someone is always willing to carry the fuel up the stairs. That is the real mechanism. That is the real light. Not the flame, not the oil, not the gears. The willingness to begin again after the dark. The staying, even when the light goes out.</p>
+
+    <p>Especially then.</p>`
+  };
+}
+
+function getEndingDeparture() {
+  const firstPerson = state.population.length > 0 ? state.population[0] : null;
+  const highestTrust = state.population.reduce((best, p) => {
+    const t = getTrust(p.name);
+    return t > (best ? getTrust(best.name) : 0) ? p : best;
+  }, null);
+  const successor = highestTrust || firstPerson;
+
+  return {
+    id: 'departure',
+    title: 'The Departure',
+    subtitle: 'You pass the light to other hands.',
+    text: `<p>Twenty weeks. The storms, the ships, the faces in firelight. The smell of salt and whale oil and whatever it is that ${firstPerson ? firstPerson.name + ' is cooking tonight' : 'the island smells like after rain'}. You have given this place everything you have. Now it is time to pass it on.</p>
+
+    <p>The decision does not come dramatically. There is no crisis, no final confrontation. You wake one morning and realize, with the quiet certainty of someone who has been carrying a weight for a long time, that you can set it down. Not because you are tired of it, but because other hands are ready.</p>
+
+    ${successor ? `<p>You choose ${successor.name} as the next keeper. Not because they are the most qualified${successor.skill === 'navigator' ? ', though their understanding of the light and the storms runs deep' : successor.skill === 'builder' ? ', though they understand every bolt and beam of this tower' : ''}, but because they understand. They know what the light means. They know what it costs. And they are willing to pay it. You have watched them over these weeks, the way they look at the lighthouse, the way they tend the small things without being asked. They are ready.</p>
+
+    <p>"You are sure?" they ask, standing in the lantern room where you have spent so many nights. The mechanism turns above you, casting amber shadows on both your faces. The room smells of oil and salt and the particular warmth that comes from a fire that has been burning for a very long time.</p>
+
+    <p>"The light needs a keeper," you say. "It does not need to be me."</p>
+
+    <p>"Will you come back?"</p>
+
+    <p>You do not answer. Some questions are not meant to be answered. They are meant to be lived with, the way the lighthouse lives with the storms, the way the storms live with the light. But ${successor.name} sees something in your face, and they nod. "The light will be on when you do," they say. Not "if." "When." That is how keepers talk. In certainties, not possibilities.</p>
+
+    <p>You walk through the community you helped build one last time. ${state.gardenBuilt ? 'Past the garden, where green things push through salt earth because someone believed they would.' : ''} ${state.chapelBuilt ? 'Past the chapel, where the stone benches hold the shape of everyone who has sat and been still.' : ''} ${state.dockBuilt ? 'Past the dock you built, where the next ship will find safe harbor.' : ''} Each structure a memory. Each path a story.</p>` : '<p>You leave the lighthouse running. The mechanism is wound, the fuel will last a few more days. Someone will come. Someone always comes. The light draws them. You know this because the light drew you, once, and you stayed for twenty weeks, and now you are leaving, and you are not the same person who arrived on a Tuesday with a bag and a government posting and no idea what any of it meant.</p>'}
+
+    <p>The boat takes you away from Faro Light on a morning that is, for once, almost calm. You watch the lighthouse shrink on the horizon, the beam still visible even in daylight, a stubborn golden thread against the gray sky. ${state.shipsSaved > 5 ? `You have guided ${state.shipsSaved} ships through the rocks. You have given the light to ${state.livesSaved} souls who needed it.` : ''} The island does not get smaller. It stays exactly the same size. You are the one getting further away.</p>
+
+    <p>The light is on. You made sure of that. Whatever comes next, whoever tends the mechanism, whoever cleans the glass and counts the fuel and watches the horizon for ships, whoever sits in the keeper's quarters at 3 AM listening to the storm and choosing, again, to stay: the light is on.</p>
+
+    <p>That was enough. That was always enough.</p>`
+  };
+}
+
+function calculateLegacyScore() {
+  let total = 0;
+
+  // Weeks survived (max 20 points)
+  total += Math.min(state.week, 20);
+
+  // Ships guided (5 each, max 50)
+  total += Math.min(state.shipsSaved * 5, 50);
+
+  // Lives saved (3 each)
+  total += state.livesSaved * 3;
+
+  // Lives lost (-5 each)
+  total -= state.deaths * 5;
+
+  // Structures built (4 each)
+  total += state.structuresBuilt * 4;
+
+  // Journal entries (3 each)
+  total += state.journalFound.length * 3;
+
+  // Community size (2 each)
+  total += state.population.length * 2;
+
+  // Hope bonus
+  total += Math.floor(state.hope / 10);
+
+  // Wrecks penalty
+  total -= state.wrecks * 8;
+
+  // Special events bonuses
+  if (state.specialEvents.signalReceived) total += 10;
+  if (state.specialEvents.mapFound) total += 15;
+  if (state.specialEvents.healingLight) total += 10;
+  if (state.specialEvents.navigatorVoyage) total += 10;
+  if (state.specialEvents.blackTideRefused) total += 15;
+  if (state.specialEvents.blackTideAccepted) total -= 10;
+
+  // People talked to
+  total += state.talkedTo.length * 2;
+
+  total = Math.max(0, total);
+
+  let title = '';
+  if (total >= 150) title = 'The Eternal Keeper';
+  else if (total >= 120) title = 'The Beacon of Hope';
+  else if (total >= 90) title = 'The Faithful Keeper';
+  else if (total >= 60) title = 'The Steadfast Light';
+  else if (total >= 30) title = 'The Struggling Flame';
+  else title = 'The Flickering Candle';
+
+  return { total, title };
+}
+
+function generateEpilogues() {
+  const epilogues = [];
+
+  // Epilogue for specific islanders
+  if (state.population.length > 0) {
+    const person = state.population[0];
+    const trust = getTrust(person.name);
+    if (person.skill === 'fisher' && trust >= 30) {
+      epilogues.push({
+        title: person.name,
+        text: `${person.name} continued to fish the waters around the lighthouse, learning the currents and the tides the way a musician learns an instrument: by feel, by repetition, by love. The fish still gathered in the beam's sweep, silver bodies spiraling in amber light, and ${person.name} never stopped being grateful for the strangeness of it. Years later, teaching a new arrival to cast a net, they would say: "The ocean provides, but only if you show up. Every day. In every weather. That is the secret. There is no secret. You just show up."`
+      });
+    } else if (person.skill === 'healer' && trust >= 30) {
+      epilogues.push({
+        title: person.name,
+        text: `${person.name} established what would become the island's most important tradition: evening rounds. Every night before the light was lit, they walked from shelter to shelter, checking on every person, not just for illness but for the quieter ailments that have no name. Loneliness. Fear. The slow erosion of hope. They treated these the way they treated everything: with attention, with steadiness, with the conviction that no one should suffer alone. The infirmary became a place people went not just when they were hurt, but when they needed to remember that someone cared whether they lived or died.`
+      });
+    } else if (person.skill === 'builder') {
+      epilogues.push({
+        title: person.name,
+        text: `${person.name} never stopped building. Long after the essential structures were complete, they found new projects: a bench with a view of the sunrise, a shelf carved into the lighthouse wall for the growing collection of messages in bottles, a stone path between the shelters that stayed dry even in the worst storms. They built the way other people breathe: constantly, unconsciously, as if the act of making something solid was the only way they knew how to say "I am here and I intend to stay."`
+      });
+    } else {
+      epilogues.push({
+        title: person.name,
+        text: `${person.name} found something on the island they had not expected: purpose. Not the dramatic kind that announces itself with trumpets and ceremony, but the quiet kind that comes from doing the same necessary things every day and knowing they matter. When new arrivals asked why ${person.name} stayed, the answer was always the same: "Because the light needs people. And people need the light. It is not complicated. It just is."`
+      });
+    }
+  }
+
+  // Black Tide epilogue
+  if (state.specialEvents.blackTideAccepted) {
+    const marchetti = state.population.find(p => p.name === 'Elise Marchetti');
+    epilogues.push({
+      title: 'The Price of Fuel',
+      text: `The night you turned off the light became the island's founding wound. Not a scar that healed, but a fracture that the community built itself around, the way a tree grows around a fence post: incorporating it, but never forgetting it was there. ${marchetti ? 'Elise Marchetti never spoke of it directly. She did not need to. Everyone who lived on the island knew the story of the dark night, and everyone understood that the fuel in the stores had been paid for in a currency more expensive than oil.' : 'The wreckage of the merchant vessel remained visible at low tide for years, a monument to a choice that no one could undo and no one could forget.'} Three names were carved into the chapel wall. Nikos. Fatima. Samuel. The light never went out again.`
+    });
+  } else if (state.specialEvents.blackTideRefused) {
+    epilogues.push({
+      title: 'The Night They Stood',
+      text: `The night the Black Tide came became the island's founding story. Not the arrival, not the threat, but the refusal. The moment the keeper looked at Captain Salt's offer of fuel and plenty, looked at the people standing behind them in the amber light, and said no. The light stayed on. The pirates attacked. The cost was real. But so was the choice, and so was the community that grew from it. Years later, when the storms were bad and the fuel was low and someone suggested compromise, someone else would always say: "We stood once. We can stand again." And they did.`
+    });
+  }
+
+  // Navigator voyage epilogue
+  if (state.specialEvents.navigatorVoyage) {
+    const voyageChoice = state.choicesMade.find(c => c.choice === 'navigator_voyage_yes');
+    if (voyageChoice) {
+      epilogues.push({
+        title: 'The Voyage',
+        text: `${voyageChoice.person} sailed into the storm wall on a clear morning, the only clear morning anyone could remember. They carried a sealed message from the keeper, a compass that pointed true, and the faith of everyone who watched from the cliff until the sail disappeared. For seven weeks, nothing. Then, on a night no different from any other, the distant lighthouse answered with a new pattern: three long, three short, three long. The maritime signal for "message received." ${voyageChoice.person} had made it. Whether they returned, whether the two lighthouses ever established regular contact, whether the voyage changed anything about the storms: these are questions for another story. This story only needs to know that someone was brave enough to try.`
+      });
+    }
+  }
+
+  // Limit to 3 epilogues
+  return epilogues.slice(0, 3);
+}
+
+function restart() {
+  document.getElementById('ending-screen').style.display = 'none';
+  document.getElementById('title-screen').style.display = 'flex';
+  document.body.className = '';
+}
+
+// ====== KEYBOARD SHORTCUTS ======
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'j' || e.key === 'J') {
+    showJournal();
+  }
+  if (e.key === 'i' || e.key === 'I') {
+    togglePanel();
+  }
+  if (e.key === 'Escape') {
+    closeJournal();
+  }
+});
+
+</script>
+</body>
+</html>

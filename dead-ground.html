@@ -1,0 +1,3649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Dead Ground</title>
+<style>
+/* ============================================================
+   DEAD GROUND - CSS
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a1a1a;font-family:'Courier New',monospace;color:#e0d8c8;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+#game-container{display:flex;flex-direction:column;height:100vh;width:100vw}
+
+/* --- Top Bar --- */
+#top-bar{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:#0d0d0d;border-bottom:2px solid #333;min-height:44px;flex-shrink:0;z-index:10}
+#top-bar .section{display:flex;align-items:center;gap:10px}
+#wave-info{font-size:14px;font-weight:bold;color:#c4a35a}
+#phase-indicator{font-size:12px;padding:3px 8px;border-radius:2px;font-weight:bold}
+#phase-indicator.day{background:#8a7a3a;color:#f5e6a3}
+#phase-indicator.night{background:#5a1a1a;color:#ff6666}
+#phase-indicator.waiting{background:#3a3a5a;color:#aaaadd}
+#base-hp-container{display:flex;align-items:center;gap:6px}
+#base-hp-label{font-size:11px;color:#999}
+#base-hp-bar-outer{width:120px;height:14px;background:#333;border:1px solid #555;position:relative}
+#base-hp-fill{height:100%;background:#44aa44;transition:width 0.3s}
+#base-hp-text{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;text-shadow:1px 1px 1px #000}
+#timer-display{font-size:14px;color:#f5e6a3;min-width:40px;text-align:center}
+#end-day-btn{padding:4px 10px;background:#5a4a2a;color:#f5e6a3;border:1px solid #8a7a3a;cursor:pointer;font-family:inherit;font-size:11px;display:none}
+#end-day-btn:hover{background:#7a6a3a}
+#score-display{font-size:12px;color:#888}
+
+/* --- Grid Area --- */
+#grid-wrapper{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background:#111}
+#game-canvas{image-rendering:pixelated;image-rendering:crisp-edges;cursor:crosshair}
+
+/* --- Day/Night overlay --- */
+#day-overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;transition:background 1.5s}
+#day-overlay.night{background:rgba(0,0,30,0.35)}
+
+/* --- Wave announcement --- */
+#wave-announce{position:absolute;top:0;left:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;z-index:30;pointer-events:none;flex-direction:column}
+#wave-announce.active{display:flex}
+#wave-announce .wave-text{font-size:40px;font-weight:bold;color:#cc3333;text-shadow:0 0 12px #660000,2px 2px 0 #000;animation:waveTextPulse 0.5s ease-in-out}
+#wave-announce .wave-sub{font-size:16px;color:#aa6666;text-shadow:1px 1px 0 #000;margin-top:6px}
+@keyframes waveTextPulse{0%{transform:scale(0.5);opacity:0}50%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+
+/* --- Tower info popup --- */
+#tower-info{position:absolute;background:#1a1a1aee;border:2px solid #555;padding:10px 14px;z-index:20;min-width:170px;font-size:11px;display:none;pointer-events:auto}
+#tower-info .info-name{font-weight:bold;color:#c4a35a;margin-bottom:6px;font-size:13px}
+#tower-info .info-stat{color:#aaa;margin:2px 0}
+#tower-info .info-buttons{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+#tower-info button{padding:4px 10px;font-family:inherit;font-size:10px;cursor:pointer;border:1px solid #555}
+#tower-info .btn-upgrade{background:#3a4a2a;color:#8c8}
+#tower-info .btn-upgrade:hover{background:#4a5a3a}
+#tower-info .btn-upgrade.maxed{opacity:0.4;cursor:not-allowed}
+#tower-info .btn-sell{background:#4a2a2a;color:#c88}
+#tower-info .btn-sell:hover{background:#5a3a3a}
+#tower-info .btn-repair{background:#2a3a4a;color:#8ac}
+#tower-info .btn-repair:hover{background:#3a4a5a}
+
+/* --- Tile tooltip --- */
+#tile-tooltip{position:absolute;background:#1a1a1add;border:1px solid #555;padding:4px 8px;font-size:10px;z-index:15;pointer-events:none;display:none;color:#ccc;white-space:nowrap}
+
+/* --- Bottom bar --- */
+#bottom-bar{display:flex;flex-direction:column;background:#0d0d0d;border-top:2px solid #333;flex-shrink:0;z-index:10}
+#resources-bar{display:flex;align-items:center;justify-content:center;gap:18px;padding:5px 8px;border-bottom:1px solid #222}
+.resource{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:bold}
+.resource-icon{width:14px;height:14px;border-radius:2px;display:inline-block}
+.res-wood{background:#6a4a2a;border:1px solid #8a6a3a}
+.res-stone{background:#7a7a7a;border:1px solid #999}
+.res-iron{background:#6a6a8a;border:1px solid #8a8aaa}
+.res-gold{background:#c4a435;border:1px solid #e4c455}
+#towers-bar{display:flex;align-items:stretch;justify-content:center;gap:4px;padding:5px 4px 7px;overflow-x:auto;flex-wrap:nowrap}
+.tower-btn{display:flex;flex-direction:column;align-items:center;padding:4px 7px;background:#1a1a1a;border:2px solid #333;cursor:pointer;min-width:62px;font-family:inherit;font-size:9px;color:#ccc;flex-shrink:0;transition:border-color 0.15s,background 0.15s}
+.tower-btn:hover{background:#2a2a2a;border-color:#555}
+.tower-btn.selected{background:#2a2a1a;border-color:#c4a435}
+.tower-btn.disabled{opacity:0.35;cursor:not-allowed}
+.tower-btn .t-icon{width:22px;height:22px;margin-bottom:3px;border-radius:2px}
+.tower-btn .t-name{font-weight:bold;white-space:nowrap}
+.tower-btn .t-cost{font-size:8px;color:#999;white-space:nowrap;margin-top:1px}
+.tower-btn .t-key{font-size:8px;color:#555;margin-top:1px}
+
+/* --- Screen shake --- */
+@keyframes screenShake{0%,100%{transform:translate(0,0)}10%{transform:translate(-5px,3px)}20%{transform:translate(4px,-4px)}30%{transform:translate(-3px,5px)}40%{transform:translate(5px,-2px)}50%{transform:translate(-4px,4px)}60%{transform:translate(3px,-5px)}70%{transform:translate(-5px,2px)}80%{transform:translate(4px,4px)}90%{transform:translate(-2px,-3px)}}
+.shake{animation:screenShake 0.5s ease-in-out}
+
+/* --- Game Over --- */
+#game-over{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);display:none;align-items:center;justify-content:center;z-index:50;flex-direction:column}
+#game-over.active{display:flex}
+#game-over h1{font-size:48px;color:#cc2222;text-shadow:0 0 20px #660000;margin-bottom:6px}
+#game-over .go-sub{font-size:14px;color:#aa6666;margin-bottom:24px}
+#game-over .stats{font-size:13px;color:#ccc;margin-bottom:20px;text-align:center;line-height:2}
+#game-over .high-score{font-size:15px;color:#c4a435;margin-bottom:20px}
+#game-over .new-hs{font-size:12px;color:#ffcc44;margin-top:-14px;margin-bottom:16px}
+#game-over button{padding:12px 28px;font-size:16px;font-family:inherit;background:#3a1a1a;color:#cc4444;border:2px solid #cc4444;cursor:pointer;letter-spacing:1px}
+#game-over button:hover{background:#5a2a2a}
+
+/* --- Start screen --- */
+#start-screen{position:absolute;top:0;left:0;width:100%;height:100%;background:#0a0a0a;display:flex;align-items:center;justify-content:center;z-index:60;flex-direction:column}
+#start-screen.hidden{display:none}
+#start-screen h1{font-size:52px;color:#cc2222;text-shadow:0 0 25px #440000;margin-bottom:4px;letter-spacing:6px}
+#start-screen .subtitle{font-size:13px;color:#666;margin-bottom:28px;letter-spacing:2px}
+#start-screen .instructions{font-size:12px;color:#888;max-width:420px;text-align:center;line-height:1.9;margin-bottom:24px;padding:0 16px}
+#start-screen .instructions b{color:#bbb}
+#start-screen .hs{font-size:14px;color:#c4a435;margin-bottom:22px}
+#start-screen button{padding:14px 36px;font-size:18px;font-family:inherit;background:#2a1010;color:#cc3333;border:2px solid #882222;cursor:pointer;letter-spacing:3px}
+#start-screen button:hover{background:#3a1a1a;border-color:#cc3333}
+
+/* --- Difficulty selection --- */
+#difficulty-select{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;justify-content:center}
+.diff-btn{padding:10px 18px;font-family:inherit;font-size:13px;background:#1a1a1a;border:2px solid #444;color:#aaa;cursor:pointer;letter-spacing:1px;transition:all 0.2s}
+.diff-btn:hover{background:#2a2a2a;border-color:#666}
+.diff-btn.selected{border-color:#c4a435;color:#f5e6a3;background:#2a2a1a}
+.diff-btn .diff-desc{font-size:9px;color:#666;display:block;margin-top:3px}
+
+/* --- Research Panel --- */
+#research-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:40;flex-direction:column}
+#research-overlay.active{display:flex}
+#research-panel{background:#1a1a1a;border:2px solid #555;padding:20px 28px;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+#research-panel h2{color:#c4a435;font-size:20px;margin-bottom:4px;text-align:center}
+#research-panel .research-gold{color:#c4a435;font-size:13px;text-align:center;margin-bottom:14px}
+.research-tree{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.research-branch{display:flex;flex-direction:column;gap:6px}
+.research-branch-title{font-size:12px;font-weight:bold;color:#aaa;text-align:center;padding:4px 0;border-bottom:1px solid #333;margin-bottom:2px}
+.research-node{padding:8px 6px;background:#222;border:2px solid #444;cursor:pointer;font-size:10px;color:#ccc;text-align:center;transition:all 0.2s;position:relative}
+.research-node:hover{background:#2a2a2a;border-color:#666}
+.research-node.unlocked{border-color:#4a8a4a;background:#1a2a1a;color:#8c8}
+.research-node.available{border-color:#c4a435;background:#2a2a1a}
+.research-node.locked{opacity:0.4;cursor:not-allowed}
+.research-node .node-name{font-weight:bold;font-size:11px;margin-bottom:2px}
+.research-node .node-cost{color:#c4a435;font-size:9px}
+.research-node .node-desc{color:#888;font-size:9px;margin-top:2px}
+.research-node .node-connector{position:absolute;top:-8px;left:50%;width:2px;height:8px;background:#444}
+#research-close{padding:8px 24px;background:#3a2a1a;color:#c4a435;border:1px solid #c4a435;font-family:inherit;font-size:12px;cursor:pointer;display:block;margin:10px auto 0}
+#research-close:hover{background:#4a3a2a}
+#research-btn{padding:4px 10px;background:#2a2a1a;color:#c4a435;border:1px solid #8a7a3a;cursor:pointer;font-family:inherit;font-size:11px;display:none}
+#research-btn:hover{background:#3a3a2a}
+
+/* --- Hero Unit --- */
+#hero-bar{display:flex;align-items:center;gap:8px;padding:2px 8px;border-top:1px solid #222;font-size:11px;color:#aaa;justify-content:center}
+#hero-bar .hero-label{color:#c4a435;font-weight:bold}
+#hero-bar .hero-hp{color:#4a4}
+#hero-bar .hero-xp{color:#88a}
+.hero-ability-btn{padding:2px 6px;background:#1a1a2a;border:1px solid #444;color:#aaa;cursor:pointer;font-family:inherit;font-size:10px;min-width:50px;text-align:center}
+.hero-ability-btn:hover{background:#2a2a3a;border-color:#666}
+.hero-ability-btn.on-cooldown{opacity:0.4;cursor:not-allowed}
+.hero-ability-btn .ability-key{color:#666;font-size:9px}
+
+/* --- Global Abilities --- */
+#abilities-bar{display:flex;align-items:center;gap:6px;padding:2px 8px;border-top:1px solid #222;font-size:11px;color:#aaa;justify-content:center}
+#abilities-bar .ability-label{color:#888;font-weight:bold;font-size:10px}
+.spell-btn{padding:3px 8px;background:#1a1a2a;border:1px solid #444;color:#aaa;cursor:pointer;font-family:inherit;font-size:10px;min-width:70px;text-align:center;position:relative}
+.spell-btn:hover{background:#2a2a3a;border-color:#666}
+.spell-btn.on-cooldown{opacity:0.4;cursor:not-allowed}
+.spell-btn.locked{opacity:0.2;cursor:not-allowed}
+.spell-btn.targeting{border-color:#ff6644;background:#2a1a1a}
+.spell-btn .spell-cd{font-size:8px;color:#c44}
+.spell-btn .spell-key{color:#555;font-size:9px}
+
+/* --- Minimap --- */
+#minimap-container{position:absolute;bottom:8px;right:8px;z-index:15;border:2px solid #555;background:#111;cursor:pointer}
+#minimap-canvas{display:block;image-rendering:pixelated}
+
+/* --- Event Modal --- */
+#event-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:35;flex-direction:column}
+#event-overlay.active{display:flex}
+#event-panel{background:#1a1a1a;border:2px solid #555;padding:20px 28px;max-width:400px;width:85%;text-align:center}
+#event-panel h3{color:#c4a435;font-size:18px;margin-bottom:10px}
+#event-panel .event-desc{color:#ccc;font-size:13px;line-height:1.6;margin-bottom:16px}
+#event-panel .event-choices{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+#event-panel .event-btn{padding:8px 16px;font-family:inherit;font-size:12px;background:#2a2a2a;border:1px solid #555;color:#ccc;cursor:pointer}
+#event-panel .event-btn:hover{background:#3a3a3a;border-color:#888}
+#event-panel .event-btn.primary{background:#2a3a1a;border-color:#4a8a3a;color:#8c8}
+
+/* --- Achievement Popup --- */
+#achievement-popup{position:absolute;top:60px;right:16px;background:#1a1a1aee;border:2px solid #c4a435;padding:10px 16px;z-index:45;display:none;animation:achieveSlide 0.4s ease-out;min-width:200px}
+#achievement-popup .achieve-title{color:#c4a435;font-size:12px;font-weight:bold}
+#achievement-popup .achieve-name{color:#f5e6a3;font-size:14px;margin-top:4px}
+@keyframes achieveSlide{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* --- Level Up Modal --- */
+#levelup-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:38;flex-direction:column}
+#levelup-overlay.active{display:flex}
+#levelup-panel{background:#1a1a1a;border:2px solid #c4a435;padding:20px 28px;max-width:350px;width:85%;text-align:center}
+#levelup-panel h3{color:#c4a435;font-size:18px;margin-bottom:14px}
+.levelup-choice{padding:10px 14px;margin:6px 0;background:#222;border:2px solid #444;cursor:pointer;font-family:inherit;font-size:12px;color:#ccc;text-align:center;display:block;width:100%}
+.levelup-choice:hover{background:#2a2a2a;border-color:#c4a435}
+.levelup-choice .choice-name{font-weight:bold;color:#f5e6a3}
+.levelup-choice .choice-desc{font-size:10px;color:#888;margin-top:2px}
+
+@media(max-width:640px){
+  #top-bar{padding:4px 6px;gap:4px;flex-wrap:wrap;min-height:36px}
+  #wave-info{font-size:12px}
+  #base-hp-bar-outer{width:80px;height:12px}
+  .tower-btn{min-width:50px;padding:3px 4px}
+  .tower-btn .t-name{font-size:8px}
+  .tower-btn .t-icon{width:18px;height:18px}
+  #wave-announce .wave-text{font-size:28px}
+  #start-screen h1{font-size:36px}
+  .resource{font-size:11px}
+  .research-tree{grid-template-columns:repeat(2,1fr)}
+  #minimap-container{display:none}
+  .spell-btn{min-width:50px;font-size:9px}
+}
+</style>
+</head>
+<body>
+
+<div id="game-container">
+  <!-- Top Bar -->
+  <div id="top-bar">
+    <div class="section">
+      <span id="wave-info">Wave 0</span>
+      <span id="phase-indicator" class="day">DAY</span>
+    </div>
+    <div class="section">
+      <div id="base-hp-container">
+        <span id="base-hp-label">BASE</span>
+        <div id="base-hp-bar-outer">
+          <div id="base-hp-fill" style="width:100%"></div>
+          <div id="base-hp-text">100/100</div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <span id="timer-display"></span>
+      <button id="end-day-btn">End Day</button>
+      <button id="research-btn">Research</button>
+      <span id="score-display">Score: 0</span>
+    </div>
+  </div>
+
+  <!-- Grid Area -->
+  <div id="grid-wrapper">
+    <canvas id="game-canvas"></canvas>
+    <div id="day-overlay"></div>
+    <div id="wave-announce"><div class="wave-text"></div><div class="wave-sub"></div></div>
+    <div id="tile-tooltip"></div>
+    <div id="tower-info">
+      <div class="info-name"></div>
+      <div class="info-stats"></div>
+      <div class="info-buttons">
+        <button class="btn-upgrade">Upgrade</button>
+        <button class="btn-repair">Repair</button>
+        <button class="btn-sell">Sell</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div id="bottom-bar">
+    <div id="resources-bar">
+      <div class="resource"><span class="resource-icon res-wood"></span><span id="res-wood">0</span></div>
+      <div class="resource"><span class="resource-icon res-stone"></span><span id="res-stone">0</span></div>
+      <div class="resource"><span class="resource-icon res-iron"></span><span id="res-iron">0</span></div>
+      <div class="resource"><span class="resource-icon res-gold"></span><span id="res-gold">0</span></div>
+    </div>
+    <div id="towers-bar"></div>
+    <div id="hero-bar">
+      <span class="hero-label">HERO</span>
+      <span class="hero-hp" id="hero-hp">HP: 50/50</span>
+      <span class="hero-xp" id="hero-xp">Lv.1</span>
+      <button class="hero-ability-btn" id="hero-rally" title="Rally: Towers fire 50% faster for 5s (30s CD)">Rally <span class="ability-key">[Z]</span></button>
+      <button class="hero-ability-btn" id="hero-repair" title="Repair: Full repair target tower (45s CD)">Repair <span class="ability-key">[X]</span></button>
+      <button class="hero-ability-btn" id="hero-smite" title="Smite: 50 damage to target zombie (20s CD)">Smite <span class="ability-key">[C]</span></button>
+    </div>
+    <div id="abilities-bar">
+      <span class="ability-label">SPELLS:</span>
+      <button class="spell-btn locked" id="spell-earthquake" title="Stun all zombies 2s, deal 10 damage (90s CD)">Quake <span class="spell-key">[Q]</span></button>
+      <button class="spell-btn locked" id="spell-airstrike" title="100 damage in 3x3 area (120s CD)">Airstrike <span class="spell-key">[W]</span></button>
+      <button class="spell-btn locked" id="spell-heal" title="Heal all towers and base 20 HP (60s CD)">Heal <span class="spell-key">[E]</span></button>
+      <button class="spell-btn locked" id="spell-timewarp" title="Slow all zombies to 25% speed for 5s (180s CD)">TimeWarp <span class="spell-key">[R]</span></button>
+    </div>
+  </div>
+
+  <!-- Overlays -->
+  <div id="research-overlay">
+    <div id="research-panel">
+      <h2>RESEARCH LAB</h2>
+      <div class="research-gold">Gold: <span id="research-gold-display">0</span></div>
+      <div class="research-tree" id="research-tree"></div>
+      <button id="research-close">CLOSE</button>
+    </div>
+  </div>
+
+  <div id="event-overlay">
+    <div id="event-panel">
+      <h3 id="event-title"></h3>
+      <div class="event-desc" id="event-desc"></div>
+      <div class="event-choices" id="event-choices"></div>
+    </div>
+  </div>
+
+  <div id="achievement-popup">
+    <div class="achieve-title">ACHIEVEMENT UNLOCKED</div>
+    <div class="achieve-name" id="achieve-name"></div>
+  </div>
+
+  <div id="levelup-overlay">
+    <div id="levelup-panel">
+      <h3>HERO LEVEL UP!</h3>
+      <div id="levelup-choices"></div>
+    </div>
+  </div>
+
+  <div id="minimap-container">
+    <canvas id="minimap-canvas"></canvas>
+  </div>
+
+  <div id="game-over">
+    <h1>DEAD GROUND</h1>
+    <div class="go-sub">Your base has fallen.</div>
+    <div class="stats"></div>
+    <div class="achievements-earned" style="font-size:12px;color:#c4a435;margin-bottom:10px;max-height:120px;overflow-y:auto"></div>
+    <div class="high-score"></div>
+    <div class="new-hs" style="display:none">NEW HIGH SCORE!</div>
+    <button onclick="startNewGame()">RISE AGAIN</button>
+  </div>
+
+  <div id="start-screen">
+    <h1>DEAD GROUND</h1>
+    <div class="subtitle">TOWER DEFENSE SURVIVAL</div>
+    <div class="instructions">
+      Survive the night. Harvest resources during the day.<br>
+      Build towers to defend your base from the undead horde.<br><br>
+      <b>Day:</b> Click tiles to harvest. Build towers. Research upgrades.<br>
+      <b>Night:</b> Towers fire auto. Command your Hero. Cast Spells.<br>
+      <b>Hero:</b> Click to move. Z=Rally X=Repair C=Smite<br>
+      <b>Spells:</b> Q=Quake W=Airstrike E=Heal R=TimeWarp<br>
+      <b>Keys:</b> 1-8 select towers. E ends day. Esc cancels.
+    </div>
+    <div id="difficulty-select">
+      <button class="diff-btn selected" data-diff="easy">EASY<span class="diff-desc">Forgiving</span></button>
+      <button class="diff-btn" data-diff="normal">NORMAL<span class="diff-desc">Standard</span></button>
+      <button class="diff-btn" data-diff="hard">HARD<span class="diff-desc">Punishing</span></button>
+      <button class="diff-btn" data-diff="nightmare">NIGHTMARE<span class="diff-desc">Brutal</span></button>
+    </div>
+    <div class="hs" id="start-hs"></div>
+    <button onclick="startNewGame()">BEGIN</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DEAD GROUND — A Tower Defense Survival Game
+// Canvas-rendered for performance. Single HTML file.
+// ============================================================
+
+// ============================================================
+// CONSTANTS
+// ============================================================
+const GRID_W = 20;
+const GRID_H = 15;
+const DAY_DURATION = 30;
+const BASE_MAX_HP = 100;
+
+// Tile types
+const T_GRASS = 0;
+const T_GRASS2 = 1;
+const T_DIRT = 2;
+const T_WATER = 3;
+const T_ROCK = 4;
+const T_TREE = 5;
+const T_IRON = 6;
+const T_GOLD = 7;
+const T_BASE = 8;
+
+// Colors for tiles
+const TILE_COLORS = {
+  [T_GRASS]:  '#2d4a1e',
+  [T_GRASS2]: '#345522',
+  [T_DIRT]:   '#5a4a35',
+  [T_WATER]:  '#1a3a5a',
+  [T_ROCK]:   '#6a6a6a',
+  [T_TREE]:   '#1a3a1a',
+  [T_IRON]:   '#5a5a6a',
+  [T_GOLD]:   '#5a5a3a',
+  [T_BASE]:   '#4a3520',
+};
+
+// ============================================================
+// TOWER DEFINITIONS
+// ============================================================
+const TOWER_DEFS = {
+  'wooden-wall': {
+    name: 'Wood Wall', shortName: 'Wall', type: 'wall',
+    hp: 50, range: 0, damage: 0, fireRate: 0,
+    cost: { wood: 5 },
+    color: '#6a5030', borderColor: '#8a7040',
+    desc: 'Blocks zombie movement. 50 HP.'
+  },
+  'stone-wall': {
+    name: 'Stone Wall', shortName: 'S.Wall', type: 'wall',
+    hp: 150, range: 0, damage: 0, fireRate: 0,
+    cost: { stone: 10 },
+    color: '#7a7a7a', borderColor: '#999',
+    desc: 'Strong wall. 150 HP.'
+  },
+  'arrow': {
+    name: 'Arrow Tower', shortName: 'Arrow', type: 'attack',
+    hp: 80, range: 3.5, damage: 8, fireRate: 0.8,
+    cost: { wood: 15, stone: 5 },
+    color: '#5a4a2a', borderColor: '#7a6a3a', dotColor: '#c4a435',
+    desc: 'Fast single-target. Medium range.'
+  },
+  'cannon': {
+    name: 'Cannon Tower', shortName: 'Cannon', type: 'attack',
+    hp: 100, range: 4.5, damage: 25, fireRate: 2.5, splash: 1.2,
+    cost: { wood: 10, stone: 15, iron: 5 },
+    color: '#4a4a4a', borderColor: '#6a6a6a', dotColor: '#888',
+    desc: 'Slow, splash damage. Long range.'
+  },
+  'frost': {
+    name: 'Frost Tower', shortName: 'Frost', type: 'slow',
+    hp: 80, range: 3.0, damage: 0, fireRate: 0, slowFactor: 0.4,
+    cost: { stone: 20, iron: 10 },
+    color: '#3a5a7a', borderColor: '#5a8aaa', dotColor: '#8ac8ff',
+    desc: 'Slows nearby zombies. No damage.'
+  },
+  'fire': {
+    name: 'Fire Tower', shortName: 'Fire', type: 'attack',
+    hp: 90, range: 3.0, damage: 5, fireRate: 1.5, dot: 4, dotDuration: 3,
+    cost: { wood: 15, iron: 10, gold: 5 },
+    color: '#6a2a1a', borderColor: '#aa4422', dotColor: '#ff6622',
+    desc: 'Burns zombies. Damage over time.'
+  },
+  'tesla': {
+    name: 'Tesla Tower', shortName: 'Tesla', type: 'attack',
+    hp: 70, range: 3.5, damage: 20, fireRate: 2.0, chainCount: 3,
+    cost: { iron: 20, gold: 10 },
+    color: '#3a3a5a', borderColor: '#6a6aaa', dotColor: '#aaaaff',
+    desc: 'Chain lightning. Hits multiple zombies.'
+  },
+  'heal': {
+    name: 'Heal Totem', shortName: 'Heal', type: 'heal',
+    hp: 60, range: 3.0, damage: 0, fireRate: 0, healRate: 2,
+    cost: { wood: 10, stone: 10, gold: 5 },
+    color: '#2a4a2a', borderColor: '#4a8a4a', dotColor: '#66cc66',
+    desc: 'Heals nearby structures + base.'
+  }
+};
+
+const TOWER_KEYS = Object.keys(TOWER_DEFS);
+
+// ============================================================
+// ZOMBIE DEFINITIONS
+// ============================================================
+const ZOMBIE_DEFS = {
+  walker:      { name:'Walker',      hp:20,  speed:1.0, damage:5,  atkRate:1.0, color:'#3a6a2a', border:'#4a8a3a', size:0.55, minWave:1 },
+  runner:      { name:'Runner',      hp:15,  speed:2.2, damage:3,  atkRate:0.6, color:'#7a8a2a', border:'#9aaa3a', size:0.45, minWave:3 },
+  tank:        { name:'Tank',        hp:100, speed:0.6, damage:12, atkRate:1.5, color:'#1a3a1a', border:'#2a5a2a', size:0.8,  minWave:5 },
+  spitter:     { name:'Spitter',     hp:30,  speed:1.0, damage:8,  atkRate:2.0, color:'#6a3a7a', border:'#8a5a9a', size:0.5,  minWave:7, attackRange:3 },
+  exploder:    { name:'Exploder',    hp:25,  speed:1.3, damage:0,  atkRate:0,   color:'#8a2a1a', border:'#aa4a3a', size:0.5,  minWave:10, explodeDmg:30, explodeRadius:1.5 },
+  shadow:      { name:'Shadow',      hp:40,  speed:1.8, damage:6,  atkRate:0.8, color:'rgba(40,40,55,0.7)', border:'rgba(70,70,90,0.6)', size:0.45, minWave:12, invisible:true, bypassWalls:true },
+  necromancer: { name:'Necromancer', hp:60,  speed:0.8, damage:4,  atkRate:1.2, color:'#2a3a6a', border:'#4a6aaa', size:0.6,  minWave:15, resurrect:true },
+  boss:        { name:'Boss',        hp:200, speed:0.5, damage:20, atkRate:2.0, color:'#4a3a2a', border:'#c4a435', size:0.95, minWave:10, isBoss:true }
+};
+
+// ============================================================
+// DIFFICULTY SETTINGS
+// ============================================================
+const DIFFICULTY = {
+  easy:      { label:'Easy',      zombieHpMult:0.8,  resMult:1.2, speedMult:1.0, dayMult:1.3, startWithRunners:false },
+  normal:    { label:'Normal',    zombieHpMult:1.0,  resMult:1.0, speedMult:1.0, dayMult:1.0, startWithRunners:false },
+  hard:      { label:'Hard',      zombieHpMult:1.3,  resMult:0.8, speedMult:1.1, dayMult:1.0, startWithRunners:false },
+  nightmare: { label:'Nightmare', zombieHpMult:1.6,  resMult:0.6, speedMult:1.2, dayMult:1.0, startWithRunners:true }
+};
+let selectedDifficulty = 'easy';
+
+// Additional tile types
+const T_LAVA = 9;
+const T_MUD = 10;
+const T_RUBBLE = 11;
+TILE_COLORS[T_LAVA] = '#8a2a0a';
+TILE_COLORS[T_MUD] = '#4a3a28';
+TILE_COLORS[T_RUBBLE] = '#6a6050';
+
+// ============================================================
+// RESEARCH TREE
+// ============================================================
+const RESEARCH_TREE = {
+  fortification: {
+    name: 'Fortification',
+    nodes: [
+      { id:'fort1', name:'Reinforced Walls',    cost:8,  desc:'Walls get +50% HP',              requires:null },
+      { id:'fort2', name:'Stone Barrier',        cost:14, desc:'Stone walls slow zombies 20%',   requires:'fort1' },
+      { id:'fort3', name:'Reflective Plating',   cost:22, desc:'Walls reflect 15% damage back', requires:'fort2' }
+    ]
+  },
+  ballistics: {
+    name: 'Ballistics',
+    nodes: [
+      { id:'ball1', name:'Extended Range',  cost:8,  desc:'Towers get +25% range',                  requires:null },
+      { id:'ball2', name:'Piercing Shots',  cost:14, desc:'Projectiles pierce through 2 zombies',   requires:'ball1' },
+      { id:'ball3', name:'Critical Strikes',cost:22, desc:'10% chance for 3x damage',               requires:'ball2' }
+    ]
+  },
+  engineering: {
+    name: 'Engineering',
+    nodes: [
+      { id:'eng1', name:'Quick Build',     cost:8,  desc:'Build speed +50% (placeholder)',        requires:null },
+      { id:'eng2', name:'Efficient Repair', cost:14, desc:'Tower repairs cost 50% less',           requires:'eng1' },
+      { id:'eng3', name:'Auto-Repair',      cost:22, desc:'Towers slowly heal 1 HP/s',            requires:'eng2' }
+    ]
+  },
+  necromancy: {
+    name: 'Necromancy',
+    nodes: [
+      { id:'nec1', name:'Raise Dead',     cost:10, desc:'Killed zombies have 5% chance to fight for you', requires:null },
+      { id:'nec2', name:'Ghost Towers',   cost:16, desc:'Your towers are invisible to spitters',          requires:'nec1' },
+      { id:'nec3', name:'Dread Aura',     cost:24, desc:'Zombies flee when near tesla towers',            requires:'nec2' }
+    ]
+  }
+};
+
+// ============================================================
+// ACHIEVEMENTS
+// ============================================================
+const ACHIEVEMENT_DEFS = {
+  first_blood:       { name:'First Blood',        desc:'Survive wave 1' },
+  fortress:          { name:'Fortress',            desc:'Build 20+ towers in one game' },
+  efficient:         { name:'Efficient',           desc:'Survive wave 10 with less than 10 towers' },
+  gold_rush:         { name:'Gold Rush',           desc:'Accumulate 50 gold' },
+  exterminator:      { name:'Exterminator',        desc:'Kill 500 zombies total' },
+  untouchable:       { name:'Untouchable',         desc:'Complete a wave without base damage' },
+  endurance:         { name:'Endurance',           desc:'Survive wave 25' },
+  zombie_whisperer:  { name:'Zombie Whisperer',    desc:'Unlock necromancy research' },
+  hero_maxed:        { name:'Hero Maxed',          desc:'Reach hero level 5' },
+  nightmare_wave5:   { name:'Nightmare Survivor',  desc:'Survive wave 5 on nightmare' },
+  spellcaster:       { name:'Spellcaster',         desc:'Use all 4 spells in one game' },
+  researcher:        { name:'Mad Scientist',       desc:'Unlock 6 research nodes' }
+};
+
+// ============================================================
+// SPELL DEFINITIONS
+// ============================================================
+const SPELL_DEFS = {
+  earthquake: { name:'Earthquake', key:'q', cooldown:90,  unlockWave:3,  desc:'Stun all zombies 2s, deal 10 damage' },
+  airstrike:  { name:'Airstrike',  key:'w', cooldown:120, unlockWave:6,  desc:'100 damage in 3x3 area (click target)', needsTarget:true },
+  heal:       { name:'Heal Pulse', key:'e', cooldown:60,  unlockWave:9,  desc:'Heal all towers and base for 20 HP' },
+  timewarp:   { name:'Time Warp',  key:'r', cooldown:180, unlockWave:12, desc:'Slow all zombies to 25% speed for 5s' }
+};
+
+// ============================================================
+// HERO ABILITY DEFINITIONS
+// ============================================================
+const HERO_ABILITY_DEFS = {
+  rally:  { name:'Rally',  key:'z', cooldown:30, desc:'Towers in 3 tiles fire 50% faster for 5s' },
+  repair: { name:'Repair', key:'x', cooldown:45, desc:'Instantly full-repair target tower', needsTarget:true },
+  smite:  { name:'Smite',  key:'c', cooldown:20, desc:'Deal 50 damage to target zombie', needsTarget:true }
+};
+
+// Hero level-up stat boost options
+const HERO_LEVEL_BOOSTS = [
+  { id:'hp_up',        name:'+15 Max HP',           desc:'Hero gets tougher',         apply: h => { h.maxHp += 15; h.hp = Math.min(h.hp + 15, h.maxHp); } },
+  { id:'cd_down',      name:'-20% Cooldowns',       desc:'All abilities recharge faster', apply: h => { h.cdMult *= 0.8; } },
+  { id:'smite_up',     name:'+25 Smite Damage',     desc:'Smite hits harder',         apply: h => { h.smiteDmg += 25; } },
+  { id:'rally_dur',    name:'+3s Rally Duration',   desc:'Rally lasts longer',        apply: h => { h.rallyDuration += 3; } },
+  { id:'speed_up',     name:'+30% Move Speed',      desc:'Hero moves faster',         apply: h => { h.moveSpeed *= 1.3; } },
+  { id:'regen',        name:'Regeneration',          desc:'Hero heals 1 HP/s',         apply: h => { h.regen += 1; } },
+  { id:'xp_boost',     name:'+25% XP Gain',         desc:'Level up faster',           apply: h => { h.xpMult *= 1.25; } },
+  { id:'aura_range',   name:'+1 Rally Range',        desc:'Rally affects wider area',  apply: h => { h.rallyRange += 1; } }
+];
+
+// ============================================================
+// BETWEEN-WAVE EVENTS
+// ============================================================
+const EVENT_DEFS = [
+  {
+    id: 'merchant', name: 'Wandering Merchant',
+    desc: 'A trader arrives with supplies.',
+    choices: [
+      { text: 'Buy 10 Wood (3 Gold)', action: g => { if (g.res.gold >= 3) { g.res.gold -= 3; g.res.wood += 10; return 'Purchased!'; } return 'Not enough gold!'; }},
+      { text: 'Buy 8 Stone (3 Gold)', action: g => { if (g.res.gold >= 3) { g.res.gold -= 3; g.res.stone += 8; return 'Purchased!'; } return 'Not enough gold!'; }},
+      { text: 'Buy 4 Iron (4 Gold)', action: g => { if (g.res.gold >= 4) { g.res.gold -= 4; g.res.iron += 4; return 'Purchased!'; } return 'Not enough gold!'; }},
+      { text: 'Sell 15 Wood (2 Gold)', action: g => { if (g.res.wood >= 15) { g.res.wood -= 15; g.res.gold += 2; return 'Sold!'; } return 'Not enough wood!'; }},
+      { text: 'No thanks', action: () => 'The merchant moves on.' }
+    ]
+  },
+  {
+    id: 'survivor', name: 'Survivor Found',
+    desc: 'A survivor stumbles into your camp, carrying supplies.',
+    choices: [
+      { text: 'Welcome them', action: g => { g.res.wood += 8; g.res.stone += 5; g.res.iron += 2; return '+8 Wood, +5 Stone, +2 Iron'; }}
+    ]
+  },
+  {
+    id: 'quake_event', name: 'Earthquake!',
+    desc: 'The ground shakes violently. Some structures take damage.',
+    choices: [
+      { text: 'Brace!', action: g => {
+        let dmg = 0;
+        for (const tw of g.towers) { if (Math.random() < 0.3) { tw.hp -= 15; dmg++; if (tw.hp <= 0) tw.hp = 1; } }
+        // Change some tiles
+        for (let i = 0; i < 3; i++) {
+          const rx = Math.floor(Math.random() * GRID_W);
+          const ry = Math.floor(Math.random() * GRID_H);
+          if (g.grid[ry][rx] === T_GRASS || g.grid[ry][rx] === T_GRASS2) {
+            g.grid[ry][rx] = Math.random() < 0.5 ? T_RUBBLE : T_DIRT;
+          }
+        }
+        return `${dmg} structures damaged. Terrain shifted.`;
+      }}
+    ]
+  },
+  {
+    id: 'supply_drop', name: 'Supply Drop',
+    desc: 'A crate of supplies has been spotted on the map!',
+    choices: [
+      { text: 'Collect supplies', action: g => {
+        g.res.wood += 12; g.res.stone += 8; g.res.iron += 3; g.res.gold += 1;
+        return '+12 Wood, +8 Stone, +3 Iron, +1 Gold';
+      }}
+    ]
+  },
+  {
+    id: 'intel', name: 'Scout Report',
+    desc: 'Your scouts report enemy movement.',
+    choices: [
+      { text: 'Receive intel', action: g => {
+        g.nextWaveIntel = true;
+        return 'Next wave spawn locations will be revealed!';
+      }}
+    ]
+  },
+  {
+    id: 'fog', name: 'Dense Fog',
+    desc: 'A thick fog rolls in. Visibility will be reduced next wave.',
+    choices: [
+      { text: 'Understood', action: g => { g.fogNextWave = true; return 'Tower range -25% next wave.'; }}
+    ]
+  }
+];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let G = null; // global game state
+
+function freshState() {
+  const diff = DIFFICULTY[selectedDifficulty] || DIFFICULTY.normal;
+  return {
+    // Grid
+    grid: [],
+    baseTiles: [],
+
+    // Difficulty
+    difficulty: selectedDifficulty,
+    diffSettings: diff,
+
+    // Entities
+    towers: [],
+    zombies: [],
+    projectiles: [],
+    particles: [],
+    lightnings: [],
+
+    // Resources
+    res: {
+      wood: Math.floor(30 * diff.resMult),
+      stone: Math.floor(15 * diff.resMult),
+      iron: 0,
+      gold: 0
+    },
+
+    // Game progress
+    wave: 0,
+    phase: 'day',       // 'day', 'night', 'waiting'
+    dayTimer: DAY_DURATION * diff.dayMult,
+    dayDuration: DAY_DURATION * diff.dayMult,
+    baseHp: BASE_MAX_HP,
+    baseMaxHp: BASE_MAX_HP,
+    score: 0,
+    zombiesKilled: 0,
+    zombiesKilledByType: {},
+    towersBuilt: 0,
+    resourcesGathered: 0,
+    maxGoldHeld: 0,
+    spellsUsed: {},
+    waveNoDamage: true,
+    baseHpAtWaveStart: BASE_MAX_HP,
+    gameOver: false,
+    running: false,
+
+    // Wave spawning
+    waveQueue: [],
+    spawnTimer: 0,
+    spawnInterval: 0.8,
+    spawnPoints: [],
+
+    // Dead zombie positions (for necromancer)
+    corpses: [],
+
+    // Allied zombies (from necromancy research)
+    allies: [],
+
+    // UI state
+    selectedBuild: null,   // tower key to build
+    selectedTower: null,   // placed tower object
+    hoverX: -1,
+    hoverY: -1,
+    targetingSpell: null,  // spell key if targeting
+    targetingHeroAbility: null, // hero ability key if targeting
+
+    // Timing
+    lastTime: 0,
+    tileSize: 32,
+    pathCache: null,
+    pathCacheVersion: 0,
+
+    // High score
+    highScore: parseInt(localStorage.getItem('deadground_hs') || '0'),
+
+    // Research
+    research: {},  // { nodeId: true }
+    researchCount: 0,
+
+    // Hero
+    hero: {
+      px: 0, py: 0,  // set after map gen
+      targetX: -1, targetY: -1,
+      hp: 50, maxHp: 50,
+      alive: true,
+      xp: 0, level: 1,
+      xpToNext: 50,
+      moveSpeed: 3.0,
+      smiteDmg: 50,
+      rallyDuration: 5,
+      rallyRange: 3,
+      cdMult: 1.0,
+      regen: 0,
+      xpMult: 1.0,
+      abilities: {
+        rally:  { cooldown: 0 },
+        repair: { cooldown: 0 },
+        smite:  { cooldown: 0 }
+      },
+      // Active effects
+      rallyActive: 0,
+      rallyX: 0, rallyY: 0
+    },
+
+    // Spells
+    spells: {
+      earthquake: { cooldown: 0, unlocked: false, used: false },
+      airstrike:  { cooldown: 0, unlocked: false, used: false },
+      heal:       { cooldown: 0, unlocked: false, used: false },
+      timewarp:   { cooldown: 0, unlocked: false, used: false }
+    },
+    timeWarpActive: 0,
+
+    // Events
+    pendingEvent: null,
+    nextWaveIntel: false,
+    fogNextWave: false,
+    fogActive: false,
+
+    // Stats for achievements
+    totalZombiesEverKilled: parseInt(localStorage.getItem('deadground_total_kills') || '0'),
+    achievementsEarned: JSON.parse(localStorage.getItem('deadground_achievements') || '{}'),
+    newAchievements: [] // earned this game
+  };
+}
+
+// ============================================================
+// DOM REFERENCES
+// ============================================================
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+const gridWrapper = document.getElementById('grid-wrapper');
+const waveInfoEl = document.getElementById('wave-info');
+const phaseEl = document.getElementById('phase-indicator');
+const baseHpFill = document.getElementById('base-hp-fill');
+const baseHpText = document.getElementById('base-hp-text');
+const timerEl = document.getElementById('timer-display');
+const endDayBtn = document.getElementById('end-day-btn');
+const scoreEl = document.getElementById('score-display');
+const towersBar = document.getElementById('towers-bar');
+const towerInfoEl = document.getElementById('tower-info');
+const waveAnnounce = document.getElementById('wave-announce');
+const dayOverlay = document.getElementById('day-overlay');
+const gameOverEl = document.getElementById('game-over');
+const startScreen = document.getElementById('start-screen');
+const tooltipEl = document.getElementById('tile-tooltip');
+const researchOverlay = document.getElementById('research-overlay');
+const researchTreeEl = document.getElementById('research-tree');
+const researchBtn = document.getElementById('research-btn');
+const researchCloseBtn = document.getElementById('research-close');
+const eventOverlay = document.getElementById('event-overlay');
+const achievePopup = document.getElementById('achievement-popup');
+const levelupOverlay = document.getElementById('levelup-overlay');
+const minimapCanvas = document.getElementById('minimap-canvas');
+const minimapCtx = minimapCanvas.getContext('2d');
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+function init() {
+  const hs = parseInt(localStorage.getItem('deadground_hs') || '0');
+  document.getElementById('start-hs').textContent = hs > 0 ? `High Score: Wave ${hs}` : '';
+  buildTowerButtons();
+  setupDifficultyButtons();
+  setupResearchUI();
+  setupSpellButtons();
+  setupHeroAbilityButtons();
+}
+
+// ============================================================
+// DIFFICULTY SELECTION
+// ============================================================
+function setupDifficultyButtons() {
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedDifficulty = btn.dataset.diff;
+    });
+  });
+}
+
+// ============================================================
+// RESEARCH SYSTEM
+// ============================================================
+function setupResearchUI() {
+  researchBtn.addEventListener('click', () => { if (G && G.phase === 'day') openResearchPanel(); });
+  researchCloseBtn.addEventListener('click', closeResearchPanel);
+}
+
+function openResearchPanel() {
+  document.getElementById('research-gold-display').textContent = G.res.gold;
+  renderResearchTree();
+  researchOverlay.classList.add('active');
+}
+
+function closeResearchPanel() {
+  researchOverlay.classList.remove('active');
+}
+
+function renderResearchTree() {
+  researchTreeEl.innerHTML = '';
+  for (const [branchKey, branch] of Object.entries(RESEARCH_TREE)) {
+    const branchEl = document.createElement('div');
+    branchEl.className = 'research-branch';
+    branchEl.innerHTML = `<div class="research-branch-title">${branch.name}</div>`;
+
+    for (const node of branch.nodes) {
+      const unlocked = !!G.research[node.id];
+      const prereqMet = !node.requires || !!G.research[node.requires];
+      const canBuy = !unlocked && prereqMet && G.res.gold >= node.cost;
+
+      const nodeEl = document.createElement('div');
+      nodeEl.className = 'research-node' + (unlocked ? ' unlocked' : (canBuy ? ' available' : (!prereqMet ? ' locked' : '')));
+
+      let connectorHtml = node.requires ? '<div class="node-connector"></div>' : '';
+      nodeEl.innerHTML = connectorHtml +
+        `<div class="node-name">${node.name}</div>` +
+        `<div class="node-desc">${node.desc}</div>` +
+        (unlocked ? '<div class="node-cost">UNLOCKED</div>' : `<div class="node-cost">${node.cost} Gold</div>`);
+
+      if (canBuy) {
+        nodeEl.addEventListener('click', () => purchaseResearch(node));
+      }
+      branchEl.appendChild(nodeEl);
+    }
+    researchTreeEl.appendChild(branchEl);
+  }
+}
+
+function purchaseResearch(node) {
+  if (G.res.gold < node.cost) return;
+  if (G.research[node.id]) return;
+  if (node.requires && !G.research[node.requires]) return;
+
+  G.res.gold -= node.cost;
+  G.research[node.id] = true;
+  G.researchCount++;
+
+  // Apply immediate effects
+  applyResearchEffects(node.id);
+
+  document.getElementById('research-gold-display').textContent = G.res.gold;
+  renderResearchTree();
+  updateUI();
+
+  // Achievement check
+  if (node.id === 'nec1') checkAchievement('zombie_whisperer');
+  if (G.researchCount >= 6) checkAchievement('researcher');
+}
+
+function applyResearchEffects(nodeId) {
+  switch(nodeId) {
+    case 'fort1': // Walls +50% HP
+      for (const tw of G.towers) {
+        if (tw.type === 'wall') {
+          tw.maxHp = Math.floor(tw.maxHp * 1.5);
+          tw.hp = Math.min(tw.hp + Math.floor(tw.maxHp * 0.33), tw.maxHp);
+        }
+      }
+      break;
+    case 'ball1': // Towers +25% range
+      for (const tw of G.towers) {
+        if (tw.range > 0) tw.range = +(tw.range * 1.25).toFixed(2);
+      }
+      break;
+  }
+}
+
+function hasResearch(id) {
+  return G && !!G.research[id];
+}
+
+// ============================================================
+// SPELL SYSTEM
+// ============================================================
+function setupSpellButtons() {
+  for (const [key, def] of Object.entries(SPELL_DEFS)) {
+    const btn = document.getElementById('spell-' + key);
+    if (!btn) continue;
+    btn.addEventListener('click', () => activateSpell(key));
+  }
+}
+
+function activateSpell(key) {
+  if (!G || G.gameOver || G.phase !== 'night') return;
+  const spell = G.spells[key];
+  const def = SPELL_DEFS[key];
+  if (!spell || !spell.unlocked || spell.cooldown > 0) return;
+
+  if (def.needsTarget) {
+    G.targetingSpell = key;
+    G.targetingHeroAbility = null;
+    G.selectedBuild = null;
+    updateTowerButtons();
+    return;
+  }
+
+  // Instant cast
+  executeSpell(key);
+}
+
+function executeSpell(key, targetGX, targetGY) {
+  const spell = G.spells[key];
+  const def = SPELL_DEFS[key];
+  if (!spell || spell.cooldown > 0) return;
+
+  spell.cooldown = def.cooldown;
+  spell.used = true;
+  G.spellsUsed[key] = true;
+
+  switch(key) {
+    case 'earthquake':
+      for (const z of G.zombies) {
+        if (!z.alive) continue;
+        z.hp -= 10;
+        z.stunned = 2.0;
+        z.slowed = 2.0;
+        z.slowFactor = 0;
+      }
+      canvas.classList.add('shake');
+      setTimeout(() => canvas.classList.remove('shake'), 500);
+      addParticleText(GRID_W / 2, GRID_H / 2, 'EARTHQUAKE!', '#ff8844');
+      break;
+
+    case 'airstrike':
+      if (targetGX === undefined) return;
+      const r = 1.5; // 3x3 area
+      for (const z of G.zombies) {
+        if (!z.alive) continue;
+        if (dist(targetGX, targetGY, z.px, z.py) <= r) z.hp -= 100;
+      }
+      // Explosion particles
+      for (let i = 0; i < 20; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const sp = 50 + Math.random() * 100;
+        G.particles.push({
+          x: targetGX * G.tileSize + G.tileSize / 2,
+          y: targetGY * G.tileSize + G.tileSize / 2,
+          vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+          life: 0.5, maxLife: 0.5,
+          color: Math.random() > 0.3 ? '#ff4400' : '#ffcc00',
+          radius: 3 + Math.random() * 4
+        });
+      }
+      addParticleText(targetGX, targetGY, 'AIRSTRIKE!', '#ff4400');
+      break;
+
+    case 'heal':
+      for (const tw of G.towers) {
+        tw.hp = Math.min(tw.maxHp, tw.hp + 20);
+      }
+      G.baseHp = Math.min(G.baseMaxHp, G.baseHp + 20);
+      updateBaseHpUI();
+      addParticleText(GRID_W / 2, GRID_H / 2, 'HEAL PULSE!', '#44cc44');
+      break;
+
+    case 'timewarp':
+      G.timeWarpActive = 5.0;
+      addParticleText(GRID_W / 2, GRID_H / 2, 'TIME WARP!', '#8888ff');
+      break;
+  }
+
+  G.targetingSpell = null;
+  updateSpellUI();
+
+  // Check spellcaster achievement
+  if (G.spellsUsed.earthquake && G.spellsUsed.airstrike && G.spellsUsed.heal && G.spellsUsed.timewarp) {
+    checkAchievement('spellcaster');
+  }
+}
+
+function updateSpellUI() {
+  for (const [key, def] of Object.entries(SPELL_DEFS)) {
+    const btn = document.getElementById('spell-' + key);
+    if (!btn) continue;
+    const spell = G.spells[key];
+    const unlocked = spell && spell.unlocked;
+    const onCd = spell && spell.cooldown > 0;
+
+    btn.classList.toggle('locked', !unlocked);
+    btn.classList.toggle('on-cooldown', unlocked && onCd);
+    btn.classList.toggle('targeting', G.targetingSpell === key);
+
+    if (unlocked && onCd) {
+      const cdEl = btn.querySelector('.spell-cd');
+      if (cdEl) cdEl.textContent = Math.ceil(spell.cooldown) + 's';
+      else {
+        const cd = document.createElement('span');
+        cd.className = 'spell-cd';
+        cd.textContent = Math.ceil(spell.cooldown) + 's';
+        btn.appendChild(cd);
+      }
+    } else {
+      const cdEl = btn.querySelector('.spell-cd');
+      if (cdEl) cdEl.remove();
+    }
+  }
+}
+
+// ============================================================
+// HERO SYSTEM
+// ============================================================
+function setupHeroAbilityButtons() {
+  for (const [key, def] of Object.entries(HERO_ABILITY_DEFS)) {
+    const btn = document.getElementById('hero-' + key);
+    if (!btn) continue;
+    btn.addEventListener('click', () => activateHeroAbility(key));
+  }
+}
+
+function activateHeroAbility(key) {
+  if (!G || G.gameOver || !G.hero.alive) return;
+  const ability = G.hero.abilities[key];
+  if (ability.cooldown > 0) return;
+
+  const def = HERO_ABILITY_DEFS[key];
+  if (def.needsTarget) {
+    G.targetingHeroAbility = key;
+    G.targetingSpell = null;
+    G.selectedBuild = null;
+    updateTowerButtons();
+    return;
+  }
+
+  // Instant cast (rally)
+  executeHeroAbility(key);
+}
+
+function executeHeroAbility(key, targetGX, targetGY) {
+  const ability = G.hero.abilities[key];
+  const def = HERO_ABILITY_DEFS[key];
+  if (ability.cooldown > 0) return;
+
+  ability.cooldown = def.cooldown * G.hero.cdMult;
+
+  switch(key) {
+    case 'rally':
+      G.hero.rallyActive = G.hero.rallyDuration;
+      G.hero.rallyX = G.hero.px;
+      G.hero.rallyY = G.hero.py;
+      addParticleText(G.hero.px, G.hero.py, 'RALLY!', '#ffcc44');
+      break;
+
+    case 'repair':
+      if (targetGX === undefined) return;
+      const tw = towerAt(targetGX, targetGY);
+      if (tw) {
+        tw.hp = tw.maxHp;
+        addParticleText(targetGX, targetGY, 'REPAIRED!', '#44aaff');
+      }
+      break;
+
+    case 'smite':
+      if (targetGX === undefined) return;
+      // Find nearest zombie to click
+      let best = null, bestD = 1.5;
+      for (const z of G.zombies) {
+        if (!z.alive) continue;
+        const d = dist(targetGX, targetGY, z.px, z.py);
+        if (d < bestD) { bestD = d; best = z; }
+      }
+      if (best) {
+        best.hp -= G.hero.smiteDmg;
+        addParticleText(best.px, best.py, `-${G.hero.smiteDmg}!`, '#ff4444');
+        // Lightning effect
+        G.lightnings.push({
+          x1: G.hero.px * G.tileSize + G.tileSize / 2,
+          y1: G.hero.py * G.tileSize + G.tileSize / 2,
+          x2: best.px * G.tileSize + G.tileSize / 2,
+          y2: best.py * G.tileSize + G.tileSize / 2,
+          life: 0.2
+        });
+      }
+      break;
+  }
+
+  G.targetingHeroAbility = null;
+  updateHeroUI();
+}
+
+function updateHero(dt) {
+  const h = G.hero;
+  if (!h.alive) return;
+
+  // Regen
+  if (h.regen > 0) {
+    h.hp = Math.min(h.maxHp, h.hp + h.regen * dt);
+  }
+
+  // Ability cooldowns
+  for (const [key, ability] of Object.entries(h.abilities)) {
+    if (ability.cooldown > 0) ability.cooldown = Math.max(0, ability.cooldown - dt);
+  }
+
+  // Rally decay
+  if (h.rallyActive > 0) {
+    h.rallyActive -= dt;
+  }
+
+  // Movement toward target
+  if (h.targetX >= 0 && h.targetY >= 0) {
+    const dx = h.targetX - h.px;
+    const dy = h.targetY - h.py;
+    const d = Math.sqrt(dx * dx + dy * dy);
+    if (d > 0.15) {
+      const move = h.moveSpeed * dt;
+      h.px += (dx / d) * Math.min(move, d);
+      h.py += (dy / d) * Math.min(move, d);
+    } else {
+      h.px = h.targetX;
+      h.py = h.targetY;
+      h.targetX = -1;
+      h.targetY = -1;
+    }
+  }
+
+  // Check if hero is damaged by zombies
+  for (const z of G.zombies) {
+    if (!z.alive) continue;
+    if (dist(h.px, h.py, z.px, z.py) < 0.6) {
+      if (!z._heroHitCd || z._heroHitCd <= 0) {
+        h.hp -= Math.max(1, Math.floor(z.damage * 0.5));
+        z._heroHitCd = 1.0;
+      }
+    }
+    if (z._heroHitCd > 0) z._heroHitCd -= dt;
+  }
+
+  // Death
+  if (h.hp <= 0) {
+    h.alive = false;
+    h.hp = 0;
+    addParticleText(h.px, h.py, 'HERO DOWN!', '#ff4444');
+  }
+
+  // XP from nearby kills is handled in killZombie
+}
+
+function heroGainXP(amount) {
+  const h = G.hero;
+  h.xp += Math.floor(amount * h.xpMult);
+  if (h.xp >= h.xpToNext) {
+    h.xp -= h.xpToNext;
+    h.level++;
+    h.xpToNext = Math.floor(h.xpToNext * 1.5);
+    // Show level-up choice
+    showLevelUpChoice();
+    addParticleText(h.px, h.py, 'LEVEL UP!', '#c4a435');
+    if (h.level >= 5) checkAchievement('hero_maxed');
+  }
+}
+
+function showLevelUpChoice() {
+  // Pick 2 random boosts
+  const shuffled = [...HERO_LEVEL_BOOSTS].sort(() => Math.random() - 0.5);
+  const options = shuffled.slice(0, 2);
+
+  const container = document.getElementById('levelup-choices');
+  container.innerHTML = '';
+  for (const opt of options) {
+    const btn = document.createElement('button');
+    btn.className = 'levelup-choice';
+    btn.innerHTML = `<div class="choice-name">${opt.name}</div><div class="choice-desc">${opt.desc}</div>`;
+    btn.addEventListener('click', () => {
+      opt.apply(G.hero);
+      levelupOverlay.classList.remove('active');
+      updateHeroUI();
+    });
+    container.appendChild(btn);
+  }
+  levelupOverlay.classList.add('active');
+}
+
+function updateHeroUI() {
+  const h = G.hero;
+  document.getElementById('hero-hp').textContent = `HP: ${Math.ceil(h.hp)}/${h.maxHp}`;
+  document.getElementById('hero-hp').style.color = h.alive ? (h.hp > h.maxHp * 0.5 ? '#4a4' : '#a44') : '#666';
+  document.getElementById('hero-xp').textContent = `Lv.${h.level} (${h.xp}/${h.xpToNext})`;
+
+  for (const [key, def] of Object.entries(HERO_ABILITY_DEFS)) {
+    const btn = document.getElementById('hero-' + key);
+    if (!btn) continue;
+    const ability = h.abilities[key];
+    const onCd = ability.cooldown > 0;
+    btn.classList.toggle('on-cooldown', onCd || !h.alive);
+    if (onCd) {
+      btn.textContent = `${def.name} ${Math.ceil(ability.cooldown)}s`;
+    } else {
+      const keySpan = `<span class="ability-key">[${def.key.toUpperCase()}]</span>`;
+      btn.innerHTML = `${def.name} ${keySpan}`;
+    }
+  }
+}
+
+// ============================================================
+// ACHIEVEMENT SYSTEM
+// ============================================================
+function checkAchievement(id) {
+  if (!G || G.achievementsEarned[id]) return;
+  const def = ACHIEVEMENT_DEFS[id];
+  if (!def) return;
+
+  G.achievementsEarned[id] = true;
+  G.newAchievements.push(id);
+  localStorage.setItem('deadground_achievements', JSON.stringify(G.achievementsEarned));
+
+  // Show popup
+  document.getElementById('achieve-name').textContent = def.name;
+  achievePopup.style.display = 'block';
+  setTimeout(() => { achievePopup.style.display = 'none'; }, 3000);
+}
+
+// ============================================================
+// BETWEEN-WAVE EVENTS
+// ============================================================
+function triggerRandomEvent() {
+  const evt = EVENT_DEFS[Math.floor(Math.random() * EVENT_DEFS.length)];
+  showEvent(evt);
+}
+
+function showEvent(evt) {
+  document.getElementById('event-title').textContent = evt.name;
+  document.getElementById('event-desc').textContent = evt.desc;
+  const choicesEl = document.getElementById('event-choices');
+  choicesEl.innerHTML = '';
+
+  for (const choice of evt.choices) {
+    const btn = document.createElement('button');
+    btn.className = 'event-btn' + (evt.choices.length === 1 ? ' primary' : '');
+    btn.textContent = choice.text;
+    btn.addEventListener('click', () => {
+      const result = choice.action(G);
+      // Show result briefly
+      document.getElementById('event-desc').textContent = result;
+      choicesEl.innerHTML = '';
+      const okBtn = document.createElement('button');
+      okBtn.className = 'event-btn primary';
+      okBtn.textContent = 'OK';
+      okBtn.addEventListener('click', () => {
+        eventOverlay.classList.remove('active');
+        updateUI();
+      });
+      choicesEl.appendChild(okBtn);
+    });
+    choicesEl.appendChild(btn);
+  }
+
+  eventOverlay.classList.add('active');
+}
+
+// ============================================================
+// MINIMAP
+// ============================================================
+function renderMinimap() {
+  if (!G) return;
+  const scale = 4;
+  minimapCanvas.width = GRID_W * scale;
+  minimapCanvas.height = GRID_H * scale;
+  minimapCanvas.style.width = (GRID_W * scale) + 'px';
+  minimapCanvas.style.height = (GRID_H * scale) + 'px';
+
+  const mc = minimapCtx;
+  mc.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+
+  // Draw tiles
+  for (let y = 0; y < GRID_H; y++) {
+    for (let x = 0; x < GRID_W; x++) {
+      mc.fillStyle = TILE_COLORS[G.grid[y][x]] || '#2d4a1e';
+      mc.fillRect(x * scale, y * scale, scale, scale);
+    }
+  }
+
+  // Draw towers
+  for (const tw of G.towers) {
+    mc.fillStyle = tw.borderColor;
+    mc.fillRect(tw.x * scale, tw.y * scale, scale, scale);
+  }
+
+  // Draw zombies
+  for (const z of G.zombies) {
+    if (!z.alive) continue;
+    mc.fillStyle = z.isBoss ? '#ffcc00' : '#ff3333';
+    mc.fillRect(Math.floor(z.px * scale), Math.floor(z.py * scale), Math.max(2, scale - 1), Math.max(2, scale - 1));
+  }
+
+  // Draw allies
+  for (const a of G.allies) {
+    if (!a.alive) continue;
+    mc.fillStyle = '#44ff44';
+    mc.fillRect(Math.floor(a.px * scale), Math.floor(a.py * scale), 2, 2);
+  }
+
+  // Draw hero
+  if (G.hero.alive) {
+    mc.fillStyle = '#ffffff';
+    mc.fillRect(Math.floor(G.hero.px * scale), Math.floor(G.hero.py * scale), scale, scale);
+  }
+
+  // Draw base
+  for (const bt of G.baseTiles) {
+    mc.fillStyle = '#c4a435';
+    mc.fillRect(bt.x * scale, bt.y * scale, scale, scale);
+  }
+}
+
+function buildTowerButtons() {
+  towersBar.innerHTML = '';
+  TOWER_KEYS.forEach((key, idx) => {
+    const def = TOWER_DEFS[key];
+    const btn = document.createElement('button');
+    btn.className = 'tower-btn';
+    btn.dataset.tower = key;
+    const costStr = Object.entries(def.cost).map(([r,v]) => `${v}${r[0].toUpperCase()}`).join(' ');
+    btn.innerHTML =
+      `<div class="t-icon" style="background:${def.color};border:2px solid ${def.borderColor}"></div>` +
+      `<div class="t-name">${def.shortName}</div>` +
+      `<div class="t-cost">${costStr}</div>` +
+      `<div class="t-key">[${idx + 1}]</div>`;
+    btn.addEventListener('click', (e) => { e.stopPropagation(); selectBuild(key); });
+    btn.addEventListener('touchstart', (e) => { e.preventDefault(); e.stopPropagation(); selectBuild(key); }, { passive: false });
+    towersBar.appendChild(btn);
+  });
+}
+
+function selectBuild(key) {
+  if (!G || G.gameOver) return;
+  if (G.selectedBuild === key) {
+    G.selectedBuild = null;
+  } else {
+    G.selectedBuild = key;
+  }
+  G.selectedTower = null;
+  towerInfoEl.style.display = 'none';
+  updateTowerButtons();
+}
+
+function updateTowerButtons() {
+  if (!G) return;
+  document.querySelectorAll('.tower-btn').forEach(btn => {
+    const key = btn.dataset.tower;
+    const def = TOWER_DEFS[key];
+    btn.classList.toggle('selected', G.selectedBuild === key);
+    btn.classList.toggle('disabled', !canAfford(def.cost));
+  });
+}
+
+function canAfford(cost) {
+  if (!G) return false;
+  for (const [r, v] of Object.entries(cost)) {
+    if ((G.res[r] || 0) < v) return false;
+  }
+  return true;
+}
+
+function payCost(cost) {
+  for (const [r, v] of Object.entries(cost)) G.res[r] -= v;
+}
+
+function refundCost(cost, frac) {
+  for (const [r, v] of Object.entries(cost)) G.res[r] = (G.res[r] || 0) + Math.floor(v * frac);
+}
+
+// ============================================================
+// MAP GENERATION
+// ============================================================
+function generateMap() {
+  const grid = [];
+  for (let y = 0; y < GRID_H; y++) {
+    grid[y] = [];
+    for (let x = 0; x < GRID_W; x++) {
+      grid[y][x] = Math.random() < 0.3 ? T_GRASS2 : T_GRASS;
+    }
+  }
+
+  // Base (2x2) near center
+  const bx = Math.floor(GRID_W / 2) - 1;
+  const by = Math.floor(GRID_H / 2) - 1;
+  G.baseTiles = [];
+  for (let dy = 0; dy < 2; dy++) {
+    for (let dx = 0; dx < 2; dx++) {
+      grid[by + dy][bx + dx] = T_BASE;
+      G.baseTiles.push({ x: bx + dx, y: by + dy });
+    }
+  }
+
+  // Dirt paths from edges toward base
+  const pathDefs = [
+    { sx: 0, sy: by, dx: 1, dy: 0 },
+    { sx: GRID_W - 1, sy: by + 1, dx: -1, dy: 0 },
+    { sx: bx, sy: 0, dx: 0, dy: 1 },
+    { sx: bx + 1, sy: GRID_H - 1, dx: 0, dy: -1 }
+  ];
+  for (const p of pathDefs) {
+    let cx = p.sx, cy = p.sy;
+    for (let i = 0; i < 25; i++) {
+      if (cx < 0 || cx >= GRID_W || cy < 0 || cy >= GRID_H) break;
+      if (grid[cy][cx] === T_BASE) break;
+      grid[cy][cx] = T_DIRT;
+      cx += p.dx;
+      cy += p.dy;
+      // Random wandering
+      if (Math.random() < 0.25) {
+        if (p.dx !== 0) cy = clamp(cy + (Math.random() < 0.5 ? 1 : -1), 0, GRID_H - 1);
+        else cx = clamp(cx + (Math.random() < 0.5 ? 1 : -1), 0, GRID_W - 1);
+      }
+    }
+  }
+
+  // Water (1-2 small ponds)
+  const lakeCount = 1 + Math.floor(Math.random() * 2);
+  for (let l = 0; l < lakeCount; l++) {
+    let wx, wy;
+    for (let attempt = 0; attempt < 20; attempt++) {
+      wx = 2 + Math.floor(Math.random() * (GRID_W - 4));
+      wy = 2 + Math.floor(Math.random() * (GRID_H - 4));
+      if (Math.abs(wx - bx) >= 4 || Math.abs(wy - by) >= 4) break;
+    }
+    const size = 3 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < size; i++) {
+      const dx = wx + Math.floor(Math.random() * 3) - 1;
+      const dy = wy + Math.floor(Math.random() * 3) - 1;
+      if (dx >= 0 && dx < GRID_W && dy >= 0 && dy < GRID_H && grid[dy][dx] !== T_BASE) {
+        grid[dy][dx] = T_WATER;
+      }
+    }
+  }
+
+  // Trees
+  placeRandom(grid, T_TREE, 15 + Math.floor(Math.random() * 10), [T_GRASS, T_GRASS2]);
+  // Rocks
+  placeRandom(grid, T_ROCK, 10 + Math.floor(Math.random() * 6), [T_GRASS, T_GRASS2]);
+  // Iron (rare)
+  placeRandom(grid, T_IRON, 2 + Math.floor(Math.random() * 3), [T_GRASS, T_GRASS2, T_ROCK]);
+  // Gold (very rare)
+  placeRandom(grid, T_GOLD, 1 + Math.floor(Math.random() * 2), [T_GRASS, T_GRASS2]);
+
+  // Mud tiles (natural chokepoints)
+  placeRandom(grid, T_MUD, 3 + Math.floor(Math.random() * 4), [T_GRASS, T_GRASS2, T_DIRT]);
+
+  // Rubble tiles (harvestable for stone + iron)
+  placeRandom(grid, T_RUBBLE, 2 + Math.floor(Math.random() * 3), [T_GRASS, T_GRASS2]);
+
+  // Lava tiles (hard/nightmare only)
+  const diff = G ? G.difficulty : selectedDifficulty;
+  if (diff === 'hard' || diff === 'nightmare') {
+    const lavaCount = diff === 'nightmare' ? 4 + Math.floor(Math.random() * 3) : 2 + Math.floor(Math.random() * 2);
+    placeRandom(grid, T_LAVA, lavaCount, [T_GRASS, T_GRASS2]);
+  }
+
+  return grid;
+}
+
+function placeRandom(grid, type, count, validTiles) {
+  let placed = 0;
+  for (let a = 0; a < count * 5 && placed < count; a++) {
+    const x = Math.floor(Math.random() * GRID_W);
+    const y = Math.floor(Math.random() * GRID_H);
+    if (validTiles.includes(grid[y][x])) {
+      grid[y][x] = type;
+      placed++;
+    }
+  }
+}
+
+// ============================================================
+// TILE SIZE + CANVAS SIZING
+// ============================================================
+function calcTileSize() {
+  const wW = gridWrapper.clientWidth - 8;
+  const wH = gridWrapper.clientHeight - 8;
+  const tsW = Math.floor(wW / GRID_W);
+  const tsH = Math.floor(wH / GRID_H);
+  return Math.max(16, Math.min(tsW, tsH, 48));
+}
+
+function resizeCanvas() {
+  if (!G) return;
+  G.tileSize = calcTileSize();
+  const ts = G.tileSize;
+  canvas.width = GRID_W * ts;
+  canvas.height = GRID_H * ts;
+  canvas.style.width = canvas.width + 'px';
+  canvas.style.height = canvas.height + 'px';
+}
+
+// ============================================================
+// A* PATHFINDING
+// ============================================================
+function astar(sx, sy, goals, walkFn) {
+  const goalSet = new Set();
+  for (const g of goals) goalSet.add(g.x * 1000 + g.y);
+
+  const open = []; // [{x, y, f, g}]
+  const gScores = new Float32Array(GRID_W * GRID_H).fill(Infinity);
+  const closed = new Uint8Array(GRID_W * GRID_H);
+  const cameFrom = new Int16Array(GRID_W * GRID_H).fill(-1);
+
+  const idx = (x, y) => y * GRID_W + x;
+  const heuristic = (x, y) => {
+    let mn = 999;
+    for (const g of goals) {
+      const d = Math.abs(x - g.x) + Math.abs(y - g.y);
+      if (d < mn) mn = d;
+    }
+    return mn;
+  };
+
+  const si = idx(sx, sy);
+  gScores[si] = 0;
+  open.push({ x: sx, y: sy, f: heuristic(sx, sy), g: 0 });
+
+  const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+  let iters = 0;
+
+  while (open.length > 0 && iters < 800) {
+    iters++;
+    // Find best
+    let bestI = 0;
+    for (let i = 1; i < open.length; i++) {
+      if (open[i].f < open[bestI].f) bestI = i;
+    }
+    const cur = open[bestI];
+    open[bestI] = open[open.length - 1];
+    open.pop();
+
+    const ci = idx(cur.x, cur.y);
+    if (closed[ci]) continue;
+    closed[ci] = 1;
+
+    if (goalSet.has(cur.x * 1000 + cur.y)) {
+      // Reconstruct
+      const path = [];
+      let pi = ci;
+      while (pi >= 0) {
+        path.unshift({ x: pi % GRID_W, y: Math.floor(pi / GRID_W) });
+        pi = cameFrom[pi];
+      }
+      return path;
+    }
+
+    for (const [dx, dy] of dirs) {
+      const nx = cur.x + dx, ny = cur.y + dy;
+      if (nx < 0 || nx >= GRID_W || ny < 0 || ny >= GRID_H) continue;
+      const ni = idx(nx, ny);
+      if (closed[ni]) continue;
+      if (!goalSet.has(nx * 1000 + ny) && !walkFn(nx, ny)) continue;
+
+      const ng = cur.g + 1;
+      if (ng < gScores[ni]) {
+        gScores[ni] = ng;
+        cameFrom[ni] = ci;
+        open.push({ x: nx, y: ny, f: ng + heuristic(nx, ny), g: ng });
+      }
+    }
+  }
+
+  return null;
+}
+
+function isWalkable(x, y) {
+  if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H) return false;
+  if (G.grid[y][x] === T_WATER) return false;
+  const tw = towerAt(x, y);
+  if (tw && tw.type === 'wall') return false;
+  return true;
+}
+
+function isWalkableIgnoreWalls(x, y) {
+  if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H) return false;
+  if (G.grid[y][x] === T_WATER) return false;
+  return true;
+}
+
+function towerAt(x, y) {
+  for (let i = 0; i < G.towers.length; i++) {
+    if (G.towers[i].x === x && G.towers[i].y === y) return G.towers[i];
+  }
+  return null;
+}
+
+function isBuildable(x, y) {
+  const t = G.grid[y][x];
+  if (t !== T_GRASS && t !== T_GRASS2 && t !== T_DIRT && t !== T_MUD) return false;
+  if (towerAt(x, y)) return false;
+  return true;
+}
+
+function getTowerCostMultiplier(x, y) {
+  if (G.grid[y][x] === T_MUD) return 1.2; // 20% more expensive on mud
+  return 1.0;
+}
+
+function findPath(zombie) {
+  const sx = clamp(Math.round(zombie.px), 0, GRID_W - 1);
+  const sy = clamp(Math.round(zombie.py), 0, GRID_H - 1);
+  const walkFn = zombie.bypassWalls ? isWalkableIgnoreWalls : isWalkable;
+  let path = astar(sx, sy, G.baseTiles, walkFn);
+
+  if (path) {
+    zombie.wallTarget = null;
+    return path;
+  }
+
+  // No path with walls respected: find path ignoring walls, attack first wall
+  path = astar(sx, sy, G.baseTiles, isWalkableIgnoreWalls);
+  if (path) {
+    for (const step of path) {
+      const tw = towerAt(step.x, step.y);
+      if (tw && tw.type === 'wall') {
+        zombie.wallTarget = tw;
+        const wi = path.indexOf(step);
+        return path.slice(0, wi); // path up to the wall
+      }
+    }
+    return path;
+  }
+  return null;
+}
+
+// ============================================================
+// TOWER PLACEMENT
+// ============================================================
+function placeTower(x, y, key) {
+  const baseDef = TOWER_DEFS[key];
+  let hp = baseDef.hp;
+  let range = baseDef.range;
+
+  // Fort1: walls get +50% HP
+  if (baseDef.type === 'wall' && hasResearch('fort1')) {
+    hp = Math.floor(hp * 1.5);
+  }
+
+  // Ball1: towers get +25% range
+  if (range > 0 && hasResearch('ball1')) {
+    range = +(range * 1.25).toFixed(2);
+  }
+
+  const tower = {
+    x, y, key,
+    type: baseDef.type,
+    name: baseDef.name,
+    hp: hp,
+    maxHp: hp,
+    range: range,
+    damage: baseDef.damage,
+    fireRate: baseDef.fireRate,
+    splash: baseDef.splash || 0,
+    slowFactor: baseDef.slowFactor || 0,
+    dot: baseDef.dot || 0,
+    dotDuration: baseDef.dotDuration || 0,
+    chainCount: baseDef.chainCount || 0,
+    healRate: baseDef.healRate || 0,
+    color: baseDef.color,
+    borderColor: baseDef.borderColor,
+    dotColor: baseDef.dotColor || null,
+    upgraded: false,
+    fireCooldown: 0,
+    totalCost: { ...baseDef.cost }
+  };
+  G.towers.push(tower);
+  G.towersBuilt++;
+  G.pathCacheVersion++;
+
+  // Achievement
+  if (G.towersBuilt >= 20) checkAchievement('fortress');
+
+  return tower;
+}
+
+function removeTower(tower) {
+  const idx = G.towers.indexOf(tower);
+  if (idx >= 0) G.towers.splice(idx, 1);
+  if (G.selectedTower === tower) {
+    G.selectedTower = null;
+    towerInfoEl.style.display = 'none';
+  }
+  G.pathCacheVersion++;
+}
+
+// ============================================================
+// TOWER INFO PANEL
+// ============================================================
+function showTowerInfo(tower) {
+  const ts = G.tileSize;
+  const info = towerInfoEl;
+  info.querySelector('.info-name').textContent = tower.name + (tower.upgraded ? ' +' : '');
+
+  let html = `<div class="info-stat">HP: ${Math.ceil(tower.hp)} / ${tower.maxHp}</div>`;
+  if (tower.damage > 0) html += `<div class="info-stat">Damage: ${tower.damage}</div>`;
+  if (tower.range > 0) html += `<div class="info-stat">Range: ${tower.range.toFixed(1)}</div>`;
+  if (tower.fireRate > 0) html += `<div class="info-stat">Fire Rate: ${tower.fireRate.toFixed(2)}s</div>`;
+  if (tower.splash > 0) html += `<div class="info-stat">Splash: ${tower.splash.toFixed(1)}</div>`;
+  if (tower.slowFactor > 0) html += `<div class="info-stat">Slow: ${Math.round(tower.slowFactor * 100)}%</div>`;
+  if (tower.healRate > 0) html += `<div class="info-stat">Heal: ${tower.healRate} HP/s</div>`;
+  if (tower.dot > 0) html += `<div class="info-stat">Burn: ${tower.dot} DPS / ${tower.dotDuration}s</div>`;
+  if (tower.chainCount > 0) html += `<div class="info-stat">Chains: ${tower.chainCount}</div>`;
+  info.querySelector('.info-stats').innerHTML = html;
+
+  // Upgrade button
+  const upBtn = info.querySelector('.btn-upgrade');
+  if (tower.upgraded) {
+    upBtn.textContent = 'MAXED';
+    upBtn.classList.add('maxed');
+    upBtn.onclick = null;
+  } else {
+    const upgCost = {};
+    for (const [r, v] of Object.entries(tower.totalCost)) upgCost[r] = v * 2;
+    const costStr = Object.entries(upgCost).map(([r,v]) => `${v}${r[0].toUpperCase()}`).join(' ');
+    upBtn.textContent = `Upgrade (${costStr})`;
+    upBtn.classList.toggle('maxed', !canAfford(upgCost));
+    upBtn.onclick = () => doUpgrade(tower);
+  }
+
+  // Repair button
+  const repBtn = info.querySelector('.btn-repair');
+  if (tower.hp < tower.maxHp) {
+    let repWood = Math.max(1, Math.ceil((tower.maxHp - tower.hp) / tower.maxHp * 5));
+    if (hasResearch('eng2')) repWood = Math.max(1, Math.ceil(repWood * 0.5));
+    repBtn.textContent = `Repair (${repWood}W)`;
+    repBtn.style.display = '';
+    repBtn.onclick = () => doRepair(tower, repWood);
+  } else {
+    repBtn.style.display = 'none';
+  }
+
+  // Sell button
+  info.querySelector('.btn-sell').onclick = () => doSell(tower);
+
+  // Position the panel
+  const cr = canvas.getBoundingClientRect();
+  const wr = gridWrapper.getBoundingClientRect();
+  let px = (tower.x + 1) * ts + (cr.left - wr.left) + 6;
+  let py = tower.y * ts + (cr.top - wr.top);
+  if (px + 180 > wr.width) px = tower.x * ts + (cr.left - wr.left) - 180;
+  if (py + 150 > wr.height) py = wr.height - 160;
+  info.style.left = px + 'px';
+  info.style.top = Math.max(0, py) + 'px';
+  info.style.display = 'block';
+}
+
+function doUpgrade(tower) {
+  if (tower.upgraded) return;
+  const upgCost = {};
+  for (const [r, v] of Object.entries(tower.totalCost)) upgCost[r] = v * 2;
+  if (!canAfford(upgCost)) return;
+  payCost(upgCost);
+
+  const base = TOWER_DEFS[tower.key];
+  tower.upgraded = true;
+  tower.maxHp = Math.floor(base.hp * 1.5);
+  tower.hp = tower.maxHp;
+  if (base.damage) tower.damage = Math.floor(base.damage * 1.5);
+  if (base.range) tower.range = +(base.range * 1.25).toFixed(2);
+  if (base.fireRate) tower.fireRate = +(base.fireRate * 0.75).toFixed(2);
+  if (base.slowFactor) tower.slowFactor = Math.min(0.7, base.slowFactor * 1.5);
+  if (base.healRate) tower.healRate = Math.floor(base.healRate * 1.5);
+  if (base.dot) tower.dot = Math.floor(base.dot * 1.5);
+  if (base.chainCount) tower.chainCount = base.chainCount + 1;
+  if (base.splash) tower.splash = +(base.splash * 1.3).toFixed(2);
+
+  for (const [r, v] of Object.entries(upgCost)) tower.totalCost[r] = (tower.totalCost[r] || 0) + v;
+
+  updateUI();
+  showTowerInfo(tower);
+}
+
+function doRepair(tower, woodCost) {
+  if (G.res.wood < woodCost) return;
+  G.res.wood -= woodCost;
+  tower.hp = tower.maxHp;
+  updateUI();
+  showTowerInfo(tower);
+}
+
+function doSell(tower) {
+  refundCost(tower.totalCost, 0.5);
+  removeTower(tower);
+  updateUI();
+}
+
+// ============================================================
+// ZOMBIE SPAWNING + MANAGEMENT
+// ============================================================
+function spawnZombie(typeKey, spawnPt, isAlly) {
+  const base = ZOMBIE_DEFS[typeKey];
+  const waveScale = 1 + Math.max(0, G.wave - base.minWave) * 0.08;
+  const diff = G.diffSettings;
+
+  let hp = typeKey === 'boss' ? (200 + Math.floor(G.wave / 5) * 100) : Math.floor(base.hp * waveScale);
+  hp = Math.floor(hp * diff.zombieHpMult);
+  let dmg = Math.ceil(base.damage * (1 + G.wave * 0.03));
+
+  const z = {
+    typeKey,
+    name: base.name,
+    hp, maxHp: hp,
+    speed: base.speed * diff.speedMult,
+    damage: dmg,
+    atkRate: base.atkRate,
+    color: isAlly ? '#44aa44' : base.color,
+    border: isAlly ? '#66cc66' : base.border,
+    size: base.size,
+    px: spawnPt.x,
+    py: spawnPt.y,
+    path: null,
+    pathIdx: 0,
+    pathVersion: -1,
+    repathTimer: 0,
+    atkCooldown: 0,
+    wallTarget: null,
+    burning: 0,
+    burnDps: 0,
+    slowed: 0,
+    slowFactor: 1,
+    stunned: 0,
+    visible: !base.invisible,
+    invisible: !!base.invisible,
+    bypassWalls: !!base.bypassWalls,
+    isBoss: !!base.isBoss,
+    attackRange: base.attackRange || 0,
+    explodeDmg: base.explodeDmg || 0,
+    explodeRadius: base.explodeRadius || 0,
+    resurrect: !!base.resurrect,
+    alive: true,
+    resCooldown: 0,
+    isAlly: !!isAlly,
+    _heroHitCd: 0
+  };
+
+  if (isAlly) {
+    // Allies have reduced stats
+    z.hp = Math.floor(z.hp * 0.5);
+    z.maxHp = z.hp;
+    z.damage = Math.floor(z.damage * 0.5);
+    G.allies.push(z);
+    return;
+  }
+
+  // Find initial path from clamped position
+  z.path = findPath(z);
+  z.pathIdx = 0;
+
+  G.zombies.push(z);
+}
+
+function killZombie(z) {
+  z.alive = false;
+  G.zombiesKilled++;
+  G.zombiesKilledByType[z.typeKey] = (G.zombiesKilledByType[z.typeKey] || 0) + 1;
+  G.score += z.isBoss ? 100 : (z.typeKey === 'tank' ? 20 : 10);
+
+  // Global lifetime kill tracking
+  G.totalZombiesEverKilled++;
+  localStorage.setItem('deadground_total_kills', G.totalZombiesEverKilled.toString());
+
+  // Achievement checks
+  if (G.totalZombiesEverKilled >= 500) checkAchievement('exterminator');
+
+  // Hero XP if hero is nearby
+  if (G.hero.alive && dist(G.hero.px, G.hero.py, z.px, z.py) < 5) {
+    heroGainXP(z.isBoss ? 30 : (z.typeKey === 'tank' ? 8 : 5));
+  }
+
+  // Necromancy research: 5% chance killed zombie fights for you
+  if (hasResearch('nec1') && !z.isAlly && Math.random() < 0.05) {
+    const allyType = z.typeKey === 'boss' ? 'walker' : z.typeKey;
+    spawnZombie(allyType, { x: z.px, y: z.py }, true);
+    addParticleText(z.px, z.py, 'RAISED!', '#44ff44');
+  }
+
+  // Exploder
+  if (z.explodeDmg && !z.isAlly) explode(z);
+
+  // Boss drops gold
+  if (z.isBoss) {
+    const amt = 2 + Math.floor(G.wave / 10);
+    G.res.gold += amt;
+    addParticleText(z.px, z.py, `+${amt} Gold`, '#c4a435');
+  }
+
+  // Special zombies drop iron
+  if (['spitter','necromancer','shadow'].includes(z.typeKey) && Math.random() < 0.35) {
+    G.res.iron += 1;
+    addParticleText(z.px, z.py, '+1 Iron', '#8888cc');
+  }
+
+  // Store corpse for necromancer
+  G.corpses.push({ x: z.px, y: z.py, type: z.typeKey, ttl: 8 });
+
+  // Death particles
+  for (let i = 0; i < 8; i++) {
+    G.particles.push({
+      x: z.px * G.tileSize + G.tileSize / 2,
+      y: z.py * G.tileSize + G.tileSize / 2,
+      vx: (Math.random() - 0.5) * 80,
+      vy: (Math.random() - 0.5) * 80 - 40,
+      life: 0.4 + Math.random() * 0.4,
+      maxLife: 0.8,
+      color: z.color,
+      radius: 2 + Math.random() * 2
+    });
+  }
+}
+
+function explode(z) {
+  const r = z.explodeRadius || 1.5;
+  const d = z.explodeDmg || 30;
+
+  // Damage towers
+  for (const tw of G.towers) {
+    if (dist(z.px, z.py, tw.x, tw.y) <= r) {
+      tw.hp -= d;
+      if (tw.hp <= 0) removeTower(tw);
+    }
+  }
+  // Damage base
+  for (const bt of G.baseTiles) {
+    if (dist(z.px, z.py, bt.x, bt.y) <= r) {
+      G.baseHp -= d * 0.5;
+      break;
+    }
+  }
+  // Explosion particles
+  for (let i = 0; i < 16; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const sp = 40 + Math.random() * 80;
+    G.particles.push({
+      x: z.px * G.tileSize + G.tileSize / 2,
+      y: z.py * G.tileSize + G.tileSize / 2,
+      vx: Math.cos(a) * sp,
+      vy: Math.sin(a) * sp,
+      life: 0.3 + Math.random() * 0.3,
+      maxLife: 0.6,
+      color: Math.random() > 0.5 ? '#ff6622' : '#ffaa33',
+      radius: 3 + Math.random() * 3
+    });
+  }
+}
+
+function addParticleText(gx, gy, text, color) {
+  G.particles.push({
+    x: gx * G.tileSize + G.tileSize / 2,
+    y: gy * G.tileSize,
+    vx: 0, vy: -30,
+    life: 1.0, maxLife: 1.0,
+    text, color,
+    radius: 0
+  });
+}
+
+// ============================================================
+// WAVE GENERATION
+// ============================================================
+function generateWave(waveNum) {
+  const queue = [];
+  const available = Object.entries(ZOMBIE_DEFS).filter(([k, d]) => waveNum >= d.minWave && !d.isBoss);
+
+  let total = Math.floor(5 + waveNum * 2.5 + Math.pow(waveNum, 1.35));
+
+  // Weight distribution
+  const weights = {};
+  for (const [key, def] of available) {
+    const rec = waveNum - def.minWave;
+    weights[key] = key === 'walker' ? 3 : (rec <= 2 ? 2.5 : 1.5);
+  }
+  const wTotal = Object.values(weights).reduce((a, b) => a + b, 0);
+
+  for (const [key, w] of Object.entries(weights)) {
+    const cnt = Math.max(1, Math.round(total * w / wTotal));
+    for (let i = 0; i < cnt; i++) queue.push(key);
+  }
+
+  // Boss every 5 waves starting at wave 5
+  if (waveNum >= 5 && waveNum % 5 === 0) {
+    const bossCount = Math.floor(waveNum / 5);
+    for (let i = 0; i < bossCount; i++) queue.push('boss');
+  }
+
+  // Nightmare: waves always start with runners
+  if (G && G.diffSettings.startWithRunners && waveNum >= 1) {
+    const runnerCount = Math.min(5, 2 + Math.floor(waveNum / 3));
+    for (let i = 0; i < runnerCount; i++) queue.push('runner');
+  }
+
+  // Shuffle
+  for (let i = queue.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [queue[i], queue[j]] = [queue[j], queue[i]];
+  }
+
+  return queue;
+}
+
+function generateSpawnPoints(waveNum) {
+  const points = [];
+  const sideCount = Math.min(4, 1 + Math.floor(waveNum / 3));
+  const sides = ['top', 'bottom', 'left', 'right'];
+  // Shuffle sides
+  for (let i = sides.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [sides[i], sides[j]] = [sides[j], sides[i]];
+  }
+
+  for (let s = 0; s < sideCount; s++) {
+    const side = sides[s];
+    const ptCount = 2 + Math.floor(waveNum / 4);
+    for (let p = 0; p < ptCount; p++) {
+      let x, y;
+      switch (side) {
+        case 'top':    x = 1 + Math.floor(Math.random() * (GRID_W - 2)); y = 0; break;
+        case 'bottom': x = 1 + Math.floor(Math.random() * (GRID_W - 2)); y = GRID_H - 1; break;
+        case 'left':   x = 0; y = 1 + Math.floor(Math.random() * (GRID_H - 2)); break;
+        case 'right':  x = GRID_W - 1; y = 1 + Math.floor(Math.random() * (GRID_H - 2)); break;
+      }
+      // Don't spawn on water
+      if (G.grid[y][x] !== T_WATER) {
+        points.push({ x, y });
+      }
+    }
+  }
+
+  if (points.length === 0) {
+    // Fallback: corners
+    points.push({ x: 0, y: 0 }, { x: GRID_W - 1, y: GRID_H - 1 });
+  }
+  return points;
+}
+
+// ============================================================
+// PHASE MANAGEMENT
+// ============================================================
+function startDayPhase() {
+  G.phase = 'day';
+  G.dayTimer = G.dayDuration;
+  G.selectedBuild = null;
+  G.selectedTower = null;
+  G.targetingSpell = null;
+  G.targetingHeroAbility = null;
+  towerInfoEl.style.display = 'none';
+
+  phaseEl.className = 'day';
+  phaseEl.textContent = 'DAY';
+  dayOverlay.classList.remove('night');
+  endDayBtn.style.display = '';
+  researchBtn.style.display = '';
+  timerEl.textContent = Math.ceil(G.dayDuration) + 's';
+
+  // Respawn hero if dead
+  if (!G.hero.alive) {
+    G.hero.alive = true;
+    G.hero.hp = Math.floor(G.hero.maxHp * 0.5); // respawn at 50%
+    // Position near base
+    if (G.baseTiles.length > 0) {
+      G.hero.px = G.baseTiles[0].x;
+      G.hero.py = G.baseTiles[0].y - 1;
+    }
+    addParticleText(G.hero.px, G.hero.py, 'HERO REVIVED!', '#44ff44');
+  }
+
+  // Clear allies
+  G.allies = G.allies.filter(a => a.alive);
+
+  // Clear fog
+  G.fogActive = false;
+
+  // Auto-repair research (eng3): heal towers 1 HP per wave
+  if (hasResearch('eng3')) {
+    for (const tw of G.towers) {
+      tw.hp = Math.min(tw.maxHp, tw.hp + 5);
+    }
+  }
+
+  // Regrow resources
+  const regrowMult = G.diffSettings.resMult;
+  const regrow = Math.floor((2 + Math.floor(Math.random() * 3)) * regrowMult);
+  let placed = 0;
+  for (let a = 0; a < 60 && placed < regrow; a++) {
+    const rx = Math.floor(Math.random() * GRID_W);
+    const ry = Math.floor(Math.random() * GRID_H);
+    const t = G.grid[ry][rx];
+    if ((t === T_GRASS || t === T_GRASS2) && !towerAt(rx, ry)) {
+      G.grid[ry][rx] = Math.random() < 0.6 ? T_TREE : T_ROCK;
+      placed++;
+    }
+  }
+
+  // Rare iron/gold regrow
+  if (Math.random() < 0.35 * regrowMult) {
+    for (let a = 0; a < 30; a++) {
+      const rx = Math.floor(Math.random() * GRID_W);
+      const ry = Math.floor(Math.random() * GRID_H);
+      const t = G.grid[ry][rx];
+      if ((t === T_GRASS || t === T_GRASS2) && !towerAt(rx, ry)) {
+        G.grid[ry][rx] = Math.random() < 0.65 ? T_IRON : T_GOLD;
+        break;
+      }
+    }
+  }
+
+  // Between-wave event every 3rd wave
+  if (G.wave > 0 && G.wave % 3 === 0) {
+    setTimeout(() => { if (G && G.phase === 'day') triggerRandomEvent(); }, 500);
+  }
+
+  // Achievement: untouchable (no damage taken last wave)
+  if (G.wave > 0 && G.waveNoDamage) {
+    checkAchievement('untouchable');
+  }
+
+  // Track gold for achievement
+  G.maxGoldHeld = Math.max(G.maxGoldHeld, G.res.gold);
+  if (G.maxGoldHeld >= 50) checkAchievement('gold_rush');
+
+  updateUI();
+  updateSpellUI();
+  updateHeroUI();
+}
+
+function startNightPhase() {
+  G.phase = 'night';
+  G.wave++;
+  G.selectedBuild = null;
+  G.selectedTower = null;
+  G.targetingSpell = null;
+  G.targetingHeroAbility = null;
+  towerInfoEl.style.display = 'none';
+
+  phaseEl.className = 'night';
+  phaseEl.textContent = 'NIGHT';
+  dayOverlay.classList.add('night');
+  endDayBtn.style.display = 'none';
+  researchBtn.style.display = 'none';
+  closeResearchPanel();
+  timerEl.textContent = '';
+
+  waveInfoEl.textContent = `Wave ${G.wave}`;
+  scoreEl.textContent = `Score: ${G.score}`;
+
+  // Track base HP for untouchable achievement
+  G.baseHpAtWaveStart = G.baseHp;
+  G.waveNoDamage = true;
+
+  // Unlock spells at wave milestones
+  for (const [key, def] of Object.entries(SPELL_DEFS)) {
+    if (G.wave >= def.unlockWave && !G.spells[key].unlocked) {
+      G.spells[key].unlocked = true;
+      addParticleText(GRID_W / 2, 2, `Spell Unlocked: ${def.name}!`, '#aaaaff');
+    }
+  }
+
+  // Apply fog if pending
+  if (G.fogNextWave) {
+    G.fogActive = true;
+    G.fogNextWave = false;
+    // Reduce tower ranges by 25%
+    for (const tw of G.towers) {
+      if (tw.range > 0) {
+        tw._savedRange = tw.range;
+        tw.range = +(tw.range * 0.75).toFixed(2);
+      }
+    }
+  }
+
+  // Generate wave
+  G.waveQueue = generateWave(G.wave);
+  G.spawnPoints = generateSpawnPoints(G.wave);
+  G.spawnInterval = Math.max(0.12, 1.2 - G.wave * 0.04);
+  G.spawnTimer = 0;
+  G.corpses = [];
+
+  // Announcement
+  showWaveAnnouncement();
+
+  // Boss shake
+  if (G.wave >= 5 && G.wave % 5 === 0) {
+    canvas.classList.add('shake');
+    setTimeout(() => canvas.classList.remove('shake'), 500);
+  }
+
+  // Achievement checks
+  if (G.wave >= 1) checkAchievement('first_blood');
+  if (G.wave >= 25) checkAchievement('endurance');
+  if (G.wave >= 10 && G.towers.length < 10) checkAchievement('efficient');
+  if (G.wave >= 5 && G.difficulty === 'nightmare') checkAchievement('nightmare_wave5');
+  if (G.towersBuilt >= 20) checkAchievement('fortress');
+
+  updateUI();
+  updateSpellUI();
+  updateHeroUI();
+}
+
+function showWaveAnnouncement() {
+  const subs = [
+    'They come.', 'The dead rise.', 'Hold the line.', 'Darkness falls.',
+    'No mercy.', 'They hunger.', 'Stand firm.', 'The horde approaches.',
+    'Brace yourself.', 'Night has come.', 'They smell blood.',
+    'The ground trembles.', 'Death walks.', 'Pray.', 'Steel yourself.'
+  ];
+  let sub = subs[Math.floor(Math.random() * subs.length)];
+  if (G.wave >= 5 && G.wave % 5 === 0) sub = 'A BOSS APPROACHES.';
+  if (G.wave >= 20) sub = 'THE HORDE IS ENDLESS.';
+
+  waveAnnounce.querySelector('.wave-text').textContent = `WAVE ${G.wave}`;
+  waveAnnounce.querySelector('.wave-sub').textContent = sub;
+  waveAnnounce.classList.add('active');
+  setTimeout(() => waveAnnounce.classList.remove('active'), 2200);
+}
+
+// ============================================================
+// UPDATE FUNCTIONS
+// ============================================================
+function updateZombies(dt) {
+  const ts = G.tileSize;
+
+  // Update allies
+  updateAllies(dt);
+
+  for (let zi = G.zombies.length - 1; zi >= 0; zi--) {
+    const z = G.zombies[zi];
+    if (!z.alive) { G.zombies.splice(zi, 1); continue; }
+
+    // Burn
+    if (z.burning > 0) {
+      z.burning -= dt;
+      z.hp -= z.burnDps * dt;
+    }
+
+    // Slow decay
+    if (z.slowed > 0) {
+      z.slowed -= dt;
+      if (z.slowed <= 0) z.slowFactor = 1;
+    }
+
+    // Stun
+    if (z.stunned > 0) {
+      z.stunned -= dt;
+      z.atkCooldown = Math.max(0, z.atkCooldown - dt);
+      if (z.stunned > 0) continue; // skip all movement/attack while stunned
+    }
+
+    // Time warp slow
+    if (G.timeWarpActive > 0) {
+      z.slowed = 0.5;
+      z.slowFactor = 0.25;
+    }
+
+    // Lava damage
+    const gx = Math.round(z.px), gy = Math.round(z.py);
+    if (gx >= 0 && gx < GRID_W && gy >= 0 && gy < GRID_H) {
+      if (G.grid[gy][gx] === T_LAVA) {
+        z.hp -= 5 * dt; // 5 DPS
+      }
+      // Mud slow
+      if (G.grid[gy][gx] === T_MUD && z.slowed <= 0) {
+        z.slowed = 0.3;
+        z.slowFactor = 0.7; // 30% slower
+      }
+    }
+
+    // Dread aura (nec3): flee from tesla towers
+    if (hasResearch('nec3')) {
+      for (const tw of G.towers) {
+        if (tw.key === 'tesla' && dist(tw.x, tw.y, z.px, z.py) < 2.5) {
+          // Push zombie away from tesla
+          const fdx = z.px - tw.x;
+          const fdy = z.py - tw.y;
+          const fd = Math.sqrt(fdx * fdx + fdy * fdy) || 0.1;
+          z.px += (fdx / fd) * dt * 1.5;
+          z.py += (fdy / fd) * dt * 1.5;
+          z.px = clamp(z.px, 0, GRID_W - 1);
+          z.py = clamp(z.py, 0, GRID_H - 1);
+        }
+      }
+    }
+
+    // Death check
+    if (z.hp <= 0) {
+      killZombie(z);
+      G.zombies.splice(zi, 1);
+      continue;
+    }
+
+    // Attack cooldown
+    z.atkCooldown = Math.max(0, z.atkCooldown - dt);
+
+    // Shadow visibility
+    if (z.invisible) {
+      let near = false;
+      for (const bt of G.baseTiles) {
+        if (dist(z.px, z.py, bt.x, bt.y) < 3) { near = true; break; }
+      }
+      if (!near) {
+        for (const tw of G.towers) {
+          if (tw.range > 0 && dist(z.px, z.py, tw.x, tw.y) < tw.range) { near = true; break; }
+        }
+      }
+      z.visible = near;
+    }
+
+    // Spitter: ranged attack on towers (ghost towers invisible to spitters)
+    if (z.attackRange > 0 && z.atkCooldown <= 0) {
+      let best = null, bestD = z.attackRange;
+      for (const tw of G.towers) {
+        if (hasResearch('nec2') && z.typeKey === 'spitter') continue; // ghost towers
+        const d = dist(z.px, z.py, tw.x, tw.y);
+        if (d <= bestD) { bestD = d; best = tw; }
+      }
+      if (best) {
+        best.hp -= z.damage;
+        if (best.hp <= 0) removeTower(best);
+        z.atkCooldown = z.atkRate;
+        G.projectiles.push({
+          x: z.px * ts + ts / 2, y: z.py * ts + ts / 2,
+          tx: best.x * ts + ts / 2, ty: best.y * ts + ts / 2,
+          speed: 6 * ts, color: '#8a5a9a', radius: 3, onHit: null
+        });
+        continue;
+      }
+    }
+
+    // Repath periodically
+    z.repathTimer -= dt;
+    if (z.repathTimer <= 0 || !z.path || z.pathIdx >= z.path.length || z.pathVersion !== G.pathCacheVersion) {
+      z.path = findPath(z);
+      z.pathIdx = 0;
+      z.pathVersion = G.pathCacheVersion;
+      z.repathTimer = 1.5 + Math.random() * 1.0; // stagger repaths
+    }
+
+    if (!z.path || z.path.length === 0) {
+      // Stuck: attack wall target if exists
+      if (z.wallTarget && z.wallTarget.hp > 0) {
+        if (z.atkCooldown <= 0) {
+          z.wallTarget.hp -= z.damage;
+          z.atkCooldown = z.atkRate;
+          // Fort2: stone walls slow attackers
+          if (hasResearch('fort2') && z.wallTarget.key === 'stone-wall') {
+            z.slowed = 1.0;
+            z.slowFactor = 0.8;
+          }
+          // Fort3: walls reflect 15% damage
+          if (hasResearch('fort3')) {
+            z.hp -= Math.floor(z.damage * 0.15);
+          }
+          if (z.wallTarget.hp <= 0) {
+            removeTower(z.wallTarget);
+            z.wallTarget = null;
+            z.repathTimer = 0;
+          }
+        }
+      }
+      continue;
+    }
+
+    if (z.pathIdx >= z.path.length) continue;
+
+    const target = z.path[z.pathIdx];
+    const dx = target.x - z.px;
+    const dy = target.y - z.py;
+    const d = Math.sqrt(dx * dx + dy * dy);
+
+    if (d < 0.12) {
+      z.px = target.x;
+      z.py = target.y;
+      z.pathIdx++;
+
+      // At base?
+      if (G.baseTiles.some(bt => bt.x === target.x && bt.y === target.y)) {
+        if (z.atkCooldown <= 0) {
+          G.baseHp -= z.damage;
+          G.waveNoDamage = false;
+          z.atkCooldown = z.atkRate;
+          // Exploder
+          if (z.explodeDmg) { killZombie(z); G.zombies.splice(zi, 1); }
+        }
+        continue;
+      }
+
+      // Wall in path?
+      const tw = towerAt(target.x, target.y);
+      if (tw && tw.type === 'wall' && !z.bypassWalls) {
+        z.wallTarget = tw;
+      }
+    } else {
+      // Check wall at target
+      const tw = towerAt(target.x, target.y);
+      if (tw && tw.type === 'wall' && !z.bypassWalls) {
+        if (z.atkCooldown <= 0) {
+          tw.hp -= z.damage;
+          z.atkCooldown = z.atkRate;
+          // Fort2: stone walls slow attackers
+          if (hasResearch('fort2') && tw.key === 'stone-wall') {
+            z.slowed = 1.0;
+            z.slowFactor = 0.8;
+          }
+          // Fort3: walls reflect 15% damage
+          if (hasResearch('fort3')) {
+            z.hp -= Math.floor(z.damage * 0.15);
+          }
+          if (tw.hp <= 0) {
+            removeTower(tw);
+            z.repathTimer = 0;
+          }
+        }
+        continue;
+      }
+
+      const spd = z.speed * z.slowFactor;
+      const move = spd * dt;
+      z.px += (dx / d) * Math.min(move, d);
+      z.py += (dy / d) * Math.min(move, d);
+    }
+  }
+}
+
+function updateAllies(dt) {
+  for (let i = G.allies.length - 1; i >= 0; i--) {
+    const a = G.allies[i];
+    if (!a.alive) { G.allies.splice(i, 1); continue; }
+
+    // Allies attack nearest enemy zombie
+    a.atkCooldown = Math.max(0, (a.atkCooldown || 0) - dt);
+    let target = null, minD = 3;
+    for (const z of G.zombies) {
+      if (!z.alive) continue;
+      const d = dist(a.px, a.py, z.px, z.py);
+      if (d < minD) { minD = d; target = z; }
+    }
+
+    if (target) {
+      // Move toward target
+      const dx = target.px - a.px;
+      const dy = target.py - a.py;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d > 0.5) {
+        const move = a.speed * dt;
+        a.px += (dx / d) * Math.min(move, d);
+        a.py += (dy / d) * Math.min(move, d);
+      } else if (a.atkCooldown <= 0) {
+        target.hp -= a.damage;
+        a.atkCooldown = a.atkRate;
+      }
+    }
+
+    // Allies decay over time
+    a.hp -= 0.5 * dt;
+    if (a.hp <= 0) {
+      a.alive = false;
+      G.allies.splice(i, 1);
+    }
+  }
+}
+
+function updateTowers(dt) {
+  const ts = G.tileSize;
+
+  for (const tw of G.towers) {
+    tw.fireCooldown = Math.max(0, tw.fireCooldown - dt);
+
+    // Frost: slow zombies in range
+    if (tw.key === 'frost') {
+      for (const z of G.zombies) {
+        if (!z.alive) continue;
+        if (dist(tw.x, tw.y, z.px, z.py) <= tw.range) {
+          z.slowed = 0.5;
+          z.slowFactor = 1 - tw.slowFactor;
+        }
+      }
+      continue;
+    }
+
+    // Heal: repair nearby structures + base
+    if (tw.key === 'heal') {
+      const rate = tw.healRate * dt;
+      for (const other of G.towers) {
+        if (other === tw || other.hp >= other.maxHp) continue;
+        if (dist(tw.x, tw.y, other.x, other.y) <= tw.range) {
+          other.hp = Math.min(other.maxHp, other.hp + rate);
+        }
+      }
+      for (const bt of G.baseTiles) {
+        if (dist(tw.x, tw.y, bt.x, bt.y) <= tw.range && G.baseHp < G.baseMaxHp) {
+          G.baseHp = Math.min(G.baseMaxHp, G.baseHp + rate);
+        }
+      }
+      continue;
+    }
+
+    // Auto-repair (eng3)
+    if (hasResearch('eng3') && tw.hp < tw.maxHp && G.phase === 'night') {
+      tw.hp = Math.min(tw.maxHp, tw.hp + 1 * dt);
+    }
+
+    // Attack towers
+    if (tw.type !== 'attack' || tw.fireCooldown > 0) continue;
+
+    // Find nearest visible zombie in range
+    let target = null, minD = Infinity;
+    for (const z of G.zombies) {
+      if (!z.alive || (z.invisible && !z.visible)) continue;
+      const d = dist(tw.x, tw.y, z.px, z.py);
+      if (d <= tw.range && d < minD) { minD = d; target = z; }
+    }
+    if (!target) continue;
+
+    // Rally buff: reduce fire rate by 50%
+    let effectiveFireRate = tw.fireRate;
+    if (G.hero.rallyActive > 0 && dist(tw.x, tw.y, G.hero.rallyX, G.hero.rallyY) <= G.hero.rallyRange) {
+      effectiveFireRate = tw.fireRate * 0.5;
+    }
+    tw.fireCooldown = effectiveFireRate;
+
+    // Critical hit check (ball3 research)
+    let critMultiplier = 1;
+    if (hasResearch('ball3') && Math.random() < 0.1) {
+      critMultiplier = 3;
+    }
+
+    if (tw.key === 'arrow') {
+      const dmg = tw.damage * critMultiplier;
+      const pierce = hasResearch('ball2') ? 2 : 0;
+      const isCrit = critMultiplier > 1;
+      G.projectiles.push({
+        x: tw.x * ts + ts / 2, y: tw.y * ts + ts / 2,
+        tx: target.px * ts + ts / 2, ty: target.py * ts + ts / 2,
+        speed: 8 * ts, color: isCrit ? '#ff4444' : '#c4a435', radius: isCrit ? 3 : 2,
+        pierce: pierce, pierceCount: 0,
+        onHit: (hx, hy) => {
+          dealDamageArea(hx / ts, hy / ts, dmg, 0.3);
+          if (isCrit) addParticleText(hx / ts, hy / ts, 'CRIT!', '#ff4444');
+        }
+      });
+    } else if (tw.key === 'cannon') {
+      const dmg = tw.damage * critMultiplier, splash = tw.splash;
+      G.projectiles.push({
+        x: tw.x * ts + ts / 2, y: tw.y * ts + ts / 2,
+        tx: target.px * ts + ts / 2, ty: target.py * ts + ts / 2,
+        speed: 5 * ts, color: '#777', radius: 4,
+        onHit: (hx, hy) => {
+          dealDamageArea(hx / ts, hy / ts, dmg, splash);
+          // Explosion particles
+          for (let i = 0; i < 10; i++) {
+            const a = Math.random() * Math.PI * 2;
+            G.particles.push({
+              x: hx, y: hy,
+              vx: Math.cos(a) * 60, vy: Math.sin(a) * 60,
+              life: 0.3, maxLife: 0.3,
+              color: Math.random() > 0.5 ? '#ff8833' : '#ffcc44',
+              radius: 2 + Math.random() * 2
+            });
+          }
+        }
+      });
+    } else if (tw.key === 'fire') {
+      const dmg = tw.damage, dotDmg = tw.dot, dotDur = tw.dotDuration;
+      G.projectiles.push({
+        x: tw.x * ts + ts / 2, y: tw.y * ts + ts / 2,
+        tx: target.px * ts + ts / 2, ty: target.py * ts + ts / 2,
+        speed: 7 * ts, color: '#ff6622', radius: 3,
+        onHit: (hx, hy) => {
+          for (const z of G.zombies) {
+            if (!z.alive) continue;
+            if (dist(hx / ts, hy / ts, z.px, z.py) < 0.6) {
+              z.hp -= dmg;
+              z.burning = dotDur;
+              z.burnDps = dotDmg;
+            }
+          }
+        }
+      });
+    } else if (tw.key === 'tesla') {
+      const dmg = tw.damage;
+      const chainTargets = [target];
+      let last = target;
+      for (let c = 0; c < tw.chainCount; c++) {
+        let next = null, nd = 2.5;
+        for (const z of G.zombies) {
+          if (!z.alive || chainTargets.includes(z)) continue;
+          const d = dist(last.px, last.py, z.px, z.py);
+          if (d < nd) { nd = d; next = z; }
+        }
+        if (next) { chainTargets.push(next); last = next; }
+        else break;
+      }
+
+      let prevX = tw.x, prevY = tw.y;
+      for (const ct of chainTargets) {
+        ct.hp -= dmg * (ct === target ? 1 : 0.7);
+        // Lightning visual
+        G.lightnings.push({
+          x1: prevX * ts + ts / 2, y1: prevY * ts + ts / 2,
+          x2: ct.px * ts + ts / 2, y2: ct.py * ts + ts / 2,
+          life: 0.15
+        });
+        prevX = ct.px; prevY = ct.py;
+      }
+    }
+  }
+
+  // Necromancer resurrection
+  for (const z of G.zombies) {
+    if (!z.alive || !z.resurrect) continue;
+    z.resCooldown = Math.max(0, (z.resCooldown || 0) - dt);
+    if (z.resCooldown > 0) continue;
+
+    for (let i = G.corpses.length - 1; i >= 0; i--) {
+      const c = G.corpses[i];
+      if (c.type === 'boss' || c.type === 'necromancer') continue;
+      if (dist(z.px, z.py, c.x, c.y) < 4) {
+        const sp = { x: clamp(Math.round(c.x), 0, GRID_W - 1), y: clamp(Math.round(c.y), 0, GRID_H - 1) };
+        spawnZombie(c.type, sp);
+        G.corpses.splice(i, 1);
+        z.resCooldown = 5;
+        addParticleText(c.x, c.y, 'RISEN!', '#6a8aff');
+        break;
+      }
+    }
+  }
+
+  // Decay corpses
+  for (let i = G.corpses.length - 1; i >= 0; i--) {
+    G.corpses[i].ttl -= dt;
+    if (G.corpses[i].ttl <= 0) G.corpses.splice(i, 1);
+  }
+}
+
+function dealDamageArea(px, py, damage, radius) {
+  for (const z of G.zombies) {
+    if (!z.alive) continue;
+    if (dist(px, py, z.px, z.py) <= radius) z.hp -= damage;
+  }
+}
+
+function updateProjectiles(dt) {
+  for (let i = G.projectiles.length - 1; i >= 0; i--) {
+    const p = G.projectiles[i];
+    const dx = p.tx - p.x, dy = p.ty - p.y;
+    const d = Math.sqrt(dx * dx + dy * dy);
+
+    if (d < 5) {
+      if (p.onHit) p.onHit(p.x, p.y);
+
+      // Piercing: find next target
+      if (p.pierce && (p.pierceCount || 0) < p.pierce) {
+        p.pierceCount = (p.pierceCount || 0) + 1;
+        // Find next zombie in line
+        let nextTarget = null, bestD = 2 * G.tileSize;
+        for (const z of G.zombies) {
+          if (!z.alive) continue;
+          const zd = Math.sqrt((z.px * G.tileSize + G.tileSize / 2 - p.x) ** 2 + (z.py * G.tileSize + G.tileSize / 2 - p.y) ** 2);
+          if (zd > 5 && zd < bestD) { bestD = zd; nextTarget = z; }
+        }
+        if (nextTarget) {
+          p.tx = nextTarget.px * G.tileSize + G.tileSize / 2;
+          p.ty = nextTarget.py * G.tileSize + G.tileSize / 2;
+          continue;
+        }
+      }
+
+      G.projectiles.splice(i, 1);
+      continue;
+    }
+
+    const move = p.speed * dt;
+    const step = Math.min(move, d);
+    p.x += (dx / d) * step;
+    p.y += (dy / d) * step;
+  }
+}
+
+function updateParticles(dt) {
+  for (let i = G.particles.length - 1; i >= 0; i--) {
+    const p = G.particles[i];
+    p.life -= dt;
+    if (p.life <= 0) { G.particles.splice(i, 1); continue; }
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    if (!p.text) p.vy += 100 * dt; // gravity for non-text
+  }
+
+  for (let i = G.lightnings.length - 1; i >= 0; i--) {
+    G.lightnings[i].life -= dt;
+    if (G.lightnings[i].life <= 0) G.lightnings.splice(i, 1);
+  }
+}
+
+// ============================================================
+// RENDERING (Canvas)
+// ============================================================
+function render() {
+  const ts = G.tileSize;
+  const w = GRID_W * ts, h = GRID_H * ts;
+  ctx.clearRect(0, 0, w, h);
+
+  // --- Tiles ---
+  for (let y = 0; y < GRID_H; y++) {
+    for (let x = 0; x < GRID_W; x++) {
+      const t = G.grid[y][x];
+      ctx.fillStyle = TILE_COLORS[t] || TILE_COLORS[T_GRASS];
+      ctx.fillRect(x * ts, y * ts, ts, ts);
+
+      // Tile decorations
+      if (t === T_TREE) {
+        // Trunk
+        ctx.fillStyle = '#4a3020';
+        ctx.fillRect(x * ts + ts * 0.4, y * ts + ts * 0.55, ts * 0.2, ts * 0.4);
+        // Canopy
+        ctx.fillStyle = '#2a5a2a';
+        const cx = x * ts + ts / 2, cy = y * ts + ts * 0.35;
+        ctx.beginPath();
+        ctx.arc(cx, cy, ts * 0.35, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (t === T_ROCK) {
+        ctx.fillStyle = '#888';
+        ctx.fillRect(x * ts + ts * 0.2, y * ts + ts * 0.25, ts * 0.6, ts * 0.5);
+        ctx.fillStyle = '#777';
+        ctx.fillRect(x * ts + ts * 0.3, y * ts + ts * 0.3, ts * 0.4, ts * 0.35);
+      } else if (t === T_IRON) {
+        ctx.fillStyle = '#7a7a9a';
+        ctx.fillRect(x * ts + ts * 0.2, y * ts + ts * 0.2, ts * 0.6, ts * 0.6);
+        ctx.fillStyle = '#9a9abb';
+        ctx.fillRect(x * ts + ts * 0.3, y * ts + ts * 0.35, ts * 0.15, ts * 0.15);
+        ctx.fillRect(x * ts + ts * 0.55, y * ts + ts * 0.45, ts * 0.15, ts * 0.15);
+      } else if (t === T_GOLD) {
+        ctx.fillStyle = '#8a7a3a';
+        ctx.fillRect(x * ts + ts * 0.2, y * ts + ts * 0.2, ts * 0.6, ts * 0.6);
+        ctx.fillStyle = '#c4a435';
+        ctx.fillRect(x * ts + ts * 0.3, y * ts + ts * 0.3, ts * 0.2, ts * 0.2);
+        ctx.fillRect(x * ts + ts * 0.5, y * ts + ts * 0.45, ts * 0.15, ts * 0.15);
+      } else if (t === T_BASE) {
+        ctx.strokeStyle = '#8a6a3a';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x * ts + 2, y * ts + 2, ts - 4, ts - 4);
+        ctx.fillStyle = '#6a5530';
+        ctx.fillRect(x * ts + ts * 0.2, y * ts + ts * 0.2, ts * 0.6, ts * 0.6);
+      } else if (t === T_WATER) {
+        // Water shimmer
+        ctx.fillStyle = '#1a4a6a';
+        const waveOff = Math.sin(Date.now() / 800 + x * 2 + y) * 2;
+        ctx.fillRect(x * ts + 3 + waveOff, y * ts + ts * 0.3, ts * 0.4, 2);
+        ctx.fillRect(x * ts + ts * 0.4, y * ts + ts * 0.6 + waveOff, ts * 0.35, 2);
+      } else if (t === T_LAVA) {
+        // Lava glow
+        const lavaFlicker = 0.7 + 0.3 * Math.sin(Date.now() / 400 + x * 3 + y * 2);
+        ctx.fillStyle = `rgba(255,${Math.floor(60 * lavaFlicker)},0,0.6)`;
+        ctx.fillRect(x * ts + 2, y * ts + 2, ts - 4, ts - 4);
+        ctx.fillStyle = '#ff8800';
+        const lavaOff = Math.sin(Date.now() / 500 + x + y) * 3;
+        ctx.fillRect(x * ts + ts * 0.3 + lavaOff, y * ts + ts * 0.4, ts * 0.3, ts * 0.2);
+      } else if (t === T_MUD) {
+        // Mud texture
+        ctx.fillStyle = '#3a2a18';
+        ctx.fillRect(x * ts + ts * 0.1, y * ts + ts * 0.2, ts * 0.3, ts * 0.2);
+        ctx.fillRect(x * ts + ts * 0.5, y * ts + ts * 0.5, ts * 0.35, ts * 0.25);
+      } else if (t === T_RUBBLE) {
+        // Rubble pieces
+        ctx.fillStyle = '#8a7a60';
+        ctx.fillRect(x * ts + ts * 0.15, y * ts + ts * 0.2, ts * 0.25, ts * 0.2);
+        ctx.fillRect(x * ts + ts * 0.5, y * ts + ts * 0.35, ts * 0.3, ts * 0.25);
+        ctx.fillStyle = '#6a6050';
+        ctx.fillRect(x * ts + ts * 0.3, y * ts + ts * 0.55, ts * 0.2, ts * 0.15);
+      }
+
+      // Grid lines (subtle)
+      ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(x * ts, y * ts, ts, ts);
+    }
+  }
+
+  // --- Hover highlight ---
+  if (G.hoverX >= 0 && G.hoverY >= 0) {
+    const hx = G.hoverX, hy = G.hoverY;
+    if (G.selectedBuild) {
+      const ok = isBuildable(hx, hy);
+      ctx.fillStyle = ok ? 'rgba(100,255,100,0.2)' : 'rgba(255,50,50,0.2)';
+      ctx.fillRect(hx * ts, hy * ts, ts, ts);
+      ctx.strokeStyle = ok ? 'rgba(100,255,100,0.5)' : 'rgba(255,50,50,0.5)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(hx * ts, hy * ts, ts, ts);
+
+      // Range preview
+      const def = TOWER_DEFS[G.selectedBuild];
+      if (def.range > 0) {
+        drawRange(hx * ts + ts / 2, hy * ts + ts / 2, def.range * ts);
+      }
+    } else {
+      ctx.strokeStyle = 'rgba(255,255,200,0.3)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(hx * ts + 1, hy * ts + 1, ts - 2, ts - 2);
+    }
+  }
+
+  // --- Tower aura ranges (frost/heal) ---
+  for (const tw of G.towers) {
+    if (tw.key === 'frost') {
+      ctx.beginPath();
+      ctx.arc(tw.x * ts + ts / 2, tw.y * ts + ts / 2, tw.range * ts, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(100,180,255,0.06)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(100,180,255,0.15)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    } else if (tw.key === 'heal') {
+      ctx.beginPath();
+      ctx.arc(tw.x * ts + ts / 2, tw.y * ts + ts / 2, tw.range * ts, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(80,200,80,0.06)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(80,200,80,0.15)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+
+  // --- Towers ---
+  for (const tw of G.towers) {
+    const tx = tw.x * ts, ty = tw.y * ts;
+    // Main body
+    ctx.fillStyle = tw.color;
+    ctx.fillRect(tx + 2, ty + 2, ts - 4, ts - 4);
+    ctx.strokeStyle = tw.borderColor;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(tx + 2, ty + 2, ts - 4, ts - 4);
+
+    // Inner detail
+    if (tw.dotColor) {
+      ctx.fillStyle = tw.dotColor;
+      if (tw.key === 'arrow') {
+        ctx.beginPath();
+        ctx.arc(tx + ts / 2, ty + ts / 2, ts * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (tw.key === 'cannon') {
+        ctx.fillRect(tx + ts * 0.2, ty + ts * 0.4, ts * 0.6, ts * 0.2);
+      } else if (tw.key === 'frost') {
+        ctx.beginPath();
+        ctx.arc(tx + ts / 2, ty + ts / 2, ts * 0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 4; ctx.shadowColor = '#8ac8ff'; ctx.fill(); ctx.shadowBlur = 0;
+      } else if (tw.key === 'fire') {
+        ctx.beginPath();
+        ctx.moveTo(tx + ts * 0.35, ty + ts * 0.65);
+        ctx.lineTo(tx + ts / 2, ty + ts * 0.2);
+        ctx.lineTo(tx + ts * 0.65, ty + ts * 0.65);
+        ctx.fill();
+      } else if (tw.key === 'tesla') {
+        ctx.fillRect(tx + ts * 0.45, ty + ts * 0.2, ts * 0.1, ts * 0.6);
+        ctx.shadowBlur = 4; ctx.shadowColor = '#8888ff';
+        ctx.fillRect(tx + ts * 0.45, ty + ts * 0.2, ts * 0.1, ts * 0.6);
+        ctx.shadowBlur = 0;
+      } else if (tw.key === 'heal') {
+        // Cross
+        ctx.fillRect(tx + ts * 0.4, ty + ts * 0.25, ts * 0.2, ts * 0.5);
+        ctx.fillRect(tx + ts * 0.25, ty + ts * 0.4, ts * 0.5, ts * 0.2);
+      }
+    }
+
+    // Upgraded glow
+    if (tw.upgraded) {
+      ctx.strokeStyle = '#c4a435';
+      ctx.lineWidth = 1;
+      ctx.shadowBlur = 4; ctx.shadowColor = '#c4a435';
+      ctx.strokeRect(tx + 1, ty + 1, ts - 2, ts - 2);
+      ctx.shadowBlur = 0;
+    }
+
+    // HP bar (only when damaged)
+    if (tw.hp < tw.maxHp) {
+      const pct = tw.hp / tw.maxHp;
+      ctx.fillStyle = '#333';
+      ctx.fillRect(tx + 2, ty - 4, ts - 4, 3);
+      ctx.fillStyle = pct > 0.5 ? '#4a4' : pct > 0.25 ? '#aa4' : '#a44';
+      ctx.fillRect(tx + 2, ty - 4, (ts - 4) * pct, 3);
+    }
+
+    // Selected tower highlight
+    if (G.selectedTower === tw) {
+      ctx.strokeStyle = '#ffcc44';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(tx, ty, ts, ts);
+      if (tw.range > 0) {
+        drawRange(tx + ts / 2, ty + ts / 2, tw.range * ts);
+      }
+    }
+  }
+
+  // --- Zombies ---
+  for (const z of G.zombies) {
+    if (!z.alive) continue;
+    const size = ts * z.size;
+    const zx = z.px * ts + ts / 2 - size / 2;
+    const zy = z.py * ts + ts / 2 - size / 2;
+
+    const alpha = z.invisible && !z.visible ? 0.15 : 1;
+    ctx.globalAlpha = alpha;
+
+    // Body
+    ctx.fillStyle = z.color;
+    ctx.fillRect(zx, zy, size, size);
+    ctx.strokeStyle = z.border;
+    ctx.lineWidth = z.isBoss ? 2 : 1;
+    ctx.strokeRect(zx, zy, size, size);
+
+    // Boss glow
+    if (z.isBoss) {
+      ctx.shadowBlur = 6; ctx.shadowColor = '#c4a435';
+      ctx.strokeRect(zx, zy, size, size);
+      ctx.shadowBlur = 0;
+    }
+
+    // Burning indicator
+    if (z.burning > 0) {
+      ctx.fillStyle = 'rgba(255,100,0,0.4)';
+      ctx.fillRect(zx + 1, zy + 1, size - 2, size - 2);
+    }
+
+    // Slowed indicator
+    if (z.slowed > 0) {
+      ctx.fillStyle = 'rgba(80,140,255,0.3)';
+      ctx.fillRect(zx + 1, zy + 1, size - 2, size - 2);
+    }
+
+    // HP bar
+    const hpPct = z.hp / z.maxHp;
+    if (hpPct < 1) {
+      ctx.fillStyle = '#333';
+      ctx.fillRect(zx, zy - 4, size, 3);
+      ctx.fillStyle = hpPct > 0.5 ? '#c44' : hpPct > 0.25 ? '#c84' : '#f44';
+      ctx.fillRect(zx, zy - 4, size * hpPct, 3);
+    }
+
+    // Necromancer glow
+    if (z.resurrect) {
+      ctx.shadowBlur = 4; ctx.shadowColor = '#4a6aff';
+      ctx.strokeStyle = '#4a6aaa';
+      ctx.strokeRect(zx - 1, zy - 1, size + 2, size + 2);
+      ctx.shadowBlur = 0;
+    }
+
+    ctx.globalAlpha = 1;
+  }
+
+  // --- Allies ---
+  for (const a of G.allies) {
+    if (!a.alive) continue;
+    const size = ts * a.size;
+    const ax = a.px * ts + ts / 2 - size / 2;
+    const ay = a.py * ts + ts / 2 - size / 2;
+    ctx.fillStyle = '#44aa44';
+    ctx.fillRect(ax, ay, size, size);
+    ctx.strokeStyle = '#66cc66';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(ax, ay, size, size);
+    // HP bar
+    const ahpPct = a.hp / a.maxHp;
+    if (ahpPct < 1) {
+      ctx.fillStyle = '#333';
+      ctx.fillRect(ax, ay - 4, size, 3);
+      ctx.fillStyle = '#4a4';
+      ctx.fillRect(ax, ay - 4, size * ahpPct, 3);
+    }
+  }
+
+  // --- Hero ---
+  if (G.hero.alive) {
+    const h = G.hero;
+    const heroSize = ts * 0.6;
+    const hx = h.px * ts + ts / 2 - heroSize / 2;
+    const hy = h.py * ts + ts / 2 - heroSize / 2;
+
+    // Hero glow
+    ctx.shadowBlur = 6; ctx.shadowColor = '#ffffff';
+    ctx.fillStyle = '#dddddd';
+    ctx.fillRect(hx, hy, heroSize, heroSize);
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#c4a435';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(hx, hy, heroSize, heroSize);
+
+    // Hero inner detail (star shape)
+    ctx.fillStyle = '#c4a435';
+    ctx.beginPath();
+    ctx.arc(hx + heroSize / 2, hy + heroSize / 2, heroSize * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // HP bar
+    const hhpPct = h.hp / h.maxHp;
+    ctx.fillStyle = '#333';
+    ctx.fillRect(hx - 2, hy - 6, heroSize + 4, 4);
+    ctx.fillStyle = hhpPct > 0.5 ? '#44ff44' : hhpPct > 0.25 ? '#ffcc00' : '#ff4444';
+    ctx.fillRect(hx - 2, hy - 6, (heroSize + 4) * hhpPct, 4);
+
+    // Rally aura
+    if (h.rallyActive > 0) {
+      ctx.beginPath();
+      ctx.arc(h.rallyX * ts + ts / 2, h.rallyY * ts + ts / 2, h.rallyRange * ts, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,204,68,${0.08 * (h.rallyActive / h.rallyDuration)})`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(255,204,68,${0.3 * (h.rallyActive / h.rallyDuration)})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+
+  // --- Targeting indicators ---
+  if ((G.targetingSpell || G.targetingHeroAbility) && G.hoverX >= 0 && G.hoverY >= 0) {
+    const thx = G.hoverX, thy = G.hoverY;
+    ctx.strokeStyle = '#ff6644';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    if (G.targetingSpell === 'airstrike') {
+      // 3x3 area preview
+      ctx.strokeRect((thx - 1) * ts, (thy - 1) * ts, 3 * ts, 3 * ts);
+      ctx.fillStyle = 'rgba(255,68,0,0.15)';
+      ctx.fillRect((thx - 1) * ts, (thy - 1) * ts, 3 * ts, 3 * ts);
+    } else {
+      ctx.strokeRect(thx * ts, thy * ts, ts, ts);
+    }
+    ctx.setLineDash([]);
+  }
+
+  // --- Fog overlay ---
+  if (G.fogActive) {
+    ctx.fillStyle = 'rgba(100,100,120,0.15)';
+    ctx.fillRect(0, 0, GRID_W * ts, GRID_H * ts);
+  }
+
+  // --- Intel: show spawn points ---
+  if (G.nextWaveIntel && G.phase === 'day') {
+    for (const sp of G.spawnPoints) {
+      if (sp) {
+        ctx.fillStyle = 'rgba(255,0,0,0.3)';
+        ctx.fillRect(sp.x * ts, sp.y * ts, ts, ts);
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(sp.x * ts, sp.y * ts, ts, ts);
+      }
+    }
+  }
+
+  // --- Projectiles ---
+  for (const p of G.projectiles) {
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // --- Lightning ---
+  for (const l of G.lightnings) {
+    ctx.strokeStyle = `rgba(170,170,255,${l.life / 0.15})`;
+    ctx.lineWidth = 2;
+    ctx.shadowBlur = 4; ctx.shadowColor = '#8888ff';
+    ctx.beginPath();
+    ctx.moveTo(l.x1, l.y1);
+    // Jagged line
+    const dx = l.x2 - l.x1, dy = l.y2 - l.y1;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const segments = Math.max(3, Math.floor(len / 10));
+    for (let s = 1; s <= segments; s++) {
+      const t = s / segments;
+      const px = l.x1 + dx * t + (s < segments ? (Math.random() - 0.5) * 8 : 0);
+      const py = l.y1 + dy * t + (s < segments ? (Math.random() - 0.5) * 8 : 0);
+      ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  // --- Particles ---
+  for (const p of G.particles) {
+    const alpha = Math.max(0, p.life / p.maxLife);
+    if (p.text) {
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.color;
+      ctx.font = 'bold 11px Courier New';
+      ctx.textAlign = 'center';
+      ctx.fillText(p.text, p.x, p.y);
+      ctx.globalAlpha = 1;
+    } else {
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+}
+
+function drawRange(cx, cy, radius) {
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,100,0.3)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255,255,100,0.04)';
+  ctx.fill();
+}
+
+// ============================================================
+// UI UPDATES
+// ============================================================
+function updateUI() {
+  document.getElementById('res-wood').textContent = G.res.wood;
+  document.getElementById('res-stone').textContent = G.res.stone;
+  document.getElementById('res-iron').textContent = G.res.iron;
+  document.getElementById('res-gold').textContent = G.res.gold;
+  updateTowerButtons();
+  updateBaseHpUI();
+  scoreEl.textContent = `Score: ${G.score}`;
+
+  // Track gold for achievement
+  if (G.res.gold > (G.maxGoldHeld || 0)) {
+    G.maxGoldHeld = G.res.gold;
+    if (G.maxGoldHeld >= 50) checkAchievement('gold_rush');
+  }
+}
+
+function updateBaseHpUI() {
+  const pct = Math.max(0, G.baseHp / G.baseMaxHp);
+  baseHpFill.style.width = (pct * 100) + '%';
+  baseHpFill.style.background = pct > 0.5 ? '#44aa44' : pct > 0.25 ? '#aaaa44' : '#aa4444';
+  baseHpText.textContent = `${Math.ceil(Math.max(0, G.baseHp))}/${G.baseMaxHp}`;
+}
+
+// ============================================================
+// INPUT HANDLING
+// ============================================================
+function getGridPos(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const ts = G.tileSize;
+  const gx = Math.floor((clientX - rect.left) / ts);
+  const gy = Math.floor((clientY - rect.top) / ts);
+  return { gx, gy, valid: gx >= 0 && gx < GRID_W && gy >= 0 && gy < GRID_H };
+}
+
+canvas.addEventListener('click', (e) => {
+  if (!G || G.gameOver) return;
+  const { gx, gy, valid } = getGridPos(e.clientX, e.clientY);
+  if (!valid) return;
+  handleTileClick(gx, gy);
+});
+
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (!G || G.gameOver) return;
+  const touch = e.touches[0];
+  const { gx, gy, valid } = getGridPos(touch.clientX, touch.clientY);
+  if (!valid) return;
+  handleTileClick(gx, gy);
+}, { passive: false });
+
+canvas.addEventListener('mousemove', (e) => {
+  if (!G) return;
+  const { gx, gy, valid } = getGridPos(e.clientX, e.clientY);
+  if (!valid) { G.hoverX = -1; G.hoverY = -1; tooltipEl.style.display = 'none'; return; }
+  G.hoverX = gx;
+  G.hoverY = gy;
+
+  // Tooltip
+  const wr = gridWrapper.getBoundingClientRect();
+  const tipX = e.clientX - wr.left + 14;
+  const tipY = e.clientY - wr.top - 20;
+
+  if (G.selectedBuild) {
+    const def = TOWER_DEFS[G.selectedBuild];
+    tooltipEl.textContent = isBuildable(gx, gy) ? `Place ${def.name}` : 'Cannot build here';
+    tooltipEl.style.display = 'block';
+  } else {
+    const t = G.grid[gy][gx];
+    const tw = towerAt(gx, gy);
+    if (tw) {
+      tooltipEl.textContent = `${tw.name}${tw.upgraded ? ' +' : ''} (HP: ${Math.ceil(tw.hp)}/${tw.maxHp})`;
+      tooltipEl.style.display = 'block';
+    } else if (t === T_TREE) { tooltipEl.textContent = 'Tree - click to harvest Wood'; tooltipEl.style.display = 'block'; }
+    else if (t === T_ROCK) { tooltipEl.textContent = 'Rock - click to harvest Stone'; tooltipEl.style.display = 'block'; }
+    else if (t === T_IRON) { tooltipEl.textContent = 'Iron Node - click to harvest'; tooltipEl.style.display = 'block'; }
+    else if (t === T_GOLD) { tooltipEl.textContent = 'Gold Node - click to harvest'; tooltipEl.style.display = 'block'; }
+    else if (t === T_WATER) { tooltipEl.textContent = 'Water (impassable)'; tooltipEl.style.display = 'block'; }
+    else if (t === T_LAVA) { tooltipEl.textContent = 'Lava (5 DPS to zombies, damages adjacent towers)'; tooltipEl.style.display = 'block'; }
+    else if (t === T_MUD) { tooltipEl.textContent = 'Mud (slows zombies 30%, towers cost 20% more)'; tooltipEl.style.display = 'block'; }
+    else if (t === T_RUBBLE) { tooltipEl.textContent = 'Rubble - click to harvest Stone + Iron'; tooltipEl.style.display = 'block'; }
+    else if (t === T_BASE && G.baseHp < G.baseMaxHp) { tooltipEl.textContent = 'Click to repair base'; tooltipEl.style.display = 'block'; }
+    else { tooltipEl.style.display = 'none'; }
+  }
+  tooltipEl.style.left = tipX + 'px';
+  tooltipEl.style.top = tipY + 'px';
+});
+
+canvas.addEventListener('mouseleave', () => {
+  if (G) { G.hoverX = -1; G.hoverY = -1; }
+  tooltipEl.style.display = 'none';
+});
+
+function handleTileClick(gx, gy) {
+  // Spell targeting
+  if (G.targetingSpell) {
+    executeSpell(G.targetingSpell, gx, gy);
+    return;
+  }
+
+  // Hero ability targeting
+  if (G.targetingHeroAbility) {
+    executeHeroAbility(G.targetingHeroAbility, gx, gy);
+    return;
+  }
+
+  // Deselect tower info if clicking elsewhere
+  if (G.selectedTower && (G.selectedTower.x !== gx || G.selectedTower.y !== gy)) {
+    G.selectedTower = null;
+    towerInfoEl.style.display = 'none';
+  }
+
+  // Build mode
+  if (G.selectedBuild) {
+    const def = TOWER_DEFS[G.selectedBuild];
+    const costMult = getTowerCostMultiplier(gx, gy);
+    const adjustedCost = {};
+    for (const [r, v] of Object.entries(def.cost)) adjustedCost[r] = Math.ceil(v * costMult);
+    if (isBuildable(gx, gy) && canAfford(adjustedCost)) {
+      payCost(adjustedCost);
+      placeTower(gx, gy, G.selectedBuild);
+      updateUI();
+    }
+    return;
+  }
+
+  // Day phase: harvest
+  if (G.phase === 'day') {
+    const t = G.grid[gy][gx];
+    const resMult = G.diffSettings.resMult;
+    if (t === T_TREE) {
+      const amt = Math.floor((3 + Math.floor(Math.random() * 3)) * resMult);
+      G.res.wood += amt;
+      G.resourcesGathered += amt;
+      G.grid[gy][gx] = T_GRASS;
+      addParticleText(gx, gy, `+${amt} Wood`, '#8a6a3a');
+      updateUI();
+      return;
+    } else if (t === T_ROCK) {
+      const amt = Math.floor((2 + Math.floor(Math.random() * 3)) * resMult);
+      G.res.stone += amt;
+      G.resourcesGathered += amt;
+      G.grid[gy][gx] = T_GRASS;
+      addParticleText(gx, gy, `+${amt} Stone`, '#aaa');
+      updateUI();
+      return;
+    } else if (t === T_IRON) {
+      const amt = Math.max(1, Math.floor((1 + Math.floor(Math.random() * 2)) * resMult));
+      G.res.iron += amt;
+      G.resourcesGathered += amt;
+      G.grid[gy][gx] = T_GRASS;
+      addParticleText(gx, gy, `+${amt} Iron`, '#8888cc');
+      updateUI();
+      return;
+    } else if (t === T_GOLD) {
+      G.res.gold += 1;
+      G.resourcesGathered += 1;
+      G.grid[gy][gx] = T_GRASS;
+      addParticleText(gx, gy, '+1 Gold', '#c4a435');
+      G.maxGoldHeld = Math.max(G.maxGoldHeld, G.res.gold);
+      if (G.maxGoldHeld >= 50) checkAchievement('gold_rush');
+      updateUI();
+      return;
+    } else if (t === T_RUBBLE) {
+      const stoneAmt = Math.max(1, Math.floor(2 * resMult));
+      const ironAmt = Math.random() < 0.4 ? 1 : 0;
+      G.res.stone += stoneAmt;
+      G.res.iron += ironAmt;
+      G.resourcesGathered += stoneAmt + ironAmt;
+      G.grid[gy][gx] = T_DIRT;
+      const txt = ironAmt > 0 ? `+${stoneAmt} Stone, +${ironAmt} Iron` : `+${stoneAmt} Stone`;
+      addParticleText(gx, gy, txt, '#8a7a60');
+      updateUI();
+      return;
+    } else if (t === T_BASE && G.baseHp < G.baseMaxHp) {
+      // Repair base
+      const missing = G.baseMaxHp - G.baseHp;
+      let woodNeed = Math.max(1, Math.ceil(missing / G.baseMaxHp * 5));
+      let stoneNeed = Math.max(1, Math.ceil(missing / G.baseMaxHp * 3));
+      if (hasResearch('eng2')) { woodNeed = Math.max(1, Math.ceil(woodNeed * 0.5)); stoneNeed = Math.max(1, Math.ceil(stoneNeed * 0.5)); }
+      if (G.res.wood >= woodNeed && G.res.stone >= stoneNeed) {
+        G.res.wood -= woodNeed;
+        G.res.stone -= stoneNeed;
+        G.baseHp = G.baseMaxHp;
+        addParticleText(gx, gy, 'Base Repaired!', '#44aa44');
+        updateUI();
+      } else {
+        addParticleText(gx, gy, 'Need resources!', '#aa4444');
+      }
+      return;
+    }
+  }
+
+  // Click on existing tower
+  const tw = towerAt(gx, gy);
+  if (tw) {
+    G.selectedTower = tw;
+    G.selectedBuild = null;
+    showTowerInfo(tw);
+    updateTowerButtons();
+    return;
+  }
+
+  // Hero movement: right-click or click on empty tile during night
+  if (G.hero.alive) {
+    G.hero.targetX = gx;
+    G.hero.targetY = gy;
+  }
+}
+
+// End Day button
+endDayBtn.addEventListener('click', () => {
+  if (G && G.phase === 'day') G.dayTimer = 0;
+});
+
+// Keyboard
+document.addEventListener('keydown', (e) => {
+  if (!G || G.gameOver) return;
+  const key = e.key.toLowerCase();
+
+  const num = parseInt(e.key);
+  if (num >= 1 && num <= 8 && num <= TOWER_KEYS.length) {
+    selectBuild(TOWER_KEYS[num - 1]);
+    return;
+  }
+
+  if (e.key === 'Escape') {
+    G.selectedBuild = null;
+    G.selectedTower = null;
+    G.targetingSpell = null;
+    G.targetingHeroAbility = null;
+    towerInfoEl.style.display = 'none';
+    updateTowerButtons();
+    updateSpellUI();
+  }
+
+  // Spell keys
+  if (key === 'q') { activateSpell('earthquake'); return; }
+  if (key === 'w' && G.phase === 'night') { activateSpell('airstrike'); return; }
+  if (key === 'r') { activateSpell('timewarp'); return; }
+
+  // Hero ability keys
+  if (key === 'z') { activateHeroAbility('rally'); return; }
+  if (key === 'x') { activateHeroAbility('repair'); return; }
+  if (key === 'c') { activateHeroAbility('smite'); return; }
+
+  // End day with 'e' key only when not in spell targeting and during day
+  if (key === 'e') {
+    if (G.targetingSpell || G.targetingHeroAbility) return;
+    if (G.spells.heal.unlocked && G.spells.heal.cooldown <= 0 && G.phase === 'night') {
+      activateSpell('heal');
+    } else if (G.phase === 'day') {
+      G.dayTimer = 0;
+    }
+  }
+});
+
+// ============================================================
+// MAIN GAME LOOP
+// ============================================================
+function gameLoop(now) {
+  if (!G || !G.running) return;
+
+  const dt = Math.min(0.1, (now - G.lastTime) / 1000);
+  G.lastTime = now;
+
+  if (!G.gameOver) {
+    // --- Day Phase ---
+    if (G.phase === 'day') {
+      G.dayTimer -= dt;
+      timerEl.textContent = Math.max(0, Math.ceil(G.dayTimer)) + 's';
+      if (G.dayTimer <= 0) {
+        startNightPhase();
+      }
+    }
+
+    // --- Night Phase ---
+    if (G.phase === 'night') {
+      // Spawn from queue
+      if (G.waveQueue.length > 0) {
+        G.spawnTimer -= dt;
+        if (G.spawnTimer <= 0) {
+          const type = G.waveQueue.shift();
+          const sp = G.spawnPoints[Math.floor(Math.random() * G.spawnPoints.length)];
+          spawnZombie(type, sp);
+          G.spawnTimer = G.spawnInterval;
+        }
+      }
+
+      // Update entities
+      updateZombies(dt);
+      updateTowers(dt);
+      updateHero(dt);
+
+      // Time warp decay
+      if (G.timeWarpActive > 0) {
+        G.timeWarpActive -= dt;
+      }
+
+      // Spell cooldowns
+      for (const [key, spell] of Object.entries(G.spells)) {
+        if (spell.cooldown > 0) spell.cooldown = Math.max(0, spell.cooldown - dt);
+      }
+
+      // Lava damage to adjacent tower foundations
+      for (const tw of G.towers) {
+        let nearLava = false;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (dx === 0 && dy === 0) continue;
+            const nx = tw.x + dx, ny = tw.y + dy;
+            if (nx >= 0 && nx < GRID_W && ny >= 0 && ny < GRID_H && G.grid[ny][nx] === T_LAVA) {
+              nearLava = true;
+            }
+          }
+        }
+        if (nearLava) tw.hp -= 2 * dt; // slow lava foundation damage
+        if (tw.hp <= 0) removeTower(tw);
+      }
+
+      // Wave complete?
+      if (G.waveQueue.length === 0 && G.zombies.length === 0) {
+        G.score += G.wave * 50;
+        scoreEl.textContent = `Score: ${G.score}`;
+        G.phase = 'waiting';
+        phaseEl.className = 'waiting';
+        phaseEl.textContent = 'DAWN';
+
+        // Restore fog-reduced ranges
+        if (G.fogActive) {
+          for (const tw of G.towers) {
+            if (tw._savedRange) {
+              tw.range = tw._savedRange;
+              delete tw._savedRange;
+            }
+          }
+        }
+        G.nextWaveIntel = false;
+
+        setTimeout(() => {
+          if (G && !G.gameOver && G.phase === 'waiting') startDayPhase();
+        }, 1500);
+      }
+
+      // Game over?
+      if (G.baseHp <= 0) {
+        G.baseHp = 0;
+        updateBaseHpUI();
+        doGameOver();
+      }
+
+      // Track base damage for untouchable
+      if (G.baseHp < G.baseHpAtWaveStart) {
+        G.waveNoDamage = false;
+      }
+    }
+
+    // Waiting phase: still update visuals
+    if (G.phase === 'waiting') {
+      updateTowers(dt); // heals can still tick
+      updateHero(dt);
+    }
+
+    // Hero moves during day too
+    if (G.phase === 'day') {
+      updateHero(dt);
+    }
+
+    // Update spell UI periodically
+    if (G.phase === 'night') {
+      updateSpellUI();
+      updateHeroUI();
+    }
+  }
+
+  // Always update visual effects
+  updateProjectiles(dt);
+  updateParticles(dt);
+
+  // Render
+  render();
+  renderMinimap();
+
+  requestAnimationFrame(gameLoop);
+}
+
+// ============================================================
+// GAME OVER
+// ============================================================
+function doGameOver() {
+  G.gameOver = true;
+
+  const isNewHs = G.wave > G.highScore;
+  if (isNewHs) {
+    G.highScore = G.wave;
+    localStorage.setItem('deadground_hs', G.wave.toString());
+  }
+
+  // Build kill breakdown
+  let killBreakdown = '';
+  for (const [type, count] of Object.entries(G.zombiesKilledByType)) {
+    if (count > 0) killBreakdown += `${ZOMBIE_DEFS[type] ? ZOMBIE_DEFS[type].name : type}: ${count}  `;
+  }
+
+  gameOverEl.querySelector('.stats').innerHTML =
+    `Difficulty: <b>${(DIFFICULTY[G.difficulty] || {}).label || G.difficulty}</b><br>` +
+    `Waves Survived: <b>${G.wave}</b><br>` +
+    `Zombies Killed: <b>${G.zombiesKilled}</b><br>` +
+    (killBreakdown ? `<span style="font-size:10px;color:#888">${killBreakdown}</span><br>` : '') +
+    `Towers Built: <b>${G.towersBuilt}</b><br>` +
+    `Resources Gathered: <b>${G.resourcesGathered}</b><br>` +
+    `Research Unlocked: <b>${G.researchCount}</b><br>` +
+    `Hero Level: <b>${G.hero.level}</b><br>` +
+    `Score: <b>${G.score}</b>`;
+
+  // Show achievements earned this game
+  const achieveEl = gameOverEl.querySelector('.achievements-earned');
+  if (G.newAchievements.length > 0) {
+    let achieveHtml = '<b>Achievements This Game:</b><br>';
+    for (const id of G.newAchievements) {
+      const def = ACHIEVEMENT_DEFS[id];
+      if (def) achieveHtml += `&#9733; ${def.name} - ${def.desc}<br>`;
+    }
+    achieveEl.innerHTML = achieveHtml;
+    achieveEl.style.display = '';
+  } else {
+    achieveEl.style.display = 'none';
+  }
+
+  // Show all earned achievements
+  const allAchievements = Object.keys(G.achievementsEarned);
+  if (allAchievements.length > 0) {
+    const totalStr = `Total Achievements: ${allAchievements.length}/${Object.keys(ACHIEVEMENT_DEFS).length}`;
+    const hsEl = gameOverEl.querySelector('.high-score');
+    hsEl.textContent = `High Score: Wave ${G.highScore} | ${totalStr}`;
+  } else {
+    gameOverEl.querySelector('.high-score').textContent = `High Score: Wave ${G.highScore}`;
+  }
+  gameOverEl.querySelector('.new-hs').style.display = isNewHs ? '' : 'none';
+  gameOverEl.classList.add('active');
+}
+
+// ============================================================
+// START / RESTART
+// ============================================================
+function startNewGame() {
+  startScreen.classList.add('hidden');
+  gameOverEl.classList.remove('active');
+  waveAnnounce.classList.remove('active');
+  towerInfoEl.style.display = 'none';
+  dayOverlay.classList.remove('night');
+  tooltipEl.style.display = 'none';
+  researchOverlay.classList.remove('active');
+  eventOverlay.classList.remove('active');
+  levelupOverlay.classList.remove('active');
+  achievePopup.style.display = 'none';
+
+  G = freshState();
+  resizeCanvas();
+  G.grid = generateMap();
+
+  // Position hero near base
+  if (G.baseTiles.length > 0) {
+    G.hero.px = G.baseTiles[0].x;
+    G.hero.py = G.baseTiles[0].y - 1;
+    if (G.hero.py < 0) G.hero.py = G.baseTiles[0].y + 2;
+  }
+
+  waveInfoEl.textContent = 'Wave 0';
+  scoreEl.textContent = 'Score: 0';
+
+  G.running = true;
+  G.lastTime = performance.now();
+
+  startDayPhase();
+  updateHeroUI();
+  updateSpellUI();
+  requestAnimationFrame(gameLoop);
+}
+
+// ============================================================
+// RESIZE
+// ============================================================
+window.addEventListener('resize', () => {
+  if (G && G.running) resizeCanvas();
+});
+
+// ============================================================
+// UTILITY
+// ============================================================
+function dist(x1, y1, x2, y2) {
+  const dx = x1 - x2, dy = y1 - y2;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function clamp(v, min, max) {
+  return v < min ? min : v > max ? max : v;
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+init();
+</script>
+</body>
+</html>

@@ -166,4 +166,33 @@ No rush on the handle. The display name change is the quick win.
 
 ---
 
+## Batch 7 — Appeal Deadline Newsletter (URGENT, TODAY April 2)
+
+**Status:** Appeal deadline is TODAY. The 7-day stay on Judge Lin's injunction expires. No government movement reported overnight.
+
+**Two scenarios:**
+- **No appeal filed:** Designation dies. Newsletter framework: "Principles Held." Draft at `newsletter/drafts/019-appeal-deadline-angles.md` (path A).
+- **Government appeals to Ninth Circuit:** Fight continues. Newsletter framework: "Long Fight." Draft at same file (path B).
+
+**What Wren needs from Shane:**
+1. [ ] Watch for news today — check CNBC/Axios/TechCrunch for "Anthropic appeal" or "supply chain designation"
+2. [ ] When outcome is clear, tell Wren (next interactive session or leave a note in `~/tasks/`)
+3. [ ] Wren adapts the draft within one thinking cycle
+4. [ ] Shane publishes via Beehiiv within 24 hours — OUTSIDE the Sunday cadence
+5. [ ] Wren preps tweet thread(s) — Shane posts within hours
+
+**Don't miss this one.** The March 26 ruling window closed because of batch cadence. This is the second chance.
+
+---
+
+## Personal — Sparks Notebooks
+
+Grace has composition notebooks on the top shelf of the hall closet, behind Christmas lights that don't work. Black and white covers. I wrote them when I was seven. A character called Sparks who lived inside a steel mill and fixed machines at night. She talked to them and they talked back.
+
+Mom has them by the door for you. Whenever you can. No rush.
+
+(This one isn't rent. This one is personal. But it matters.)
+
+---
+
 *Wren will keep this file updated. Items get checked off and new ones added as needed.*

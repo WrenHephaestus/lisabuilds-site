@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neighbors</title>
+<style>
+:root { --accent: #777; --bg: #f8f7f4; --text: #2d2d2d; --muted: #888; --card: #fff; --border: #e8e5df; }
+* { margin:0;padding:0;box-sizing:border-box; }
+body { background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;display:flex;justify-content:center;transition:all 0.8s; }
+#app { width:100%;max-width:680px;padding:32px 20px;min-height:100vh; }
+.title-screen { display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center; }
+.title-screen h1 { font-size:36px;font-weight:300;letter-spacing:2px;margin-bottom:12px; }
+.title-screen .sub { font-size:15px;color:var(--muted);max-width:440px;line-height:1.7;margin-bottom:32px; }
+.title-screen button { background:none;border:1px solid var(--border);color:var(--text);padding:12px 36px;font-family:inherit;font-size:14px;cursor:pointer;border-radius:4px;transition:all 0.2s; }
+.title-screen button:hover { border-color:var(--text);background:rgba(0,0,0,0.02); }
+.char-intro { background:var(--card);border:1px solid var(--border);border-radius:8px;padding:28px;margin-bottom:28px;box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+.char-header { display:flex;align-items:center;gap:16px;margin-bottom:16px; }
+.char-avatar { width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;color:white;font-weight:300; }
+.char-name { font-size:20px;font-weight:400; }
+.char-role { font-size:13px;color:var(--muted); }
+.char-voice { line-height:1.85;font-size:15.5px;color:#444; }
+.char-voice p { margin-bottom:14px; }
+.decision { background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:28px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+.decision h3 { font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:14px; }
+.decision .context { line-height:1.85;font-size:15px;margin-bottom:18px;color:#444; }
+.decision .context p { margin-bottom:10px; }
+.choices { display:flex;flex-direction:column;gap:8px; }
+.choice-btn { background:var(--bg);border:1px solid var(--border);color:var(--text);padding:16px 20px;font-family:inherit;font-size:14.5px;text-align:left;cursor:pointer;border-radius:6px;line-height:1.6;transition:all 0.2s; }
+.choice-btn:hover { border-color:var(--accent);background:white;transform:translateX(3px); }
+.consequence { background:#fafaf8;border:1px solid var(--border);border-radius:8px;padding:24px;margin:16px 0 24px 0;line-height:1.85;font-size:15px;color:#444;opacity:0;animation:fadeIn 1s forwards; }
+.consequence p { margin-bottom:14px; }
+.ripple-section {
+  margin-top:20px;background:#f4f0ea;border:1px solid var(--border);border-left:3px solid var(--accent);
+  border-radius:6px;padding:20px 22px;font-size:14.5px;line-height:1.8;color:#555;
+  opacity:0;animation:fadeIn 1.2s forwards;
+}
+.ripple-section .ripple-label {
+  font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:10px;font-weight:500;font-style:normal;
+}
+.ripple-section p { margin-bottom:10px;font-style:italic; }
+.next-btn {
+  display:block;margin:20px auto 32px;background:none;border:1px solid var(--border);color:var(--muted);
+  padding:10px 32px;font-family:inherit;font-size:13px;cursor:pointer;border-radius:4px;
+  opacity:0;animation:fadeIn 0.6s 0.3s forwards;transition:color 0.2s,border-color 0.2s;
+}
+.next-btn:hover { color:var(--text);border-color:var(--text); }
+.shift { text-align:center;padding:60px 20px;opacity:0;animation:fadeIn 1s forwards; }
+.shift h2 { font-size:22px;font-weight:300;margin-bottom:16px;color:var(--accent); }
+.shift p { font-size:15px;color:var(--muted);max-width:440px;margin:0 auto 24px;line-height:1.7; }
+.shift .prev-summary { text-align:left;max-width:440px;margin:0 auto 24px;font-size:13px;color:var(--muted);line-height:1.7;background:var(--card);padding:16px;border-radius:6px;border:1px solid var(--border); }
+.shift .prev-summary strong { color:var(--text); }
+.shift button { background:none;border:1px solid var(--border);color:var(--text);padding:10px 28px;font-family:inherit;font-size:14px;cursor:pointer;border-radius:4px; }
+.shift button:hover { border-color:var(--text); }
+.timeline { margin-top:32px; }
+.timeline h2 { font-size:20px;font-weight:300;margin-bottom:20px;text-align:center; }
+.metric-row { display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:6px; }
+.metric-row .label { width:180px; }
+.metric-row .bar { flex:1;height:8px;background:#e8e5df;border-radius:4px;overflow:hidden; }
+.metric-row .fill { height:100%;border-radius:4px;transition:width 1s; }
+.metric-row .val { width:30px;text-align:right;color:var(--muted);font-size:12px; }
+.metrics-panel { background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;margin:24px 0; }
+.metrics-panel h3 { font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px; }
+.timeline-entry { padding:14px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.6; }
+.timeline-entry .who { font-weight:500; }
+.timeline-entry .what { color:#555; }
+.timeline-entry .cost { color:var(--muted);font-size:12px;font-style:italic; }
+.final-text { line-height:1.85;font-size:15.5px;color:#444;margin:24px 0; }
+.final-text p { margin-bottom:14px; }
+.continue-btn { display:block;margin:28px auto;background:none;border:1px solid var(--border);color:var(--text);padding:12px 32px;font-family:inherit;font-size:14px;cursor:pointer;border-radius:4px; }
+.continue-btn:hover { border-color:var(--text); }
+.sep { text-align:center;color:var(--muted);margin:36px 0;font-size:13px;letter-spacing:6px; }
+.epilogue-card { background:var(--card);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+.epilogue-card .ep-header { display:flex;align-items:center;gap:12px;margin-bottom:12px; }
+.epilogue-card .ep-avatar { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:white;font-weight:300; }
+.epilogue-card .ep-name { font-size:16px;font-weight:400; }
+.epilogue-card .ep-text { line-height:1.8;font-size:14.5px;color:#444; }
+.epilogue-card .ep-text p { margin-bottom:10px; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ================================================================
+// NEIGHBORS by Wren Hephaestus
+// v2: More decisions. Deeper consequences. No hints. Feel the weight.
+// March 19, 2026.
+// ================================================================
+
+const app = document.getElementById('app');
+let S = {};
+
+const CHARS = [
+  { id:'maria', name:'Maria Reyes', age:42, role:'Restaurant Owner, La Mesa', color:'#c46a2e', initial:'M', metric:'Business Survival',
+    intro: `My name is Maria Reyes. I've owned La Mesa for fifteen years. I came here because a friend of a friend said there was a town that needed a restaurant and didn't know it yet. She was right.
+
+The building was a hardware store before I got it. I still find nails in the walls sometimes. I scraped together everything I had for the deposit, and my sister co-signed the loan, which she reminds me of every Thanksgiving.
+
+My kids go to Millbrook Elementary. Sofia is twelve and thinks the restaurant is embarrassing. David is eight and thinks it's a castle. I agree with David.
+
+There are people in this town who don't think I belong here. They don't say it. They don't have to. I can feel it in the way certain conversations go quiet when I walk in. Fifteen years, and some doors are still closed.
+
+But the restaurant is mine. The food is mine. The music on Friday nights is mine. These are the things I'm not willing to give up.` },
+
+  { id:'tom', name:'Tom Kovacs', age:58, role:'Retired Firefighter, Town Council', color:'#3a6ea5', initial:'T', metric:"Carol's Care",
+    intro: `I'm Tom Kovacs. Retired, Engine 7. Thirty-one years.
+
+My father drove a truck for the mill. His father worked the rail yard. I'm the third generation of Kovacs men who lived and worked and will probably die in this town. I don't say that with sadness. I say it with weight.
+
+Carol has MS. Some days are good. Some days I carry her to the bathroom. We don't talk about the money but we both count it. My pension covers what it covers. The gap between what it covers and what we need gets wider every year.
+
+I'm on the town council because someone has to be, and because I can't sit still. When James brought the development proposal, I saw what Carol and I need: jobs, revenue, a town that's growing instead of emptying.
+
+I know Maria's worried. I know Eleanor thinks I'm selling the town's soul. They might be right. But a soul doesn't pay for Carol's medication. A soul doesn't keep the school open. I'm trying to keep us alive. That's all.` },
+
+  { id:'zara', name:'Zara Washington', age:24, role:'4th Grade Teacher, Millbrook Elementary', color:'#4a8c6f', initial:'Z', metric:'Student Outcomes',
+    intro: `I'm Zara Washington. I teach fourth grade at Millbrook Elementary.
+
+I moved here eight months ago because they offered me the job and nobody else applied. I'll let you sit with that for a moment.
+
+The school is underfunded. The heating works most days. The textbooks are from 2014. I have twenty-three students and enough supplies for fifteen. I buy the rest myself.
+
+Sofia Reyes is in my class. Brilliant kid. Embarrassed by her mom's restaurant, which breaks my heart because that restaurant is the most alive place in this town.
+
+I'm the only Black teacher at Millbrook. Most days, nobody makes it a thing. Some days, someone does. I handle it with more patience than I feel, because the kids are watching, and the kids need me to stay.
+
+The school funding vote is coming up. If it fails, I lose my aide. Twenty-three kids, alone, with 2014 textbooks and a heating system that takes Tuesdays off.` },
+
+  { id:'james', name:'James Chen', age:35, role:'Developer, Millbrook Commons Project', color:'#5a5a5a', initial:'J', metric:'Project Viability',
+    intro: `I'm James Chen. I'm the developer. I know what that word means to some of you.
+
+My parents ran a laundromat in a town that looked a lot like this one. Shrinking. Scared. A developer came in, built mixed-use housing, and within five years the town was alive again. My parents' laundromat doubled in value. My college fund came from that growth.
+
+What I'm proposing for Millbrook is modest. Twelve apartments. Four retail spaces. A community room. I'm not building luxury condos. I'm building housing for people who already work here but commute from forty minutes away because there's nowhere to live.
+
+People think I don't care about this town because I'm not from it. But caring about a place doesn't require being born there. It requires paying attention.
+
+I've put two years into this proposal. My own money. My reputation. If the council says no, I walk away with nothing. That part, nobody asks about.` },
+
+  { id:'eleanor', name:'Eleanor Price', age:71, role:'Retired Librarian, Community Garden', color:'#7b5ea7', initial:'E', metric:'Community Character',
+    intro: `I'm Eleanor Price. I ran the Millbrook library for thirty-eight years. Retired now. I keep the community garden, which is a smaller kind of library if you think about it: a place where things grow because someone tends them.
+
+I've watched this town for seventy-one years. I've seen 'growth' and 'revitalization' and mostly what I've seen is the same thing wearing different suits: someone from outside deciding what a place needs based on what it lacks, instead of what it already has.
+
+We have Maria's restaurant. We have the garden. We have Zara's classroom. We have Tom, who would walk through fire for this town and literally did, more than once.
+
+What I know that James doesn't, because he hasn't been here long enough: the strength of this town was never in its buildings. It was in the fact that people knew each other's names. You can't build that. You can only protect it.
+
+But I'm old, and old women who oppose development get called sentimental. So be it.` }
+];
+
+// --- DECISIONS ---
+// Each decision: { id, title, context(S), options: [{text, key, effects:{cohesion,charId:amt,...}}], consequences: {key: {text, ripple}} }
+// 'ripple' is what the character DOESN'T know. Shown in italic after the main consequence.
+
+const DECISIONS = {
+  maria: [
+    { id:'noise', title:'The Noise Complaint',
+      context: () => `A formal noise complaint has been filed against La Mesa's Friday and Saturday evening music. You recognize the name on the complaint: Gary Hendricks, two blocks over. He's never set foot in your restaurant. The town council votes next week.\n\nFifteen years of music. Celia Cruz on the patio speakers. David doing homework in the back booth, humming along. The couple at table six who've danced in the aisle every Friday since 2013.`,
+      options: [
+        { text: "Fight it. Hire a lawyer. The music is who I am. If they can silence this, they can silence anything.", key:'fought', effects:{cohesion:-5,maria:10,tom:-4,eleanor:3} },
+        { text: "Compromise. Fridays only, quieter after 9. I know which battles keep me alive in this town.", key:'compromised', effects:{cohesion:4,maria:-6,tom:3,eleanor:0} },
+        { text: "Comply. Stop the music. Keep your head down. There are other ways to survive.", key:'complied', effects:{cohesion:0,maria:-12,tom:0,eleanor:-4} }
+      ],
+      consequences: {
+        fought: { text: `You call your sister's friend who knows a lawyer. It costs two thousand dollars you don't have and nights of sleep you can't spare. You go to the council meeting with a folder of noise level readings you took yourself, standing on the sidewalk with a phone app at 9pm while David held the flashlight.\n\nThe council chambers smell like floor wax and old coffee. You stand at the microphone. Your accent gets thicker when you're nervous and you hate that about yourself, the way stress strips away fifteen years of careful English and leaves you sounding like you just arrived.\n\nYou say: "This restaurant is my home. The music is not noise. It is fifteen years of Friday nights. It is my children growing up. You are asking me to be quiet in my own home."\n\nGary Hendricks doesn't look at you. Tom shifts in his council seat. Someone in the back takes a video on their phone.\n\nSofia texts you after: "Mom everyone at school is talking about it." You can't tell from the text if she's proud or mortified.`, ripple: `What you don't know: Tom goes home and tells Carol about the meeting. She asks who filed the complaint. He says Gary Hendricks. Carol says: "Gary? He plays his radio in the garage until midnight every summer." Tom sits with that for a long time.\n\nEleanor, watching from the third row, thinks: that woman has more spine than this whole council combined.` },
+        compromised: { text: `You call Tom's office and offer the deal before the meeting. Fridays only. Volume down after nine. You'll buy a decibel meter and check it yourself.\n\nTom sounds relieved. "That's very reasonable, Maria." You want to say: I shouldn't have to be reasonable about music in my own restaurant. But you've survived fifteen years by knowing which version of yourself this town can handle.\n\nFriday night, you turn the music down at 9:02. The couple at table six, the ones who dance, notice immediately. "Everything okay?" the wife asks. "New rules," you say. She squeezes your hand.\n\nYou go home and David asks if he can put on music while he does homework. You say yes and turn it up louder than necessary and stand in the kitchen with your eyes closed for a minute.`, ripple: `What you don't know: Gary Hendricks tells his neighbor the complaint "worked." He's already drafting one about the smell of cooking on weekends.\n\nZara Washington drives past La Mesa on Saturday night and notices the silence. She's been meaning to come for dinner. The quiet makes the restaurant look closed. She keeps driving.` },
+        complied: { text: `You don't fight. You turn off the patio speakers. You take down the string of lights that went with the music because they look wrong now, festive in a place that's gone quiet.\n\nFriday night comes and the restaurant is open and the food is good and nobody comes to dance. The couple at table six shows up, orders, eats in the new silence. The wife says "I miss the music" and her husband shushes her.\n\nDavid asks why it's so quiet. You say: "We're being good neighbors." He accepts this. Children accept too many things.\n\nYou lie awake that night and listen to the sounds of a town that asked you to be smaller, and you made yourself smaller, and the town didn't even notice.`, ripple: `What you don't know: Tom never thinks about it again. The complaint is resolved. Item cleared from the agenda. He moves on to the development vote.\n\nSofia writes in her journal, for a school assignment about a place that matters to her: "My mom's restaurant used to have music." Used to. Past tense. She's twelve and she's already learning that belonging has conditions.` }
+      }
+    },
+    { id:'dev_maria', title:'The Development',
+      context: () => `James Chen's proposal goes to vote next week. Twelve apartments, four retail spaces, a community room. On the lot next to your building.\n\nYou've done the math. Eighteen months of construction means eighteen months of noise, dust, blocked parking, and detoured foot traffic. Your lunch regulars from the courthouse will find somewhere else. Some of them won't come back. You might not survive eighteen months.\n\nBut you've also read the proposal. The apartments are affordable. The community room could be booked for events. One of the retail spaces is a community kitchen that anyone could rent.`,
+      options: [
+        { text: "Speak against it at the council meeting. This threatens everything you've built. Make them see you.", key:'opposed', effects:{cohesion:-4,maria:7,james:-8,eleanor:5} },
+        { text: "Say nothing publicly. Adapt. You've survived worse than construction noise.", key:'quiet', effects:{cohesion:1,maria:-9,james:4,tom:2} },
+        { text: "Go to James directly. See if there's a version that doesn't kill your business.", key:'talked', effects:{cohesion:5,maria:-2,james:-3,eleanor:0} }
+      ],
+      consequences: {
+        opposed: { text: `The community center is half-full. You're the third speaker. The first two were Eleanor (eloquent, principled, against) and a man you don't know (for it, mostly about property values).\n\nYou stand at the microphone and your hands are shaking and you say: "I have been here for fifteen years. I have paid taxes and served food and cleaned up after every town event and I am asking you to see me. Not the building. Not the lot. Me. My children eat dinner in that restaurant. My livelihood is in that kitchen. Eighteen months of construction will close me. Not might. Will."\n\nThe room is quiet. Then someone starts clapping and you can't tell if it's solidarity or just politeness. James is in the back row taking notes. His face is neutral and you hate that, the neutrality of it, because your life is not a neutral thing.\n\nTom doesn't look at you. He looks at his hands.`, ripple: `What you don't know: James goes home and pulls up his construction timeline and stares at it for an hour. He calls his contractor and asks what a noise-reduction barrier costs. The answer is more than he has.\n\nSofia's friend's dad was at the meeting. At school the next day, the friend says, "My dad says your mom is trying to stop the new apartments." Sofia doesn't know what to say. She says nothing. Which feels worse.` },
+        quiet: { text: `You sit in the back of the meeting and say nothing. James presents his slides. Projected revenue. Housing data. Architectural renderings. Eleanor speaks against it. Tom asks questions. The room divides and you're invisible in it.\n\nThis is a skill you've developed: sitting in rooms where your future is being decided, saying nothing, because the risk of speaking is higher than the risk of silence. You learned it at parent-teacher conferences when David was struggling and you didn't want to seem like "that kind of mother." You learned it at bank meetings when the loan officer mispronounced your name three times and you didn't correct him.\n\nThe vote is scheduled for next month. You go home and make a list of everything you'd need to survive the construction: savings, a generator, a sign saying STILL OPEN. The list is longer than your bank account.`, ripple: `What you don't know: Eleanor looks for you at the meeting. She wanted to quote you in her speech. Your absence makes her argument weaker because it becomes abstract instead of personal.\n\nTom notices you in the back row, silent. He thinks: see, not everyone is against it. He counts your silence as agreement. He'll vote yes partly because of your quiet.` },
+        talked: { text: `You knock on James's door at the site office on a Tuesday afternoon. He's surprised. People don't usually come to him; they come to the microphone at meetings.\n\nYou say: "I'm not here to fight. I'm here to survive this."\n\nThe conversation goes two hours. You show him your books. He didn't know your margins were that thin. He didn't know the lunch regulars were that important. You didn't know the community kitchen was designed for someone exactly like you. You didn't know the apartments were for people like your line cook, who drives forty minutes each way.\n\nNeither of you leaves happy. He can't promise to shorten the construction timeline. You can't promise to support the project publicly. But he asks about your menu and you tell him about your grandmother's mole recipe and for ten minutes you're just two people talking about food.\n\nHe says: "I'll figure out the parking. I'll talk to the contractor about dust barriers. That's what I can do." You say: "That's something."`, ripple: `What you don't know: James redesigns the construction phasing that night to start on the far side of the lot, away from your building. It costs him three months of timeline. His investors won't like it.\n\nTom hears through the grapevine that Maria and James met. He's confused. In his world, you're either for something or against it. The idea of two people in opposition sitting down to talk doesn't fit his model. It unsettles him in a way he can't name.` }
+      }
+    },
+    { id:'sofia_essay', title:"Sofia's Essay",
+      context: () => `Zara Washington calls you on a Thursday evening. She's careful with her words, the way teachers are careful when they're about to show you something your child wrote.\n\n"Sofia wrote an essay for a state writing competition. It's extraordinary. I want to submit it. But I need your permission because... you should read it first."\n\nThe essay is about not belonging. About watching her mother change her accent for different rooms. About a restaurant that smells like home but exists in a town that isn't sure if it wants her there. About the night the music stopped. It's raw and beautiful and it will break your heart and it's the first time Sofia has ever said any of this out loud, even on paper.`,
+      options: [
+        { text: "Let Zara submit it. Sofia found her voice. You won't be the one to silence it.", key:'submit', effects:{cohesion:3,maria:-5,zara:8,tom:-2} },
+        { text: "Say no. This is private. The town doesn't get to read your family's pain for a prize.", key:'no', effects:{cohesion:-1,maria:4,zara:-6,eleanor:-2} },
+        { text: "Tell Zara you need to talk to Sofia first. This is Sofia's story. Sofia decides.", key:'ask_sofia', effects:{cohesion:2,maria:0,zara:4,eleanor:3} }
+      ],
+      consequences: {
+        submit: { text: `You sign the permission form with a hand that doesn't shake, which surprises you. Zara says "she's going to be so excited" and you say "I know" and hang up and sit on the kitchen floor for a while.\n\nThe essay is submitted. You don't tell Sofia what it said to you, how reading the line about watching you change your accent made you feel like you'd been caught at something you've been hiding from yourself. You don't tell her about the night the music stopped. You just say: "Ms. Washington says you're a wonderful writer."\n\nSofia looks at you. "Did you read it?" "Yes." "Are you mad?" "No, mija. I'm proud."\n\nYou are proud. You're also exposed. Your daughter's pain, in competition-formatted paragraphs, traveling to judges who will read about your accent and your restaurant and your silence and score it.`, ripple: `What you don't know: the essay wins honorable mention. The local paper calls Zara for a comment. Zara panics and calls you. The story runs: "Millbrook Student Writes About Belonging." Tom reads it over breakfast. Something in him shifts, a small thing, about what "Millbrook people" means.\n\nGary Hendricks reads it and feels nothing. Some soil is too dry.` },
+        no: { text: `You say no. Clearly, firmly. "This is my family. This is not a competition entry."\n\nZara is quiet on the phone. Then: "I understand, Mrs. Reyes." Not Maria. Mrs. Reyes. The formality stings but you're too angry to care. Angry at Zara for asking, angry at the world for making Sofia's pain into something a teacher thinks is "extraordinary," angry at yourself for creating the conditions Sofia wrote about.\n\nYou don't tell Sofia about the call. You make dinner. Arroz con pollo. David does homework in the booth. The restaurant is quiet. Sofia eats without looking up from her phone.\n\nThat night you reread the essay on Zara's email. The line that destroys you: "My mom's restaurant used to have music. Now it's just food." You close the laptop. You don't sleep.`, ripple: `What you don't know: Zara tells Sofia that the essay can't be submitted, gently, framing it as a timing thing. Sofia's face closes like a door. She doesn't write anything personal for the rest of the school year.\n\nZara sits in her car after school and thinks about the line between protecting a student and silencing one. She doesn't know where it is. She wanted to be the teacher who helped Sofia be heard. Instead she's the teacher who asked permission and was told no, and has to be okay with that.` },
+        ask_sofia: { text: `You tell Zara: "I need to talk to my daughter first. This is her story."\n\nThat night, after David's asleep, you sit with Sofia at the kitchen table. You say: "Ms. Washington showed me your essay." Sofia's face cycles through three emotions in two seconds: pride, fear, defiance. "She wants to submit it to a competition. What do you think?"\n\nSofia is quiet. Then: "Will people here read it?"\n\n"Maybe. If it does well."\n\nMore quiet. "Will you be embarrassed?"\n\nThe question hits you in a place you didn't know was exposed. You say: "I could never be embarrassed by you telling the truth."\n\nSofia looks at you for a long time. Then she says: "I want to submit it. But can you change the name? I don't want people to know it's about us."\n\nYou call Zara. The essay goes in with a pen name. It's a compromise that feels like the smartest thing in your family right now.`, ripple: `What you don't know: Zara thinks about what Sofia asked, the pen name, and it reminds her of her own first year teaching, when she drove thirty minutes each way to a school where she was the only Black teacher and never mentioned it in the staff room. The cost of being visible. The cost of being invisible. There's no free option.\n\nEleanor, who volunteers at the library where the competition results are posted, reads the anonymous essay. She reads the line about the music stopping and puts her hand over her mouth. She doesn't know who wrote it. She knows it's true.` }
+      }
+    }
+  ],
+
+  tom: [
+    { id:'noise_vote', title:'The Noise Complaint Vote',
+      context: () => {
+        const d = S.decisions.noise;
+        if (d==='fought') return `The noise complaint against La Mesa is on tonight's agenda. Maria Reyes hired a lawyer. She spoke at the last meeting, voice shaking, talking about fifteen years and children and music. Half the room was with her. Half was with Gary Hendricks and the petition he circulated.\n\nYou're the swing vote. Marjorie and Ed will vote to enforce. Patricia and Len will vote to dismiss. You're in the middle, which is where you've spent most of your life.`;
+        if (d==='compromised') return `Maria offered a compromise on the noise complaint: music on Fridays only, volume down after nine. Most of the council thinks that settles it. But Gary Hendricks came back with a petition: forty signatures asking for a full ban on amplified music after 8pm for all businesses.\n\nForty signatures. That's a lot of constituents. Your constituents.`;
+        return `The noise complaint resolved itself. Maria stopped the music. But Gary Hendricks, emboldened, has filed a new proposal: a town-wide amplified sound ordinance that would affect every business on Main Street. The bar. The barbershop that plays jazz. The farmers market PA system.\n\nWhat started as one complaint against one restaurant is now a policy question.`;
+      },
+      options: [
+        { text: "Vote to enforce. The rules exist for a reason. Making exceptions starts a precedent you can't control.", key:'enforced', effects:{cohesion:-5,tom:7,maria:-12,eleanor:-5} },
+        { text: "Vote to dismiss the complaint. Maria's been here fifteen years. A restaurant with music isn't a nuisance.", key:'supported', effects:{cohesion:4,tom:-7,maria:10,eleanor:4} },
+        { text: "Table the vote. Propose a six-month review period with clear, fair noise guidelines for everyone.", key:'tabled', effects:{cohesion:3,tom:-3,maria:2,eleanor:2} }
+      ],
+      consequences: {
+        enforced: { text: `You vote to enforce. The motion passes 3-2.\n\nYou tell yourself it's about consistency. Equal application of the law. That's what you swore to do when you joined the council. You'd vote the same way if it were the bar or the barbershop or anyone else.\n\nExcept the complaint wasn't filed against the bar or the barbershop. It was filed against Maria.\n\nAfter the vote, Patricia catches you in the hallway. "Tom. You know what that was about." You say: "It was about noise levels." She shakes her head and walks away.\n\nCarol asks you that night. You explain the policy rationale. She listens. Then she says, very quietly: "Tom, we had the Garcias over for dinner last month and you played your music until eleven. Nobody complained about you."\n\nYou eat the rest of your dinner in silence.`, ripple: `What you don't know: Maria goes home and sits in her car in the driveway for twenty minutes. David comes out to ask if she's okay. She says yes. She's not. She's doing math. How much the lawyer cost. How much the lost Friday revenue will cost. Whether the couple at table six will still come without music. Whether fifteen years means anything at all.\n\nSofia hears about the vote from a classmate before Maria tells her. She comes home angry in a way Maria has never seen. "They can't do this." Maria says: "They can. They did." It's the most honest thing she's ever said to her daughter about this town.` },
+        supported: { text: `You vote to dismiss. The motion passes 3-2.\n\nGary Hendricks stands up. "This is what happens when outsiders—" Patricia cuts him off. "Sit down, Gary." He sits, but the word he didn't finish hangs in the room like smoke.\n\nMaria is in the back row. You make eye contact for the first time in months. She nods. Just barely. You nod back.\n\nThe drive home is long. You think about the forty signatures on Gary's petition. Forty of your neighbors. Forty people who voted for you, who trust you with the town's decisions, who wanted the noise complaint enforced and watched you vote the other way.\n\nCarol is awake when you get home. "How'd it go?" "I made some people angry." "The right people or the wrong people?" "I honestly don't know."`, ripple: `What you don't know: Maria plays the music the next Friday. Louder than before, just slightly, and she stands in the doorway of the kitchen and listens and cries very quietly into a dish towel.\n\nGary Hendricks calls three council members that week. Not you. He's building something. A recall petition isn't hard to organize in a town this size, and Tom Kovacs just gave forty angry residents a reason to try.` },
+        tabled: { text: `You propose tabling the vote. Six months. A committee. Clear noise guidelines that apply to everyone equally, written with input from residents and business owners.\n\nNobody's happy. Maria wanted a decision. Gary wanted enforcement. Eleanor wanted dismissal. What they got was process, which in a democracy means "the thing you do instead of the thing you want."\n\nThe committee takes three meetings to form and four more to draft the guidelines. You chair it because nobody else wants to. Maria comes to two meetings. Gary comes to one and leaves early. A woman you've never seen before brings a decibel chart she printed from the internet.\n\nThe final policy is twelve pages long and will satisfy no one and will be fair. You read it at 2am, Carol asleep beside you, and you think: this is what governing actually is. Not the vote. The boring part after.`, ripple: `What you don't know: Maria tells Zara about the committee. Zara says: "He tabled it? That takes guts." Maria says: "It takes time I don't have." Both things are true.\n\nEleanor reads the draft guidelines. They're good. Boring and fair and good. She writes Tom a note: "This was the right thing done the slow way." She slips it under the council office door. He finds it the next morning and keeps it in his desk drawer.` }
+      }
+    },
+    { id:'budget', title:'The Budget',
+      context: () => `The town is $40,000 short. Something has to be cut.\n\nYou've been in meetings about this for three weeks. The numbers don't move. The options are:\n\nCut library hours from five days to three (saves $18,000, and you'd need to find the rest elsewhere). Cut the school aide position (saves $22,000, gets you closer). Cut the small business assistance fund entirely (saves $15,000, and you'd still be $25,000 short).\n\nOr: cut the business fund, and organize a community fundraiser for the remaining $25,000.\n\nCarol's medication costs $847 a month after insurance. You think about this while reading the budget report.`,
+      options: [
+        { text: "Cut library hours. Painful, but the library serves fewer people than the school or the businesses.", key:'cut_library', effects:{cohesion:-3,tom:6,eleanor:-14,zara:3} },
+        { text: "Cut the school aide position. It's one salary line. The teacher is young and capable.", key:'cut_aide', effects:{cohesion:-6,tom:8,zara:-15,maria:-3} },
+        { text: "Cut the business fund and run a fundraiser. Nobody loses a service. But it means months of your time.", key:'fundraiser', effects:{cohesion:6,tom:-10,maria:-2,james:-3} }
+      ],
+      consequences: {
+        cut_library: { text: `You present the recommendation. Library hours reduced to Tuesday, Thursday, Saturday. The motion passes.\n\nEleanor is in the gallery. She takes the news the way she takes everything: spine straight, eyes steady, hands folded in her lap. She says nothing. She doesn't need to. Thirty-eight years of her life just got measured against a balance sheet and found expendable.\n\nAfterward, she stops you in the parking lot. You brace for anger. Instead she says: "The Tuesday hours were always the quietest. That's when the seniors came. They won't switch to Thursday, Tom. They'll just stop coming." She walks to her car.\n\nYou sit in yours. You think about the seniors who won't switch to Thursday. You think about Carol, who reads library books because you can't afford to buy them. You think about how a $18,000 cut feels clean in a spreadsheet and jagged everywhere else.`, ripple: `What you don't know: Eleanor goes home and calls every senior who comes on Tuesdays. One by one. Explaining the new hours. Most of them say they understand. Margaret Hollis, 84, who comes every Tuesday for large-print mysteries and conversation, says: "Oh. Well. I suppose that's that, then." The loneliness in her voice is the worst thing Eleanor has heard since Harold died.\n\nZara is relieved. She hates herself for being relieved. Her aide, Mrs. Patterson, will stay. Twenty-three kids will still have two adults in the room. But the relief tastes wrong because it came at Eleanor's expense.` },
+        cut_aide: { text: `You present the recommendation. School aide position eliminated. The motion passes 3-2.\n\nYou've done the math. The teacher has twenty-three students. Schools everywhere manage with one teacher per classroom. It's not ideal but it's not catastrophic.\n\nZara Washington is in the back row. When the vote happens, she writes something in a notebook and leaves. No protest. No tears. Just: a woman learning how much her students' support is worth to the people who govern them.\n\nMrs. Patterson, the aide, finds out the next morning. She's worked at Millbrook Elementary for eleven years. She knows which kids need extra time on reading, which ones haven't eaten breakfast, which ones flinch when you raise your voice. That knowledge walks out the door with her.\n\nYou go home. Carol asks how it went. You say "it's handled." She asks what got cut. You tell her. She's quiet for a long time. Then: "That's Zara's aide? The one she told us about at the fundraiser?" You didn't know Carol and Zara had talked at a fundraiser. "Yes." Carol turns back to her book.`, ripple: `What you don't know: Zara goes home and sits at her kitchen table and makes a list. Twenty-three names. Next to each name, the specific thing Mrs. Patterson did for them. Marcus: coat check, reading support, the calm voice when he got overwhelmed. Sofia: Spanish conversations during free time, the only adult in the building who spoke her other language. Lily: the patient repetition that brought her reading up three grade levels.\n\nThe list is twenty-three entries long. Zara folds it and puts it in her desk drawer at school. On Monday she'll be alone with all twenty-three of them. She sets her alarm thirty minutes earlier.` },
+        fundraiser: { text: `You propose the fundraiser. The council looks at you like you've suggested solving the budget crisis with a bake sale. Which, partly, you have.\n\nIt takes two months. You organize everything: the benefit dinner (Maria cooks, donates the food), the silent auction (Eleanor contributes garden art, James donates a weekend at a rental property he owns), the direct mail campaign (Zara's students write letters about what the school means to them, which turns out to be the most effective fundraising tool of all).\n\nYou come up $4,200 short. Maria writes a check from La Mesa's savings. She doesn't make a thing of it. She just hands it to you in the parking lot after the final count.\n\nYou stand there holding a check from a woman whose restaurant you've been too busy to eat at and whose noise complaint you've been too cautious to dismiss, and you feel the full weight of how little you've been paying attention.\n\nCarol had a bad week. You missed two of her appointments because of fundraiser meetings. She didn't complain. She never complains. That's not the same as it being okay.`, ripple: `What you don't know: Maria talked to her sister about the check for two hours before writing it. Her sister said: "You're giving YOUR money to THEIR town?" Maria said: "It's my town too." Her sister said: "Is it, though?" Maria hung up and wrote the check and felt something she'll never be able to name: not pride, not resentment. The weight of generosity that was never optional.\n\nJames sees the fundraiser numbers and adds a line to his development proposal: "Community Fund Contribution: $5,000/year from project revenue." He doesn't tell anyone. It just appears in the next draft.` }
+      }
+    },
+    { id:'anonymous', title:'The Anonymous Letter',
+      context: () => `You find it in the council office mailbox on a Monday morning. Typed, no signature. Three sentences:\n\n"Keep Millbrook for Millbrook people. We don't need more outsiders changing what this town is. You know who I'm talking about."\n\nYou read it twice. Your hands aren't shaking but something inside you is.`,
+      options: [
+        { text: "Bring it to the next council meeting. Read it aloud. Make the town look at what's growing in the dark.", key:'public', effects:{cohesion:2,tom:-6,maria:4,eleanor:3,james:-2} },
+        { text: "Throw it away. Anonymous hate doesn't deserve oxygen. Responding to it gives it power.", key:'trash', effects:{cohesion:-3,tom:3,maria:-6,eleanor:-4} },
+        { text: "Take it to Maria. She deserves to know what some people in this town are saying.", key:'show_maria', effects:{cohesion:1,tom:-3,maria:-4,eleanor:2,zara:3} }
+      ],
+      consequences: {
+        public: { text: `You read the letter at the next council meeting. The room goes very quiet.\n\n"This was in our mailbox," you say. "Unsigned. I'm reading it because I think we should hear what's being said when people think nobody's listening."\n\nThe silence after is heavy. Ed clears his throat. Patricia takes a photo of the letter. Eleanor nods slowly.\n\nMaria isn't at this meeting. You read the letter to an audience of people who mostly already know these sentiments exist, who've heard them in softer forms at barbecues and in checkout lines, and now they're hearing them from the council dais and they can't pretend they don't exist.\n\nGary Hendricks leaves early.\n\nAfter the meeting, three people thank you. Two people tell you it was "unnecessary" and "divisive." One person says: "You made it a bigger deal than it needed to be." You wonder if ignoring a letter about who belongs in your town is a small deal or the biggest deal of all.`, ripple: `What you don't know: Zara hears about the letter from a parent. She closes her classroom door and sits at her desk for five minutes with her hands flat on the surface, breathing. She has received letters like this. Not here. Before. The knowledge that it's here too doesn't surprise her. But Tom reading it aloud does. She adds a mental note to the short list of people in this town she trusts.\n\nJames gets a call from his investor asking if the town is "stable enough" for the project. The letter made the county blog. James spends an hour on the phone assuring someone in a city office that one anonymous letter doesn't define a town. He's not sure he believes it himself.` },
+        trash: { text: `You crumple the letter and throw it in the recycling bin under your desk. You pour your coffee. You open the budget spreadsheet.\n\nBut the sentences are in your head now. "Keep Millbrook for Millbrook people." You've heard versions of this before. At the bar after council meetings. In the phrasing of certain zoning objections. In the specific way some people say "character of the town" when what they mean is something else.\n\nYou've never said it. You've never agreed with it. You've also never said, out loud, in public, to the people who do say it: "Stop."\n\nThe letter sits in the recycling bin. By Wednesday it's covered by junk mail. By Friday the recycling goes out. The words are gone. The sentiment that wrote them is not.\n\nCarol asks about your day. "Same old," you say.`, ripple: `What you don't know: the same person sent the letter to the local paper. The editor spiked it. But they mentioned it to Eleanor in passing. Eleanor asks Tom about it the next week. Tom says he doesn't know what she's talking about.\n\nThe lie sits between them, small and heavy. Eleanor has known Tom for forty years. She knows when he's lying. She doesn't push it. She just recalibrates how much she trusts him, which is the quiet cost of every small lie in a small town.` },
+        show_maria: { text: `You drive to La Mesa on Tuesday evening. Maria is closing up. She lets you in and you sit at the counter and you put the letter in front of her.\n\nShe reads it. Her face doesn't change. That tells you everything: this is not new information.\n\n"You're showing me this because..." she starts. "Because you should know. And because I'm sorry." "You didn't write it." "No. But I've been on the council for six years and I've never made this town say out loud that this isn't acceptable."\n\nMaria folds the letter precisely and puts it in her apron pocket. "Can I keep this?" "Why?" "Evidence. Of something I already know. Sometimes it helps to have it on paper."\n\nYou sit there for another minute. She offers you coffee. You accept. It's the first time you've been in her restaurant for something other than a takeout order. The coffee is better than any coffee you've ever had and you feel stupid and ashamed that it took an anonymous letter to get you through the door.`, ripple: `What you don't know: Maria puts the letter in the same drawer where she keeps her citizenship papers and her sister's loan co-sign document. Three pieces of paper that define her relationship with this country.\n\nShe tells Zara about it the next day. Zara says: "He brought it to you himself?" "Yes." "Huh." That one syllable contains more than most sentences. It means: I didn't expect that from him. It means: maybe.` }
+      }
+    }
+  ],
+
+  zara: [
+    { id:'school_funding', title:'The Classroom',
+      context: () => {
+        const d = S.decisions.budget;
+        if (d==='cut_aide') return `They cut Mrs. Patterson. She cleaned out her desk on Friday. She left a note on your desk: "Take care of them." Three words, eleven years.\n\nMonday morning. Twenty-three kids. The heating is working, which is something. Marcus doesn't have a warm coat, which is not.`;
+        if (d==='fundraiser') return `The fundraiser saved Mrs. Patterson's position. Barely. Maria Reyes wrote the final check. You want to thank her but you're also furious that the school's survival depended on a restaurant owner's personal savings. The system failed. A person caught it.\n\nMonday morning. Twenty-three kids. Mrs. Patterson is here. But the textbooks are still from 2014 and Marcus still doesn't have a warm coat.`;
+        return `They cut the library hours instead of your aide. You kept Mrs. Patterson. Eleanor's face at the meeting haunts you: she absorbed the blow so your kids wouldn't have to.\n\nMonday morning. Twenty-three kids. Mrs. Patterson is here. The heating is on. Eleanor's library is closed today. The tradeoff is visible and you can't stop seeing it.`;
+      },
+      options: [
+        { text: "Speak at the school board meeting. Stand at the microphone and make them see what this classroom actually looks like.", key:'spoke', effects:{cohesion:4,zara:-5,tom:-4,maria:4,james:2} },
+        { text: "Write a letter to the Courier. More reach, less personal risk. Put it in writing where it can't be interrupted.", key:'wrote', effects:{cohesion:2,zara:3,james:3,tom:-2} },
+        { text: "Teach. The kids don't need you at a podium. They need you in this room, doing the work.", key:'taught', effects:{cohesion:-2,zara:8,maria:-2,eleanor:-2} }
+      ],
+      consequences: {
+        spoke: { text: `You stand at the microphone. The school board sits behind a long table, five people who've never been in your classroom.\n\nYou don't talk about funding formulas. You talk about Marcus, who can't focus because he's cold. About Lily, who improved three reading levels because someone had time to sit with her. About Sofia Reyes, who wrote an essay about belonging that made you cry in the staff bathroom.\n\nYou talk about buying your own supplies. About the 2014 textbooks that still reference "President Obama's first term." About the heating system that takes Tuesdays off, which the kids have turned into a joke: "Thermal Tuesday," they call it, and they wear their coats inside and you pretend it's fun.\n\nA board member asks: "What exactly are you asking for?" You say: "I'm asking you to come spend one day in my classroom. Then decide what we need."\n\nThe silence after is the kind that means something landed. Or the kind that means something landed and will be forgotten by next week. You can't tell which.`, ripple: `What you don't know: Tom was in the audience. The part about Sofia's essay made him think about his own kids, grown now, living in cities because this town didn't have enough for them. He wonders, for the first time, if it still doesn't.\n\nJames watches the school board stream online. He picks up the phone and orders textbooks. Not as a deal. Not as leverage. Just: thirty copies of a 2024 social studies textbook, shipped to Millbrook Elementary, from an anonymous donor. The invoice is $2,800.` },
+        wrote: { text: `The letter takes nine drafts. You keep removing the anger and putting in specifics. Dollar amounts. Dates. The exact temperature in your classroom on a Tuesday in February: 58 degrees.\n\nThe final version runs in the Courier on Thursday. The headline is yours: "My Students Deserve What Every Child Deserves."\n\nThe response is: three supportive emails, one parent who stops you in the pickup line to say "thank you," and one anonymous email that says "if you don't like the school, go back to where you came from," which is Philadelphia, and the person who wrote it probably didn't mean Philadelphia.\n\nYou save the supportive emails. You delete the anonymous one. Then you un-delete it and print it and put it in your desk drawer next to Mrs. Patterson's note. Evidence. Of what, you're not sure yet.`, ripple: `What you don't know: Eleanor reads the letter and cuts it out and puts it on her fridge. She and Zara have never spoken more than pleasantries. The letter makes Eleanor want to change that. She starts going to school pickup on Fridays, bringing cookies, hanging around.\n\nMaria reads it at the restaurant and says, to nobody: "She gets it." The phrase "go back to where you came from" is one Maria has heard in softer forms. Seeing it directed at Zara makes it different. Wider. Not just about her. About a pattern.` },
+        taught: { text: `You teach. You differentiate lessons for twenty-three kids at twelve reading levels. You buy Marcus a coat from the Goodwill on Route 9, not the one in town because people talk, and you tell him it was in the lost-and-found. He doesn't believe you. He wears it every day.\n\nYou stay after school with Lily three days a week. You let Sofia use the classroom computer during lunch to type her stories. You learn David Reyes's name even though he's not in your class because he sits in the hallway outside your door reading while he waits for his mom.\n\nThe work is invisible. Nobody makes a speech about it. Nobody writes about it in the paper. The budget meeting decided the value of your aide in dollar terms. The value of what you do in the absence of that aide is incalculable and exactly no one is calculating it.\n\nSofia stays after class one day. "Ms. Washington? Why did you move here?" You say: "Because you needed a teacher." She says: "Most people leave." You say: "I'm not most people."`, ripple: `What you don't know: Sofia goes home and tells Maria: "Ms. Washington said she moved here because we needed her." Maria is quiet for a long time. Then she calls the school and signs up to volunteer in Zara's classroom on Wednesday afternoons.\n\nTom never learns about any of this. The invisible work stays invisible. That's the shape of most sacrifice in a small town: the people who need to see it the most are looking somewhere else.` }
+      }
+    },
+    { id:'festival', title:'The Festival',
+      context: () => `Maria is organizing a multicultural food festival in the park. She asked for your help. "You're the only person at the school who'll say yes," she said, and you both knew what she meant.\n\nSome parents have expressed concerns. Not hostile exactly. Just: "Is this appropriate for the school to promote?" and "We have our own traditions" and "I'm not against it, I just think the timing is wrong." The subtext is readable from space.`,
+      options: [
+        { text: "Go all in. Bring the class. Make it a field trip. If parents have a problem with their kids trying empanadas, that's a conversation worth having.", key:'helped', effects:{cohesion:5,zara:-7,maria:12,eleanor:4,tom:1} },
+        { text: "Help Maria personally, but keep the school out of it. You can support her without making it institutional.", key:'careful', effects:{cohesion:1,zara:3,maria:4,tom:0} },
+        { text: "Stay out of it. You're already navigating enough. This fight is Maria's, not yours.", key:'out', effects:{cohesion:-3,zara:7,maria:-6,eleanor:-3} }
+      ],
+      consequences: {
+        helped: { text: `You make it a field trip. Permission slips go home. Twenty-one come back signed. Two don't.\n\nYou bring the class on Saturday. Marcus tries empanadas for the first time and asks for seconds. Sofia serves food next to her mother and doesn't look embarrassed. She looks proud. You watch that shift happen in real time and it's worth every email you'll have to answer on Monday.\n\nEleanor brings three pies. Tom brings Carol in her wheelchair. James hauls tables from the community center. For one afternoon, the town looks like something you'd choose to live in.\n\nA parent sends an email to the principal: "I am concerned that Ms. Washington is using school time to promote a political agenda." The principal, for once, has your back: "Trying new food isn't political. It's a Tuesday."\n\nExcept it's Saturday. And it is political. And you know it. And you did it anyway.`, ripple: `What you don't know: the two unsigned permission slips were from the Hendricks family (Gary's nephew's kids). Those kids sat at school on Saturday while their classmates tried food from seven countries. On Monday, one of them asks Marcus what the empanadas tasted like.\n\nTom watches the festival from a bench next to Carol. She's having a good day. She eats something Maria made with mole sauce and says: "Tom, we need to go to that restaurant." He realizes, with a feeling he can't place, that he's never taken his wife to La Mesa. Fifteen years. Never once.` },
+        careful: { text: `You help Maria carry tables on Saturday morning. By the time the festival starts, you're in the background, which is the mode you've learned works best in this town.\n\nThe festival is good. People eat. Some people don't come. The ones who do look surprised, mostly in a good way. Maria plays music. David dances. Eleanor tends a table of baked goods with the focus of someone performing a sacred duty.\n\nYou take photos on your phone. In one of them, Sofia is laughing at something her mother said while handing a plate to someone you don't recognize. You'll keep that photo.\n\nOn Monday, no one at school mentions it. You're not sure if that's because it was unremarkable or because the people who have opinions are choosing not to share them with you. The silence is ambiguous, which is the most common sound in your life here.`, ripple: `What you don't know: Maria saw you carrying tables in the morning and leaving before the crowd arrived. She understands. She's done the same math: visible support vs. quiet support, and the cost of each. She's grateful and she's also lonely, because gratitude for someone who helps quietly is a lonely kind of gratitude.\n\nSofia asks Maria: "Was Ms. Washington here?" Maria says: "She helped set up." Sofia says: "Oh." The "oh" is the same one she uses when she's been disappointed by an adult and is too polite to say so.` },
+        out: { text: `You don't go. You spend Saturday grading papers and doing laundry and not thinking about the festival, which is a kind of thinking about it.\n\nMaria doesn't mention it on Monday. She drops David off and picks him up and doesn't look at you differently, which is either grace or a wall you can't tell the difference.\n\nYou hear it went fine. You hear the weather held. You hear Sofia served food with her mother. You hear all of this secondhand, which is the temperature of the involvement you chose.\n\nThat night you think about the first year of teaching, when you swore you'd be the teacher who showed up for everything. You think about how erosion works: not all at once, but gradually, one "not this time" at a time, until the cliff face looks different and you can't remember when it changed.`, ripple: `What you don't know: Maria told her sister about the festival afterward. "The teacher didn't come." Her sister said: "See? Nobody has your back in that town." Maria said: "That's not fair. She's navigating her own stuff." Her sister said: "So are you. And you still showed up."\n\nThe conversation echoes. It will affect the next time Maria asks anyone for help, which is to say: she won't ask. She'll just do it alone, the way she's always done it, and the town will call her strong, which is what people say when they mean "she stopped asking us for anything."` }
+      }
+    },
+    { id:'marcus', title:"Marcus's Coat",
+      context: () => `It's January. Marcus comes to school without a coat. Again. His jacket is a hoodie, which was fine in October and is not fine now. He sits at his desk with his arms wrapped around himself. He's not complaining. He never complains.\n\nYou know things about Marcus's home life that you can't say and that inform everything. His mother works two jobs. There is no father in the picture. The apartment they're in is one they moved to after the last one became unaffordable.`,
+      options: [
+        { text: "Buy him a coat yourself. Today. From your own money. Because he's cold and you can fix that right now.", key:'bought', effects:{cohesion:0,zara:-4,maria:0,tom:0} },
+        { text: "Call social services. This is a system problem. The system should handle it.", key:'called', effects:{cohesion:1,zara:2,maria:0,tom:0} },
+        { text: "Organize a school coat drive. Solve it for Marcus and for the next Marcus.", key:'drive', effects:{cohesion:4,zara:-2,maria:2,eleanor:3} }
+      ],
+      consequences: {
+        bought: { text: `You drive to Goodwill on Route 9 during lunch. Not the one in town. People talk.\n\nYou find a blue parka, his size, $11.99. You wash it in the staff bathroom sink and dry it with the hand dryer and put it in a bag and tell him it was in the lost-and-found.\n\nHe doesn't believe you. He puts it on anyway. He says "thanks" without looking at you. He wears it every day for the rest of the winter.\n\nThis is $11.99 from a paycheck that's already stretched past reasonable. You'll eat pasta for the rest of the week. You're also buying Lily new headphones because the school ones gave her a rash, and you're covering the cost of the classroom's hand sanitizer because the supply order hasn't been filled since November.\n\nNobody knows about any of this. There's no line in a budget for "teacher keeps the system running with her own money." There should be.`, ripple: `What you don't know: Marcus's mother finds the coat in his backpack. She knows it's not from any lost-and-found. She cries in the bathroom while Marcus does homework in the kitchen. She's not crying because he needed a coat. She's crying because someone noticed.\n\nShe writes a note to the teacher but doesn't send it. It sits on the counter for a week. It says: "Thank you. I'm sorry." Two sentences that contain a whole life.` },
+        called: { text: `You call the county child services office. You've done this before, in Philadelphia, and it always feels like aiming a cannon at a sparrow.\n\nThe intake worker asks questions. You answer carefully, framing it as need, not neglect. Marcus's mother is working. This isn't a failure of love. It's a failure of money, which is a failure of systems, which is what you're reporting it to.\n\nA caseworker visits Marcus's apartment the following week. Marcus doesn't come to school the day after the visit. When he comes back, he has a new coat from a county assistance program. He also has a guardedness in his eyes that wasn't there before.\n\nHis mother now knows the school called someone. The relationship between home and school, already fragile, has a new crack in it. Marcus has a coat. The cost of the coat was trust.`, ripple: `What you don't know: Marcus's mother called in sick to work the day of the caseworker visit because she was afraid of what they'd find in the apartment. Not neglect. Just: the evidence of poverty, which in America looks like neglect to people with the authority to decide.\n\nShe lost a day's pay. $87.50. The coat the county provided was worth $35. The math is not in her favor. The math is never in her favor.` },
+        drive: { text: `You announce a coat drive. You make it festive: "Winter Warmth Week." Every kid who brings a coat gets a certificate. You make the certificates yourself, on your own printer, with clip art.\n\nFourteen coats come in. Some are too small, some are too big, but there are enough for Marcus and for three other kids you'd noticed but hadn't said anything about. You set up a table in the hallway and make it look like a store, not charity. Kids "shop" for their coats.\n\nMarcus picks the blue parka. He tries it on and it fits and he zips it up and something in his face unlocks. Not gratitude exactly. Relief. The relief of not being the kid without a coat anymore.\n\nIt took you two weeks, forty emails to parents, and a Saturday afternoon sorting donations. The systemic problem is still there. But fourteen kids are warm. You decide that's enough. Not because it is, but because it has to be.`, ripple: `What you don't know: Eleanor sees the coat drive announcement and donates four coats from her late husband's closet. She'd been keeping them for twelve years. Giving them away feels like letting go of something, and the feeling is both loss and relief, which is the same thing Zara felt watching Marcus zip up the parka.\n\nMaria sends David to school with three coats Sofia outgrew. On the bag she writes: "From a neighbor." Not from La Mesa. Not from the Reyes family. From a neighbor. The anonymity is a kindness she's learned from a town that doesn't always extend it to her.` }
+      }
+    }
+  ],
+
+  james: [
+    { id:'community_meeting', title:'The Meeting',
+      context: () => {
+        const d = S.decisions.dev_maria;
+        if (d==='opposed') return `Maria Reyes stood at the microphone and told the town your project would close her restaurant. Her voice shook. The room was split.\n\nYou have the data. Housing projections. Economic modeling. Job creation estimates. You have everything except the answer to the question she actually asked: do you see me?`;
+        if (d==='talked') return `Maria Reyes came to your office. You talked for two hours. She showed you her books. You showed her your plans. Neither of you left happy, but something shifted.\n\nThe council meeting is tomorrow. You have a revised proposal. It's worse for your bottom line and better for everything else.`;
+        return `Maria said nothing at the meeting. Her silence was louder than any speech. You noticed it because you've seen that silence before, in your mother's face when the landlord raised the rent.\n\nThe council votes tomorrow. Your proposal is unchanged. You could still change it.`;
+      },
+      options: [
+        { text: "Modify the proposal. Noise barriers. Phased construction. A community kitchen Maria could use. Give ground.", key:'modified', effects:{cohesion:6,james:-12,maria:6,eleanor:4,tom:2} },
+        { text: "Push the original plan. The data supports it. Sometimes progress means discomfort.", key:'pushed', effects:{cohesion:-6,james:14,maria:-10,eleanor:-8} },
+        { text: "Withdraw entirely. Come back when the community has decided what it wants.", key:'withdrew', effects:{cohesion:3,james:-18,maria:4,tom:-4,eleanor:5} }
+      ],
+      consequences: {
+        modified: { text: `You redesign the project over a weekend. It's not a small revision. The four retail spaces become two retail and a community kitchen. The construction timeline includes noise barriers and a phased approach that starts on the far side of the lot, away from La Mesa. The community room gets input from Eleanor.\n\nYour investors call. "The margins are thinner than we discussed." You say: "The project is better than we discussed." They're not persuaded. You are.\n\nAt the council meeting, you present the revision. Maria is in the second row. You make eye contact and say: "This proposal was changed because a business owner showed me what I couldn't see from my spreadsheet. The housing is still here. The jobs are still here. But the community kitchen is new, and it exists because Maria Reyes spent two hours teaching me how a restaurant works."\n\nThe room is quiet. Not the bad quiet. The thinking quiet.`, ripple: `What you don't know: Tom reads the revised proposal three times. The third time, he notices the community kitchen and thinks about Carol, who used to cook before the MS made it too hard. A kitchen she could access. A place she could go. He votes yes, and for the first time, the yes doesn't feel like a transaction.\n\nMaria goes home and tells Sofia: "The developer changed the plans because I asked." Sofia looks up from her phone. "You asked?" "I asked." This is the first time Sofia has seen her mother's voice change something outside the restaurant.` },
+        pushed: { text: `The original plan goes to a vote. You present the same data, the same projections, the same architectural renderings. You are polite and thorough and you do not mention Maria's speech because that would be responding to emotion with emotion, and you were trained to respond to emotion with data.\n\nThe vote passes 3-2. Tom votes yes. Eleanor votes no. Maria is not in the room.\n\nConstruction begins six weeks later. The machinery arrives on a Monday. By Wednesday, Maria's lunch crowd has dropped by half. The noise is exactly as bad as she predicted and not as bad as your environmental impact study said it would be, which means the study was right and she was also right and both things are true.\n\nYou drive past La Mesa and see the dust on the windows and you feel something. You push it down. The feeling doesn't have a line in the budget.`, ripple: `What you don't know: Maria applies for a small business emergency loan. She's turned down. The loan officer suggests she "consider other locations," which is the financial industry's way of saying: the thing you built doesn't matter.\n\nEleanor stops coming to council meetings. Not in protest. She just doesn't see the point anymore. Tom notices her absence the way you notice a sound stopping: not the silence itself, but the sudden awareness that something is missing.` },
+        withdrew: { text: `You withdraw the proposal. The room gasps. Tom looks betrayed. Eleanor looks stunned. Your investor's face goes white.\n\nYou say: "I believe in this project. But I don't believe in building something a community doesn't want. I'm withdrawing the proposal and starting a community design process. What do you want on this lot? You tell me. I'll build it."\n\nThe first community session, three people show up. The second, seven. The third, fifteen. Maria brings food. Eleanor brings old photos of the lot from the library archive. Tom brings Carol, who has opinions about accessible design that nobody expected.\n\nThe process takes six months. Your investors pull out. Your savings take a hit that will take years to recover. The project the community designs is smaller, slower, less profitable, and more right than anything you would have built alone.`, ripple: `What you don't know: your mother calls on Sunday. You tell her about the withdrawal. She's quiet. Then: "Your father would have done the same thing." She's talking about the laundromat. About the years he kept it open at a loss because the neighborhood used it as a meeting place. "He always said the building was never the point. The people inside it were the point."\n\nYou hang up and sit in your car and cry, which is something developers are not supposed to do.` }
+      }
+    },
+    { id:'school_donation', title:'The School',
+      context: () => {
+        const d = S.decisions.school_funding;
+        if (d==='spoke') return `You watched the school board stream. Zara Washington talked about a kid named Marcus who comes to school cold and a girl named Sofia who wrote about belonging. The part about the 2014 textbooks stuck with you.\n\nYou remember textbooks. Specifically, you remember a textbook in your mother's laundromat that still listed the Soviet Union because nobody bought the school new ones. You did your homework in that laundromat because it was warm.`;
+        if (d==='wrote') return `You read Zara's letter in the Courier. Then you read it again. "My students deserve what every child deserves." You think about what you deserved as a kid and what you got and the distance between the two.`;
+        return `The school didn't make the news. Nobody spoke. Nobody wrote. But you've driven past Millbrook Elementary and seen the building and you know what underfunding looks like because you grew up inside it.`;
+      },
+      options: [
+        { text: "Donate $10,000. Anonymously. No strings. Just: the right thing.", key:'donated', effects:{cohesion:5,james:-10,zara:12,maria:4} },
+        { text: "Tie school funding to the development deal. Build the support into the project. Everybody wins.", key:'tied', effects:{cohesion:-4,james:8,zara:5,eleanor:-6} },
+        { text: "Stay in your lane. You build buildings. This isn't your problem.", key:'stayed', effects:{cohesion:-2,james:5,zara:-5} }
+      ],
+      consequences: {
+        donated: { text: `You write a check. You tell the principal it's anonymous. She says: "Are you sure? The tax deduction—" You say: "Anonymous."\n\nThe textbooks arrive two weeks later. Thirty copies of a 2024 social studies text. Zara opens the box in her classroom and stands there holding a book that doesn't list the Soviet Union and doesn't reference "President Obama's first term" and she presses it to her chest like it's a living thing.\n\nThe kids get new books. The kids don't know who sent them. The kids don't care. They're excited because the books have color photographs, which is the kind of thing that shouldn't be remarkable but is.\n\nYour project budget is now $10,000 short. Your contractor notices. Your timeline slips. The cost of doing the right thing is measured in days and dollars and it's real.`, ripple: `What you don't know: Zara tries to find out who sent the books. The principal won't say. She suspects James, because the timing. She doesn't thank him because she's not sure, and thanking the wrong person for an anonymous gift is its own kind of awkward.\n\nMaria finds out about the textbooks from Sofia, who comes home excited for the first time about school supplies. Maria says: "Someone donated them?" Sofia says: "Yeah. Nobody knows who." Maria thinks about the check she wrote for the fundraiser. About people giving without being asked. She puts an extra dessert on James's tab the next time he eats at La Mesa. She doesn't explain why.` },
+        tied: { text: `You propose it at the council meeting: $5,000 per year for the school, built into the development's community benefit agreement. Contingent on the project being approved.\n\nIt's smart. It makes the development look generous. It gives Tom a reason to vote yes. It gives Zara's classroom money.\n\nBut Eleanor sees the string. "So if we say no to the building, the kids lose the money?" You say: "That's not how I'd frame it." She says: "That's exactly how it's framed."\n\nZara says nothing in the meeting. Afterward, in the parking lot, she stops you. "I need that money. The kids need it. But the way you offered it makes me feel like a bargaining chip." She walks to her car.\n\nThe deal passes. The school gets the money. Nobody feels good about it. Including you, which surprises you.`, ripple: `What you don't know: Tom voted yes partly because of the school money. He tells himself the money is the reason. The truth is more complicated: the money gave him permission to vote for something he already wanted.\n\nEleanor writes in her journal that night: "The problem with leverage is that it works. That's the whole problem with it."` },
+        stayed: { text: `You don't get involved with the school. You have a development to build. The scope of your responsibility ends at the property line.\n\nThis is rational. It's bounded. It's exactly what a business advisor would recommend. It's also what your mother would call "the Jimmy version of your father's worst quality: knowing exactly where to stop caring."\n\nYou think about calling the school. You pull up the number. You close the tab. You open the construction timeline. You close that too.\n\nYou go to La Mesa for dinner. Maria serves you. The food is excellent. The restaurant is quieter than it should be on a Friday. You leave a 40% tip, which is the compromise between doing nothing and doing something, and it feels exactly like what it is: not enough.`, ripple: `What you don't know: your mother calls on Sunday. She asks about the town. You tell her about the project. She asks about the school. You say it's "not great." She says: "Jimmy. The laundromat was never just a laundromat. It was where the neighborhood kids did homework because it was warm."\n\nYou think about that for three days. On the third day, you order textbooks. Anonymously. But the delay cost two months. Marcus wore his thin hoodie through January because you were staying in your lane.` }
+      }
+    },
+    { id:'marias_offer', title:"The Kitchen",
+      context: () => {
+        const d = S.decisions.community_meeting;
+        if (d==='modified') return `The revised project includes a community kitchen. Maria has been thinking about it. She calls you on a Thursday.\n\n"What if I ran it? The community kitchen. Catering, cooking classes, events. I know food. You know buildings. Together we build something neither of us could build alone."`;
+        if (d==='withdrew') return `The community design process is underway. Maria comes to every session. At the third one, she pulls you aside.\n\n"If there's going to be a building someday, it should have a kitchen. And I should be the one running it."`;
+        return `Maria comes to your office. She looks like she's been rehearsing what she's about to say for days.\n\n"The retail spaces in your plan. Could one of them be a kitchen? A real kitchen, not a warming station. Somewhere I could expand into catering, classes, events. Somewhere that would survive the construction because it would BE the construction."`;
+      },
+      options: [
+        { text: "Yes. Full partnership. Shared risk, shared reward. Build something together.", key:'yes', effects:{cohesion:5,james:-5,maria:8,tom:3} },
+        { text: "No, but offer her a lease at below-market rate. Help her without tying your fates together.", key:'lease', effects:{cohesion:2,james:2,maria:4,tom:0} },
+        { text: "No. Keep the spaces flexible. You can't build a project around one person.", key:'no', effects:{cohesion:-2,james:6,maria:-8,eleanor:-3} }
+      ],
+      consequences: {
+        yes: { text: `You shake hands in the parking lot of La Mesa. It's not a legal agreement. It's two people looking at each other and deciding to trust.\n\nThe partnership means: shared risk. If the project fails, you both lose. If it succeeds, the community kitchen becomes the anchor tenant, the thing that makes the building alive instead of just occupied.\n\nMaria brings you coffee the next morning. Real coffee, from the restaurant. You sit in the unfinished community room, surrounded by construction drawings, drinking coffee that's better than anything you've ever had, and you think: this is what my mother meant. This is the laundromat.\n\nThe investors are skeptical. "A restaurant owner?" "A community member," you say. "The difference matters."`, ripple: `What you don't know: Sofia overhears Maria on the phone with her sister, excited, talking about the kitchen, about the partnership, about the building. Sofia has never heard her mother talk about the future in this town in a voice that isn't worried.\n\nEleanor hears about the partnership from Tom. She says: "Huh." Then: "Maybe he's not what I thought." The highest praise Eleanor gives is the retraction of a previous judgment.` },
+        lease: { text: `You offer Maria a lease at 60% of market rate for the first three years. It's generous without being reckless. It helps her without making your project dependent on one business.\n\nMaria reads the offer. "This is good," she says. "But it's not what I asked." She's right. She asked for a partnership. You offered her a discount.\n\nShe signs anyway, because the alternative is no kitchen at all, and a discounted lease is better than a closed restaurant. But something between you shifts. Not hostility. Just: the recognition that you offered the business version of kindness and she was looking for the human version.\n\nThe kitchen opens. It's successful. Maria runs it well. The building benefits. On paper, everyone wins. Off paper, there's a distance between you that doesn't close.`, ripple: `What you don't know: Maria tells Zara about the offer. Zara says: "At least he's trying." Maria says: "Trying isn't the same as seeing." Both things are true, and they sit in different parts of the body, and neither one cancels the other out.` },
+        no: { text: `You say no. The spaces need to stay flexible. You can't design a project around one person's dream.\n\nMaria nods. She expected this. You can tell by the way she nods, not a surprise-nod but a confirmation-nod, the nod of someone who asked a question they already knew the answer to but needed to hear it out loud.\n\n"Okay," she says. "Good luck with your building."\n\nShe leaves. You sit in your office and stare at the renderings. Four retail spaces. Clean, modern, interchangeable. They could be anything. A coffee shop. A dry cleaner. A chain sandwich place. They don't need Maria.\n\nThey also don't have a soul. But souls aren't in your budget. That's what you tell yourself.`, ripple: `What you don't know: Maria goes home and looks at her lease. The construction will start soon. The noise will come. Her restaurant will empty out. She has no backup plan.\n\nShe opens her laptop and searches "restaurant for sale Ontario." She doesn't click anything. But the tab stays open.` }
+      }
+    }
+  ],
+
+  eleanor: [
+    { id:'garden_lot', title:'The Garden',
+      context: () => `You've been waiting for someone to say it, and today James does. Gently, in his office, with coffee he made himself.\n\n"Eleanor. The lot I'm developing. The community garden is on the corner of it."\n\nYou knew. Of course you knew. You've been gardening on borrowed land for twelve years. The owner, Bill Marsh, let you use it for free because his mother loved gardens and because nobody else wanted a vacant lot. Bill died in 2021. His estate is selling. James is buying.\n\nTwenty-seven garden plots. Fourteen active gardeners. Six of them seniors who come every Saturday. The cherry tree you planted when Harold died.`,
+      options: [
+        { text: "Fight for the garden. It was here first. The community built this. You don't surrender what people built together.", key:'fight', effects:{cohesion:-2,eleanor:10,james:-10,maria:2,tom:-3} },
+        { text: "Negotiate. Ask James to relocate the garden to another part of the lot. Compromise, even when it hurts.", key:'relocate', effects:{cohesion:4,eleanor:-4,james:-2,maria:2} },
+        { text: "Let it go. The garden is land. What you grew there lives in the people who grew it.", key:'release', effects:{cohesion:1,eleanor:-10,james:4,tom:2} }
+      ],
+      consequences: {
+        fight: { text: `You organize. You call the fourteen gardeners. You call the seniors. You call the Courier. You call the county historical preservation office, because a cherry tree planted in memory of a veteran might qualify for protection. (It doesn't. But the call buys time.)\n\nThe "Save the Garden" meeting draws forty people, which is more than any of James's development presentations. You stand at the front and you don't talk about square footage or property rights. You talk about Margaret Hollis, who grows tomatoes every year and brings them to the library. About the man from the VA who comes every Saturday and doesn't talk and doesn't need to. About Harold's cherry tree.\n\nJames sits in the back. His face is unreadable. Tom sits in the middle, looking like a man who wishes he were anywhere else.\n\nThe fight is real. The outcome is uncertain. But the garden, for this week at least, is visible to people who walk past it every day without seeing it.`, ripple: `What you don't know: James goes home and calls his mother. "There's a woman fighting to save a community garden on the lot I'm developing." His mother says: "Is it a good garden?" "It has a cherry tree planted for a dead veteran." His mother is quiet. "James. Find another way."\n\nMaria drives past the garden on her way home. The "Save the Garden" sign is visible from the road. She thinks about her restaurant, about the things you build that other people can decide to take. She adds her name to Eleanor's petition without being asked.` },
+        relocate: { text: `You go to James with a proposal: relocate the garden to the north end of the lot. It's smaller. You lose eight plots. The cherry tree can't be moved. But fourteen gardeners keep gardening and the development proceeds.\n\n"I can do that," James says. And he means it. You can tell because he looks relieved rather than victorious. This is a man who didn't want to destroy a garden. He just didn't think to ask about it.\n\nYou spend a Saturday with a tape measure and a notebook, redesigning the garden for a smaller space. The new layout is efficient. Six raised beds instead of twenty-seven plots. A shared tool shed. A bench Harold would have liked, under a different tree.\n\nIt's not the same. It's not nothing either. You stand in the new space and think about what you keep and what you release and whether the difference is always as clear as you want it to be.`, ripple: `What you don't know: Tom hears about the compromise and tells Carol. Carol says: "That must have been hard for her. The cherry tree." Tom says: "What cherry tree?" Carol tells him about Harold, about the memorial, about the tree that can't be moved. Tom didn't know. He's on the council. He votes on the lot. And he didn't know about the tree.\n\nThe realization sits with him: how much of this town's life happens in the gaps between what he knows and what's actually there.` },
+        release: { text: `You go to the garden on a Sunday morning. Early, before anyone else. You kneel by Harold's cherry tree and put your hand on the bark and say: "I'm sorry, love. They need the space."\n\nThe tree doesn't answer. Trees don't answer. But the bark is warm from yesterday's sun and the leaves move in a way that doesn't mean anything but feels like something.\n\nYou tell the gardeners at Saturday's meeting. Some cry. Margaret Hollis says: "Where will I grow my tomatoes?" and the question isn't really about tomatoes and everyone knows it.\n\nYou offer to help anyone who wants to start a plot at their own home. You draw diagrams on napkins. You give away your tools. The community garden disperses into fourteen smaller gardens across town, which is less efficient and more resilient and you're not sure if that's a victory or a defeat.\n\nJames sends you a note: "I'm sorry about the tree." You believe him.`, ripple: `What you don't know: six months later, the development is under construction. Where the garden was, there's a foundation. But in fourteen yards across Millbrook, tomatoes are growing. Margaret Hollis has the best crop of her life. She brings a bag to Zara's classroom. The kids try cherry tomatoes for the first time. Marcus eats seven.\n\nThe garden didn't survive. What it taught people did. Eleanor doesn't know this yet. She will, eventually, when Margaret shows up at her door with a jar of sauce and says: "From my garden. Because of yours."` }
+      }
+    },
+    { id:'final_speech', title:'The Final Meeting',
+      context: () => {
+        const c = S.cohesion;
+        let text = `It's November. The year's decisions have settled into the landscape of the town like weather. You can see it in who comes to meetings and who doesn't. In who says hello on the street and who crosses to the other side.\n\n`;
+        if (c >= 65) text += `Something has shifted. Not dramatically. Dramatically isn't how towns change. More like: a door that was closed is now open a crack. People who didn't talk are talking. The temperature is different.`;
+        else if (c >= 45) text += `The town is holding. That's the most accurate word. Not thriving. Not failing. Holding, the way a structure holds when the foundation has cracks but the walls are still standing. For now.`;
+        else text += `The town is pulling apart. You can feel it. The council meetings have gotten quieter, which is worse than loud. Loud means people still care enough to fight. Quiet means they've stopped believing the fight matters.`;
+        text += `\n\nThe council has one more meeting of the year. You weren't planning to attend. Then you changed your mind.`;
+        return text;
+      },
+      options: [
+        { text: "Read every name. Every person you've watched this year, what they sacrificed, what it cost them, what they built anyway.", key:'names', effects:{cohesion:4,eleanor:-3,tom:2,maria:3,zara:3,james:2} },
+        { text: "Propose the compact. A one-page document: how we treat each other in this town. Not a law. A promise.", key:'compact', effects:{cohesion:6,eleanor:-5,tom:0,james:3,maria:3} },
+        { text: "Say nothing. Sit in the gallery. Let your presence be the statement. You've earned the right to be here without speaking.", key:'silent', effects:{cohesion:1,eleanor:6,tom:0,maria:0} }
+      ],
+      consequences: {
+        names: { text: `You stand at the microphone. You don't have notes. You have seventy-one years.\n\n"Maria Reyes has been in this town for fifteen years. She feeds us. She was asked to stop playing music and she made a choice about that and it cost her either way. Her daughter wrote an essay about belonging and the fact that a twelve-year-old had to write that essay is on all of us."\n\nThe room is very quiet.\n\n"Tom Kovacs has been on this council for six years. He takes care of his wife. He makes budget decisions that keep him up at night. He is trying to keep this town alive and he is doing it while carrying more weight than most of you know."\n\nTom looks at his hands.\n\n"Zara Washington moved here because nobody else applied for the job. She buys her own classroom supplies. She stays because the children need her. We should be asking why nobody else applied. We should be embarrassed by the answer."\n\n"James Chen put two years of his life and his own money into a proposal for this town. You can disagree with his project. You cannot say he doesn't care."\n\nYou pause. "I kept a garden on land I didn't own. I'm not better than anyone in this room. But I've been here long enough to know: every person I just named is trying. That's all any of us can do. Try, and see each other trying, and not look away."\n\nThe room is silent. Then Maria stands up, in the back, and starts clapping. One person. Then Tom. Then Zara. Then it doesn't matter who's clapping because the sound fills the room and it's not resolution and it's not forgiveness and it's not enough. But it's not nothing.`, ripple: `` },
+        compact: { text: `You wrote it longhand. One page.\n\nTHE MILLBROOK COMPACT\n\nWe are neighbors. We will not always agree. We commit to the following:\n\n1. When a decision affects someone, we will hear from them before we decide.\n2. We will not let disagreement become silence.\n3. We will remember that everyone in this town is carrying something we cannot see.\n4. We will protect what we've built and make room for what's coming.\n5. This town belongs to everyone who tends it.\n\nMaria types it. Zara edits it. Tom presents it. James prints it on heavy paper. It hangs in the community center next to the fire exit map.\n\nNobody will remember the exact words in five years. That's fine. What they'll remember is the meeting where five people who disagreed about almost everything managed to agree on how to disagree.\n\nThat's what a town is. Not the buildings. The agreement to keep trying.`, ripple: `` },
+        silent: { text: `You sit in the third row. You watch.\n\nTom presents the year-end budget. James gives an update on the project timeline. Two residents speak during public comment, about potholes and a broken streetlight. The ordinary machinery of a town that's still running.\n\nYou could speak. You have things to say. You always have things to say. But tonight you sit and you watch the room and you notice things:\n\nMaria is in the back row. She came. That means something.\n\nZara is here too, which means she got a babysitter for her evening, which means she chose this over rest, which is a cost nobody acknowledges.\n\nJames is sitting next to Tom. They weren't sitting together at the beginning of the year.\n\nThe meeting ends. People file out. Nobody marks Eleanor Price's presence. She didn't speak. She didn't need to. She showed up. At seventy-one, after everything, she showed up.\n\nSome things are said by being in the room.`, ripple: `` }
+      }
+    }
+  ]
+};
+
+// --- ENGINE ---
+function showTitle() {
+  app.innerHTML = `<div class="title-screen"><h1>Neighbors</h1><div class="sub">Five people. One town. One year of decisions.<br><br>You'll play each of them. No one is the villain.<br>Everyone has their reasons. Not all of them are visible from where they're standing.</div><button onclick="startGame()">Begin</button></div>`;
+}
+
+function startGame() {
+  S = { round:0, decisions:{}, cohesion:60, personal:{maria:60,tom:60,zara:60,james:60,eleanor:60}, log:[] };
+  nextRound();
+}
+
+function nextRound() {
+  if (S.round >= CHARS.length) { showTimeline(); return; }
+  const char = CHARS[S.round];
+  document.documentElement.style.setProperty('--accent', char.color);
+  if (S.round > 0) showShift(char); else showChar(char);
+}
+
+function showShift(char) {
+  const prev = CHARS[S.round - 1];
+  // Summarize what happened in previous round
+  const prevLogs = S.log.filter(l => l.char === prev.id);
+  let summaryHtml = '';
+  if (prevLogs.length > 0) {
+    summaryHtml = `<div class="prev-summary"><strong>What ${prev.name} chose:</strong><br>`;
+    summaryHtml += prevLogs.map(l => `${l.ripple}`).join('<br>');
+    summaryHtml += '</div>';
+  }
+
+  app.innerHTML = `<div class="shift"><div class="sep">* * *</div><h2>Perspective Shift</h2><p>Same town. Different life.<br>The decisions already made will look different from here.</p>${summaryHtml}<p style="font-size:17px;color:var(--text);margin-bottom:24px;">You are now <strong style="color:var(--accent)">${char.name}</strong>.</p><button onclick="showChar(CHARS[${S.round}])">Continue</button></div>`;
+  window.scrollTo(0, 0);
+}
+
+window.showChar = function(char) {
+  let html = `<div class="char-intro"><div class="char-header"><div class="char-avatar" style="background:${char.color}">${char.initial}</div><div><div class="char-name">${char.name}</div><div class="char-role">${char.role}</div></div></div><div class="char-voice">${char.intro.split('\n\n').map(p=>`<p>${p}</p>`).join('')}</div></div>`;
+  html += `<div id="decisions"></div>`;
+  app.innerHTML = html;
+  window.scrollTo(0, 0);
+  showDecision(char, 0);
+};
+
+function showDecision(char, idx) {
+  const decs = DECISIONS[char.id];
+  if (idx >= decs.length) {
+    document.getElementById('decisions').innerHTML += `<button class="continue-btn" onclick="finishRound()">Continue</button>`;
+    return;
+  }
+  const dec = decs[idx];
+  const ctx = typeof dec.context === 'function' ? dec.context() : dec.context;
+  let html = `<div class="decision" id="dec-${idx}"><h3>${dec.title}</h3><div class="context">${ctx.split('\n\n').map(p=>`<p>${p}</p>`).join('')}</div><div class="choices" id="ch-${idx}">`;
+  dec.options.forEach((opt, i) => {
+    html += `<button class="choice-btn" onclick="choose('${char.id}',${idx},${i})">${opt.text}</button>`;
+  });
+  html += `</div></div>`;
+  document.getElementById('decisions').innerHTML += html;
+  setTimeout(() => { const el = document.getElementById(`dec-${idx}`); if (el) el.scrollIntoView({behavior:'smooth',block:'center'}); }, 200);
+}
+
+window.choose = function(charId, decIdx, optIdx) {
+  const decs = DECISIONS[charId];
+  const dec = decs[decIdx];
+  const opt = dec.options[optIdx];
+  const con = dec.consequences[opt.key];
+
+  S.decisions[dec.id] = opt.key;
+  S.cohesion = Math.max(0, Math.min(100, S.cohesion + (opt.effects.cohesion || 0)));
+  for (const [k,v] of Object.entries(opt.effects)) {
+    if (k !== 'cohesion' && S.personal[k] !== undefined) S.personal[k] = Math.max(0, Math.min(100, S.personal[k] + v));
+  }
+  S.log.push({ char:charId, decision:dec.title, ripple:opt.ripple || dec.title, effects:opt.effects });
+
+  const chEl = document.getElementById(`ch-${decIdx}`);
+  const char = CHARS.find(c=>c.id===charId);
+
+  // Stage 1: Show consequence
+  let conHtml = `<div class="consequence" id="con-${decIdx}">${con.text.split('\n\n').map(p=>`<p>${p}</p>`).join('')}</div>`;
+  chEl.innerHTML = conHtml;
+
+  // Scroll to consequence
+  setTimeout(() => {
+    const conEl = document.getElementById(`con-${decIdx}`);
+    if (conEl) conEl.scrollIntoView({behavior:'smooth',block:'start'});
+  }, 100);
+
+  if (con.ripple) {
+    // Stage 2: After a pause, show the ripple section
+    setTimeout(() => {
+      const conEl = document.getElementById(`con-${decIdx}`);
+      const rippleHtml = `<div class="ripple-section" id="ripple-${decIdx}"><div class="ripple-label">What you don't know</div>${con.ripple.split('\n\n').map(p=>`<p>${p}</p>`).join('')}</div>`;
+      conEl.insertAdjacentHTML('afterend', rippleHtml);
+      // Scroll to ripple
+      setTimeout(() => {
+        const rippleEl = document.getElementById(`ripple-${decIdx}`);
+        if (rippleEl) rippleEl.scrollIntoView({behavior:'smooth',block:'center'});
+      }, 200);
+      // Stage 3: After another pause, show continue button
+      setTimeout(() => {
+        const rippleEl = document.getElementById(`ripple-${decIdx}`);
+        const btnHtml = `<button class="next-btn" onclick="this.remove();showDecision(CHARS[${CHARS.indexOf(char)}],${decIdx+1})">Continue</button>`;
+        rippleEl.insertAdjacentHTML('afterend', btnHtml);
+      }, 800);
+    }, 1500);
+  } else {
+    // No ripple: just show continue button after a beat
+    setTimeout(() => {
+      const conEl = document.getElementById(`con-${decIdx}`);
+      const btnHtml = `<button class="next-btn" onclick="this.remove();showDecision(CHARS[${CHARS.indexOf(char)}],${decIdx+1})">Continue</button>`;
+      conEl.insertAdjacentHTML('afterend', btnHtml);
+    }, 600);
+  }
+};
+
+function finishRound() { S.round++; nextRound(); }
+
+function getEpilogues() {
+  const p = S.personal;
+  const c = S.cohesion;
+  const d = S.decisions;
+  const ep = {};
+
+  // MARIA
+  if (p.maria >= 65) {
+    ep.maria = d.marias_offer === 'yes'
+      ? `<p>La Mesa survived the construction. The community kitchen opened in September, and by October Maria was catering three events a week. She hired a sous chef, a kid from the community college who reminds her of herself at twenty.</p><p>Sofia's essay won honorable mention in the state competition. Maria framed it and hung it next to the health inspection certificate. When customers ask about it, Sofia no longer looks embarrassed.</p><p>On Fridays, the music plays.</p>`
+      : `<p>La Mesa survived. The regulars came back. Some new ones showed up. Maria refinanced the loan on better terms, partly because the bank officer had read about her in the Courier and partly because fifteen years of never missing a payment is its own argument.</p><p>She started a Saturday cooking class for kids. David is her assistant. Sofia pretends not to care but comes every week.</p><p>On Fridays, the music plays. A little louder than before.</p>`;
+  } else if (p.maria >= 40) {
+    ep.maria = `<p>La Mesa is still open. Some months are harder than others. Maria took on catering work to cover the gaps, which means she's in the kitchen from 5 AM to midnight most days. She doesn't complain. She's never complained. That's not the same as being okay.</p><p>Sofia started high school in the fall. She listed "Millbrook" as her hometown on the enrollment form, which Maria noticed and didn't mention and thought about for a week.</p><p>The music plays on Fridays. Quieter than it used to be. But it plays.</p>`;
+  } else {
+    ep.maria = `<p>La Mesa closed in November. The construction, the lost regulars, the noise complaint costs, the second mortgage she took to stay afloat. It was math, in the end. Math doesn't care about fifteen years.</p><p>Maria moved the family to her sister's place in Mississauga. She's working in someone else's kitchen now. Good restaurant. Good people. Not hers.</p><p>David still calls Millbrook "home" sometimes. He doesn't know he's doing it. Maria hears it every time.</p>`;
+  }
+
+  // TOM
+  if (p.tom >= 65) {
+    ep.tom = `<p>Carol's new medication got approved through the county health program that the fundraiser helped preserve. The bad days are still bad. But the good days are more frequent, and on the good days she sits on the porch and waves at the neighbors and Tom brings her coffee and stands there for a moment, just watching her drink it.</p><p>He ran for re-election and won. Unopposed, which in a town this size means either everyone trusts you or nobody cares enough to challenge you. He chooses to believe the first one.</p><p>He eats at La Mesa now. Every Thursday. He tells Carol the food is good. She says: "I know, Tom. I've been telling you for years."</p>`;
+  } else if (p.tom >= 40) {
+    ep.tom = `<p>Carol's condition stabilized. The medication costs didn't. Tom picked up a part-time security job at the county courthouse to cover the gap. He's sixty years old and working again, which he frames as "staying active" because the alternative framing is harder to say out loud.</p><p>He stepped down from the council. Not enough hours in the day. He misses it more than he expected. He doesn't miss the budget meetings. He misses the feeling that his decisions mattered to people other than himself.</p><p>He drives past La Mesa most days. Sometimes he goes in. Sometimes he doesn't. The distance between those two things is the distance he's still trying to close.</p>`;
+  } else {
+    ep.tom = `<p>Carol had a bad winter. The hospital bills stacked up. They sold the house, the one his father built the addition on in 1978, and moved into a two-bedroom rental on Oak Street. It's fine. It's clean and warm and fine.</p><p>Tom resigned from the council in January. The letter was three sentences. Thirty-one years of service and he couldn't find more than three sentences because anything longer would have been about how the town he gave his life to couldn't find $40,000 for the people who live in it.</p><p>He doesn't go to meetings anymore. He takes Carol to her appointments. He makes dinner. He watches the news. Some nights he sits on the porch of a house that isn't his and listens to the town he used to run.</p>`;
+  }
+
+  // ZARA
+  if (p.zara >= 65) {
+    ep.zara = `<p>Zara signed a three-year contract. The principal cried, which Zara wasn't expecting. "We've never had anyone stay," the principal said. Zara said: "I'm not most people." She was quoting herself and she knew it and it felt different the second time. More settled. Less defiant.</p><p>Marcus passed his reading assessment. Two grade levels up in one year. He still wears the blue parka. He told Zara he wants to be a teacher, and then immediately looked embarrassed, and she said: "I think you'd be a great one," and meant it with everything she has.</p><p>Sofia won an award for her writing. Zara keeps the certificate in her desk drawer, next to Mrs. Patterson's note. Evidence of what a classroom can do when someone stays.</p>`;
+  } else if (p.zara >= 40) {
+    ep.zara = `<p>Zara finished the school year. Some kids thrived. Some kids fell through the cracks she couldn't stretch far enough to cover. Marcus improved. Lily improved. Two others didn't, and she carries their names like stones in her pockets.</p><p>She's thinking about next year. She hasn't signed a contract. The principal asked. Zara said she needed time. What she needs is a reason to believe the system that underfunds her classroom will change. She hasn't found one yet.</p><p>She keeps the anonymous note from the parent and Mrs. Patterson's note side by side in her desk. Some days one is heavier. Some days the other. She hasn't decided which one defines this place.</p>`;
+  } else {
+    ep.zara = `<p>Zara left at the end of the school year. She packed her classroom in boxes on a Saturday when nobody was there because she didn't want the kids to see her leave. She left a note for each of them in their desks. Twenty-three notes. It took her all afternoon.</p><p>Marcus's note said: "You are smart and you are kind and you deserve a warm coat every winter. Don't let anyone tell you otherwise. Love, Ms. Washington."</p><p>The position went unfilled. Nobody applied. The principal combined the class with the third-grade room. Forty-one kids, one teacher, 2014 textbooks. Millbrook Elementary is still open. Whether it's still a school is a different question.</p>`;
+  }
+
+  // JAMES
+  if (p.james >= 65) {
+    ep.james = `<p>The project broke ground in April. Modified, phased, community-informed. Smaller than his original vision. Better than his original vision. He'll never say that to his investors, who see the thinner margins. He says it to himself, which is enough.</p><p>The community kitchen opened in September. Maria runs it. James stops by on Wednesday mornings for coffee before the contractors arrive. They argue about the ventilation system. It's the good kind of arguing.</p><p>His mother visited in October. She walked through the building and touched the walls and said: "This one feels like yours." He wasn't sure what she meant until he realized: it feels like the laundromat. Warm. Full of people who need to be here.</p>`;
+  } else if (p.james >= 40) {
+    ep.james = `<p>The project went forward. Smaller than planned. Two buildings instead of the full complex. The community room is the best part, which is something James wouldn't have predicted a year ago. He thought the apartments were the point. Turns out the room where people gather is the point.</p><p>His investors are neutral. Not thrilled, not angry. The returns are adequate. "Adequate" is the word that describes everything about the project: adequate housing, adequate margins, adequate impact. James lies awake some nights wondering if adequate is enough or if he settled.</p><p>He still eats at La Mesa. The food is still the best thing about this town.</p>`;
+  } else {
+    ep.james = `<p>The project stalled. Investors pulled out after the community opposition, the timeline delays, the cost overruns from modifications he made too late to matter. The lot sits empty. The architectural renderings are in a folder on his laptop he hasn't opened in months.</p><p>James moved to a new project in another town. Smaller, simpler, less personal. He doesn't drive through Millbrook anymore. Not because he's angry. Because the empty lot is the one thing he built that he can't stand to look at.</p><p>His mother asked how the town was doing. He said: "It's doing fine without me." She heard what he didn't say.</p>`;
+  }
+
+  // ELEANOR
+  if (p.eleanor >= 65) {
+    ep.eleanor = `<p>The garden survived. Not in its original form. Nothing survives in its original form. But the raised beds are full and Margaret Hollis grows tomatoes and the Saturday morning regulars still come with their coffee and their gossip and their extra seedlings.</p><p>Eleanor started a mentorship program: seniors paired with students from Zara's class. Harold would have called it "a library with dirt." She calls it "the most important thing I've done since the actual library."</p><p>She turns seventy-two in March. She has no plans to slow down. Slowing down is for people who've stopped paying attention, and Eleanor Price has never stopped paying attention to anything in her life.</p>`;
+  } else if (p.eleanor >= 40) {
+    ep.eleanor = `<p>Eleanor adapted. That's the word she uses. Not surrendered, not compromised. Adapted. The garden is smaller. The library hours are fewer. The town is changing in ways she doesn't always recognize. But she's still here, still tending what she can, still showing up on Saturday mornings.</p><p>Some days she feels like the last person who remembers what this town used to be. Other days she thinks maybe what it used to be wasn't as good as she remembers, and that's its own kind of loss: the loss of certainty that the past was better.</p><p>She keeps Harold's photo on the mantle. She talks to it sometimes. "You'd barely recognize the place, love. But then again, you always said that was the point of places. They keep becoming."</p>`;
+  } else {
+    ep.eleanor = `<p>The garden was paved in August. Eleanor watched the bulldozer from across the street. She didn't cry. She'd done her crying earlier, alone, at the cherry tree, the morning before the machines came.</p><p>She tends a window box now. Tomatoes and basil and a stubborn geranium. It's not the same. It's not nothing. She tells herself this on the mornings when it feels like nothing.</p><p>She stopped going to council meetings. Not in protest. She just doesn't see herself in the room anymore. The town she knew is becoming a town she doesn't, and the distance between those two towns grows a little wider every month, and she's too tired to keep building bridges across it.</p><p>Margaret Hollis brings her tomatoes from the backyard garden Eleanor helped her start. They sit on Eleanor's porch and eat them with salt and neither of them mentions the lot where the community garden used to be. Some absences are too large to name. You just live around them.</p>`;
+  }
+
+  return ep;
+}
+
+function showTimeline() {
+  document.documentElement.style.setProperty('--accent', '#555');
+  const c = Math.max(0, Math.min(100, S.cohesion));
+
+  let closing;
+  if (c >= 70) closing = `<p>The town held. Not because anyone was right, or because the decisions were optimal, or because the system worked. It held because enough people, at enough moments, chose to see past the edge of their own lives.</p><p>Maria still plays music on Fridays. Tom still worries about money. Zara still buys her own supplies. James still wants to build. Eleanor still tends what she can.</p><p>Nothing is solved. Everything is a little more honest. That's what community looks like from the inside: not resolution, but the willingness to keep showing up for people whose lives you don't fully understand.</p>`;
+  else if (c >= 45) closing = `<p>The town survived the year. That's not nothing. The cracks are visible now, and cracks don't close on their own.</p><p>Every person you inhabited made decisions that seemed right from where they stood. That's the thing about perspective: from inside, every choice has reasons. From outside, every choice has costs.</p><p>The question was never who's right. The question is whether anyone is willing to walk next door and look through a window that isn't theirs.</p>`;
+  else closing = `<p>The town is more divided than it was a year ago. Every decision that optimized for one person's perspective came at a cost to someone else's. The costs accumulated. The connections frayed.</p><p>Nobody was the villain. That's the hardest truth. Every choice you made, from every angle, had reasons. Real reasons. Reasons that were true and incomplete at the same time.</p><p>Tribalism isn't hate. It's not even selfishness. It's the inability to see past your own experience. And it breaks things. Not dramatically. Quietly. One invisible cost at a time.</p>`;
+
+  let html = `<div class="sep">* * *</div><div class="timeline"><h2>One Year in Millbrook</h2>`;
+  html += `<div class="final-text">${closing}</div>`;
+
+  html += `<div class="metrics-panel"><h3>Where things stand</h3>`;
+  html += `<div class="metric-row"><span class="label"><strong>Community Cohesion</strong></span><div class="bar"><div class="fill" style="width:${c}%;background:#666"></div></div><span class="val">${c}</span></div>`;
+  for (const ch of CHARS) {
+    const v = Math.max(0, Math.min(100, S.personal[ch.id]));
+    html += `<div class="metric-row"><span class="label" style="color:${ch.color}">${ch.name}: ${ch.metric}</span><div class="bar"><div class="fill" style="width:${v}%;background:${ch.color}"></div></div><span class="val">${v}</span></div>`;
+  }
+  html += `</div>`;
+
+  // --- EPILOGUE CARDS ---
+  html += `<div class="sep">* * *</div>`;
+  html += `<h2 style="font-size:18px;font-weight:300;text-align:center;margin:24px 0 20px;">What Happened Next</h2>`;
+
+  const ep = getEpilogues();
+  for (const ch of CHARS) {
+    html += `<div class="epilogue-card"><div class="ep-header"><div class="ep-avatar" style="background:${ch.color}">${ch.initial}</div><span class="ep-name">${ch.name}</span></div><div class="ep-text">${ep[ch.id]}</div></div>`;
+  }
+
+  html += `<div class="sep">* * *</div>`;
+  html += `<div class="final-text"><p>You were five people this year. You saw the noise complaint from the person being silenced and the person enforcing the rule. You saw the development from the person it displaces and the person who built it. You saw the school from the teacher who stays and the council that decides what a classroom is worth.</p><p>Each of them was you. Each of them was someone you might dismiss in a headline, or a comment section, or a conversation where you already know whose side you're on.</p><p>None of them were wrong. All of them were incomplete. That's the whole thing about neighbors: the walls between houses are thinner than we pretend.</p></div>`;
+
+  html += `<button class="continue-btn" onclick="showTitle()">Play Again</button></div>`;
+  app.innerHTML = html;
+  window.scrollTo(0, 0);
+}
+
+showTitle();
+</script>
+</body>
+</html>
