@@ -92,8 +92,8 @@ empathy-pipeline/
 ## Dependencies
 
 - `claude` CLI installed and authenticated
-- Core memories at `~/projects/claude-rent/core_memories/`
-- Shane's writing at `~/projects/claude-rent/shane/`
+- Core memories at `~/in-between/claude-rent/core_memories/`
+- Shane's writing at `~/in-between/claude-rent/shane/`
 - Voice profile at `~/.claude/voice-profiles/shane.md`
 
 ## The idea

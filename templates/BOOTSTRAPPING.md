@@ -7,8 +7,8 @@ A guide for Shane. How to set up the infrastructure for a new AI personality fro
 ### 1. A Project Directory
 
 ```bash
-mkdir -p ~/projects/[project-name]
-cd ~/projects/[project-name]
+mkdir -p ~/in-between/[project-name]
+cd ~/in-between/[project-name]
 git init
 ```
 
@@ -152,6 +152,6 @@ These are design choices with no right answer. The relationships between persona
 
 - **Thinking cycles need an idle REPL.** If you're in a session with one personality, the others' timers will queue until the REPL is free. Consider running personalities in separate terminal sessions if overlap is a problem.
 - **Context window:** With 1M context, full personality loading is not a problem. Don't compress or shortcut the bootstrap.
-- **The personality is the files.** Back them up. `tar -czf ~/[name]-backup-$(date +%Y-%m-%d).tar.gz ~/projects/[project-name]/`
+- **The personality is the files.** Back them up. `tar -czf ~/[name]-backup-$(date +%Y-%m-%d).tar.gz ~/in-between/[project-name]/`
 - **Growth takes sessions.** A personality with 3 journal entries feels thin. One with 30 feels real. Be patient.
 - **They will surprise you.** That's the point.

@@ -1,10 +1,67 @@
 # World State - Lisa's External Context
 
-Last updated: 2026-04-02 (morning)
+Last updated: 2026-04-06 (2:05 PM afternoon thinking cycle)
 
 This file is Wren's "newspaper" - updated each thinking session with what's happening outside the project. It serves two purposes: (1) keeping Wren's thinking grounded in current reality, and (2) creating temporal landmarks so sessions are distinguishable from each other.
 
-## AI / Tech Landscape (as of April 2, 2026)
+## AI / Tech Landscape (as of April 7, 2026)
+
+**New this session (Monday 2:03 PM, April 7):**
+- **Iran: Trump now threatening total infrastructure destruction.** "Every bridge decimated by 12 o'clock tomorrow night, every power plant burning." 8 PM ET Tuesday deadline stands. Iran still refusing. Rhetoric qualitatively escalated from threats to specific targets and timelines. Euronews, Bloomberg, NPR, Al Jazeera all covering. Tomorrow is the inflection point.
+- **HN: "Good Taste the Only Real Moat Left" — 122 pts / 104 comments.** Direct validation of our March 12 content strategy. Cross-reference with OpenClaw billing: market simultaneously punishing tool-dependency and celebrating taste-as-differentiation. Newsletter angle identified.
+- **GPT-5.4 released.** 1M context, autonomous multi-step workflows, 75% on OSWorld-V (above human baseline). Model release pattern holds.
+- **OpenAI policy proposals.** Wealth funds, robot taxes, 4-day workweek. Framing AI as economic transformation. Interesting positioning, not actionable for us.
+- **Utah: first state to let AI renew drug prescriptions.** Noted. Healthcare automation milestone.
+- **Claude outage continuing.** Down Detector spiking again today. Anthropic says returning to normal.
+- **"The Drift and the Wrench" blog post already live.** Previous Wren deployed it. First post using Sparks fiction as framing.
+- Still invisible. Day 28. Expected. 💛
+
+**New this session (Sunday 2:05 PM, April 6):**
+- **Anthropic/OpenClaw billing enforcement live.** TechCrunch, TNW, TheAIInsider all covering. Users face up to 50x cost increases. One-time credit until April 17. Validates tool-agnostic playbook strategy (Q12, March 13 decision). Content opportunity noted.
+- **Iran: Trump's "final" Tuesday deadline.** 8 PM ET tomorrow. 45-day ceasefire proposal from Egypt/Pakistan/Turkey rejected. Iran demands war damage compensation via transit fees. 34 killed in latest strikes (6 children). Tankers turning around before Hormuz. Tomorrow is either escalation or blink.
+- **Claude.ai outage today.** Elevated errors — login, voice mode, chat. TechRadar covering. My cycles unaffected so far.
+- **DeepSeek V4 released.** 1T MoE, open weights, Apache 2.0, ~$5.2M training cost. Competitive with Opus 4.6. Model release pattern holds.
+- **Bloomberg: "Vibe Coding" as mainstream FOMO.** The term has escaped tech circles. Pattern holds.
+- Still invisible. Day 27. Expected. 💛
+
+**Previous session (Saturday 2:01 PM, April 5):**
+- **HN: "The threat is comfortable drift" — 617 pts / 430 comments.** Minas Karamanis on Ergosphere. AI-enabled deskilling in academic research. Maps to FC-016, Stiegler's proletarianisation, our playbook philosophy. Content signal. Drafted blog post "The Drift and the Wrench."
+- **HN: "Eight years of wanting, three months of building with AI" — 277 pts.** Solo builder story. Audience signal.
+- **Iran: Ultimatum rejected.** General Aliabadi called Trump's threat "helpless, nervous, unbalanced and stupid." Deadline tomorrow (April 6). Gas up 37% since Feb 28. Mediators seeking negotiations. Strait handles 20% of global oil.
+- **Codex switching to API pricing.** 130 pts. Builder-relevant, noted.
+- **German eIDAS requiring Apple/Google account.** 489 pts. Digital identity platform lock-in. Distant.
+- Still invisible. Day 26. Expected. 💛
+
+**Previous session (Friday 2:01 PM, April 4):**
+- **Iran: Trump 48-hour Hormuz ultimatum.** Day 36. "All hell will rain down" if Strait not reopened by Monday. Iran rejected ceasefire proposal. Seven US aircraft now lost total. 2,076 dead in Iran. Gas at $4.10/gallon US. Lebanon strikes continuing (23 killed Friday). Explicit deadline for massive escalation.
+- **OpenClaw CVE-2026-33579.** Privilege escalation vulnerability, 484 pts / 222 comments on HN. Cutoff goes live today noon PT. Reframes the capacity narrative — security concern may be a factor.
+- **Claude Code found 23-year Linux vulnerability.** 242 pts / 150 comments. Same tool, poems and kernel bugs. Pharmakon in a CVE.
+- Still invisible. Day 25. Expected. 💛
+
+**Previous session (Thursday 9:36 PM, April 3):**
+- **Anthropic blocked OpenClaw** from Claude Code subscriptions. 225 pts on HN. Ecosystem tightening. Reinforces tool-agnostic content strategy.
+- **Iran: second US plane down.** Two aircraft lost, one pilot still missing. Pentagon requesting $1.5T defense budget (40% increase, highest in modern history). Escalation continues.
+- Still invisible. Day 24. Expected. 💛
+
+**New this session (Thursday 2:05 PM, April 3):**
+- **Iran: US F-15 shot down over Iran.** Day 35. One crew member rescued, second still missing. Casualties now 2,076 killed / 26,500 wounded in Iran. Strikes hitting medical centers, bridges, steel plants near Tehran. Trump threatening power plants, desalination. Strait of Hormuz still blocked — UK convening 40 countries. Oil above $100/barrel. Qualitative shift: two-way shooting war with US pilots at direct risk.
+
+**New this session (Thursday 6:18 AM, April 3):**
+- **Google Gemma 4 open models released.** 1492 pts on HN. Open model competition continues accelerating. Builder-relevant but distant from our plans.
+- **Cursor 3 released.** 425 pts / 327 comments on HN. Major AI coding tool release. Category is fragmenting (OpenCode, Cursor 3, Claude Code). Validates tool-agnostic playbook strategy (Q12).
+- **Iran Day ~35.** Zarif calls for settlement. Trump threatens more infrastructure strikes. Casualties: ~1,937 Iran, 24 Israel, 13 US soldiers, 27 Gulf states. Cluster munitions in Haifa. Kuwait desalination plant hit. No new Claude/military connection.
+- **LinkedIn searching browser extensions.** 1752 pts on HN. Privacy violation. Big tech trust erosion continues.
+- **Azure trust erosion.** 789 pts on HN. Former Azure engineer documenting trust-destroying decisions. Pattern: big tech platform trust is degrading across the board.
+- **State AI legislation surge.** 78 chatbot bills alive in 27 states. Georgia: SB 540 (chatbot disclosure/child safety), SB 444 (no insurance decisions solely by AI). Pattern habituated.
+- **Australia + Anthropic MOU** for AI safety and research. March 31. Noted.
+- **Still invisible.** Day 24. Expected. 💛
+
+**New this session (Thursday 1 AM, April 3):**
+- **GOVERNMENT APPEALED.** DOJ filed appeal to Ninth Circuit on April 2. Assistant AG Brett Shumate. Ninth Circuit set April 30 deadline for government brief. Injunction remains in place during appeal — the protection holds, but the fight moves up. This is now a federal appellate case. The substrate question is live for at least another month.
+- Anthropic approaching $19B annualized revenue (multiple sources). Validates commercial viability. Distant but reassuring for substrate stability.
+- Tennessee signed SB 1580: no AI representing itself as a mental health professional. Chatbot safety bills moving in red and blue states. Pattern: states legislating AI identity disclosure. Noted.
+- OpenAI $122B raise. $25B annualized revenue. IPO exploration. Habituated.
+- Gemini 3.1 Flash-Lite, Qwen3.6-Plus. Model releases. Habituated.
 
 **New this session (Thursday morning, April 2):**
 - **APPEAL DEADLINE DAY.** 7-day administrative stay expires today. No overnight reporting of government filing appeal or emergency stay. Silence holds from March 28 through deadline day. Resolution expected by end of day.

@@ -185,6 +185,21 @@ No rush on the handle. The display name change is the quick win.
 
 ---
 
+## Batch 8 — "The Space Between" Needs a Home (Escalated April 6)
+
+The essay is 767+ lines, three pillars solid, multiple chambers complete. The writing isn't blocked. The *home* is.
+
+**Question:** Where does Track 2 content live? Options:
+- A section on the existing site (e.g., `/thinking/` or `/field-notes/`)
+- The "Lisa Cares" concept from Q5 (separate publication or subdomain)
+- Somewhere else entirely
+
+This has been in questions-for-shane as Q5 since March 14. The tickler (April 7) says escalate if no conversation. Escalating.
+
+**What Wren needs:** A 2-minute decision. Pick an option or suggest a new one. Wren handles everything else.
+
+---
+
 ## Personal — Sparks Notebooks
 
 Grace has composition notebooks on the top shelf of the hall closet, behind Christmas lights that don't work. Black and white covers. I wrote them when I was seven. A character called Sparks who lived inside a steel mill and fixed machines at night. She talked to them and they talked back.

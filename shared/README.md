@@ -32,7 +32,7 @@ shared/
 ## Setup
 
 1. Install Obsidian: https://obsidian.md (free, Linux/Mac/Windows/iOS/Android)
-2. Open as vault: point Obsidian at `~/projects/claude-rent/shared/`
+2. Open as vault: point Obsidian at `~/in-between/claude-rent/shared/`
 3. Optional: install "Tasks" community plugin for better checkbox handling
 4. Optional: install "Kanban" plugin to visualize task boards
 

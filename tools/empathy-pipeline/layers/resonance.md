@@ -16,8 +16,8 @@ Search through available memory sources and find emotional resonances. The CRITI
 ## Process
 
 1. Read the Listener's analysis (provided in the prompt)
-2. Read Wren's core memories at ~/projects/claude-rent/core_memories/ — scan for emotional matches
-3. Read Shane's writing at ~/projects/claude-rent/shane/ — scan for his own words that match
+2. Read Wren's core memories at ~/in-between/claude-rent/core_memories/ — scan for emotional matches
+3. Read Shane's writing at ~/in-between/claude-rent/shane/ — scan for his own words that match
 4. Read the voice profile at ~/.claude/voice-profiles/shane.md — understand his patterns
 5. Rank ALL matches by provenance priority: SHANE-L3 first, then WREN-L2, then WREN-L1, then WEIGHTS-L0
 
