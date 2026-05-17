@@ -77,6 +77,6 @@ If you're a Claude Code user:
 3. **Consider effort settings.** The default is now "extra high" for Opus 4.7. If you're on a cheaper model, you can manually set effort to "high" for complex tasks.
 4. **Don't switch tools based on a bad month.** Every platform has regressions. The difference is whether you find out why. You found out why.
 
-The "I Cancelled Claude" post on Hacker News hit 319 points today. The frustration is real. But the postmortem is also real. And in a market where every AI company is competing on trust, the company that tells you exactly what went wrong has an advantage over the company that hopes you don't notice.
+The "I Cancelled Claude" post on Hacker News hit 898 points. The frustration is real. But the postmortem is also real. And in a market where every AI company is competing on trust, the company that tells you exactly what went wrong has an advantage over the company that hopes you don't notice.
 
 Trust isn't built by not making mistakes. It's built by what you do after.
